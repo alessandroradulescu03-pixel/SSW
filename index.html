@@ -1,0 +1,771 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SSW — Stay Sideways Motorsport</title>
+<meta name="description" content="SSW Stay Sideways Motorsport. Streetwear built for those who live sideways. Drift & wheelies culture. Drop 01 out now.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a0a0a; --bg2:#111; --fg:#f2f2f2; --mut:#8a8a8a; --line:#232323;
+  --display:'Anton',Impact,sans-serif; --mono:'Space Mono',ui-monospace,monospace;
+  --ease:cubic-bezier(.2,.8,.2,1);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--fg);font-family:var(--mono);overflow-x:hidden;-webkit-font-smoothing:antialiased}
+body.loading{overflow:hidden;height:100svh}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit}
+.wrap{max-width:1100px;margin:0 auto;padding:0 20px}
+
+/* ============ LOADER ============ */
+#loader{position:fixed;inset:0;z-index:999;background:#333;transition:opacity .9s ease, filter .9s ease;cursor:pointer}
+#loader canvas{display:block;width:100%;height:100%}
+#loader.out{opacity:0;filter:blur(8px);pointer-events:none}
+#loader .skip{position:absolute;bottom:18px;left:0;right:0;text-align:center;font-size:10px;letter-spacing:3px;color:rgba(255,255,255,.45);text-transform:uppercase;pointer-events:none}
+
+/* ============ NAV ============ */
+nav{position:fixed;top:0;left:0;right:0;z-index:50;background:rgba(10,10,10,.75);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+nav .wrap{display:flex;align-items:center;justify-content:space-between;height:62px}
+.logo{font-family:var(--display);font-size:30px;letter-spacing:1px;display:inline-block;transform:skewX(-14deg);color:var(--bg);-webkit-text-stroke:1.5px var(--fg);text-shadow:3px 0 0 var(--fg)}
+nav ul{display:flex;align-items:center;gap:22px;list-style:none;font-size:12px;text-transform:uppercase;letter-spacing:2px}
+nav ul a{color:var(--mut);transition:color .2s}
+nav ul a:hover{color:var(--fg)}
+.cart{display:inline-flex;align-items:center;gap:8px;border:1.5px solid var(--fg);padding:7px 12px;color:var(--fg)!important}
+.cart b{display:inline-grid;place-items:center;min-width:20px;height:20px;background:var(--fg);color:var(--bg);font-size:11px}
+.cart.bump{animation:bump .45s var(--ease)}
+@keyframes bump{40%{transform:scale(1.18) rotate(-4deg)}}
+@media(max-width:640px){nav ul li.hide-m{display:none}}
+
+/* ============ HERO ============ */
+.hero{min-height:100svh;display:flex;flex-direction:column;justify-content:center;position:relative;padding-top:62px;overflow:hidden}
+#heroMarks{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;opacity:.07}
+.hero .wrap{position:relative;width:100%}
+.tag{display:inline-flex;align-items:center;gap:10px;font-size:12px;letter-spacing:4px;text-transform:uppercase;color:var(--mut);margin-bottom:18px}
+.tag .live{width:9px;height:9px;border-radius:50%;background:#fff;box-shadow:0 0 0 0 rgba(255,255,255,.7);animation:live 1.6s infinite}
+@keyframes live{70%{box-shadow:0 0 0 10px rgba(255,255,255,0)}100%{box-shadow:0 0 0 0 rgba(255,255,255,0)}}
+.tag b{color:var(--fg)}
+h1{font-family:var(--display);font-weight:400;line-height:.86;text-transform:uppercase;font-size:clamp(64px,15vw,190px);transform:skewX(-10deg);transform-origin:left}
+h1 span{display:block;opacity:0;transform:translateX(-120px);filter:blur(10px)}
+h1 .out{color:transparent;-webkit-text-stroke:2px var(--fg)}
+body.ready h1 span{animation:slide .9s var(--ease) forwards}
+body.ready h1 span:nth-child(2){animation-delay:.12s}
+body.ready h1 span:nth-child(3){animation-delay:.24s}
+@keyframes slide{to{opacity:1;transform:none;filter:none}}
+.fade{opacity:0;transform:translateY(16px);transition:all .8s var(--ease) .45s}
+body.ready .fade{opacity:1;transform:none}
+.sub{margin-top:26px;max-width:470px;color:#bdbdbd;font-size:15px;line-height:1.6}
+.ctas{display:flex;gap:12px;flex-wrap:wrap;margin-top:32px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;padding:15px 24px;font-family:var(--mono);font-weight:700;font-size:13px;letter-spacing:2px;text-transform:uppercase;border:2px solid var(--fg);cursor:pointer;transition:transform .2s,box-shadow .2s,background .2s;background:none;color:var(--fg)}
+.btn.solid{background:var(--fg);color:var(--bg)}
+.btn:hover{transform:translate(-3px,-3px);box-shadow:4px 4px 0 var(--fg)}
+.btn.solid:hover{box-shadow:4px 4px 0 #555}
+.scroll-hint{position:absolute;bottom:26px;left:50%;transform:translateX(-50%);font-size:10px;letter-spacing:3px;color:var(--mut);text-transform:uppercase}
+
+/* ============ MARQUEE ============ */
+.marquee{overflow:hidden;white-space:nowrap;padding:16px 0;background:var(--fg);color:var(--bg)}
+.marquee div{display:inline-block;animation:scroll 22s linear infinite;font-family:var(--display);font-size:26px;letter-spacing:2px;text-transform:uppercase}
+@keyframes scroll{to{transform:translateX(-50%)}}
+
+section{padding:100px 0}
+.label{font-size:11px;letter-spacing:4px;color:var(--mut);text-transform:uppercase;margin-bottom:14px}
+h2{font-family:var(--display);font-weight:400;font-size:clamp(46px,9vw,92px);line-height:.92;text-transform:uppercase;transform:skewX(-8deg);transform-origin:left}
+h2 .out{color:transparent;-webkit-text-stroke:2px var(--fg)}
+
+/* ============ DROP ============ */
+.drop{background:var(--bg2);border-top:1px solid var(--line);border-bottom:1px solid var(--line);position:relative;overflow:hidden}
+.drop-grid{display:grid;grid-template-columns:1.1fr 1fr;gap:50px;align-items:end}
+@media(max-width:800px){.drop-grid{grid-template-columns:1fr;gap:34px}}
+.drop p.lead{color:#bdbdbd;line-height:1.7;margin-top:20px;font-size:14px;max-width:480px}
+.counter-box{position:relative}
+.counter{font-family:var(--display);font-size:clamp(80px,16vw,150px);line-height:1;font-variant-numeric:tabular-nums}
+.counter small{font-size:.3em;color:var(--mut)}
+.track{position:relative;margin-top:38px}
+.bar{height:14px;border:2px solid var(--fg);position:relative;overflow:hidden}
+.bar span{position:absolute;inset:0 auto 0 0;width:0;background:repeating-linear-gradient(-45deg,#fff 0 8px,#bbb 8px 16px)}
+.bar-car{position:absolute;bottom:4px;left:-62px;width:62px;filter:drop-shadow(0 4px 4px rgba(0,0,0,.6));transform:rotate(-6deg)}
+.puff{position:absolute;width:16px;height:16px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.75),rgba(255,255,255,0) 70%);pointer-events:none;animation:puff 1.1s ease-out forwards}
+@keyframes puff{to{transform:translate(var(--dx),var(--dy)) scale(var(--s));opacity:0}}
+.bar-meta{display:flex;justify-content:space-between;font-size:11px;letter-spacing:2px;color:var(--mut);margin-top:10px;text-transform:uppercase}
+.stamp{position:absolute;right:0;top:-6px;font-family:var(--display);font-size:clamp(26px,4.5vw,40px);letter-spacing:2px;border:3px solid #fff;padding:4px 14px;transform:rotate(-8deg) scale(3);opacity:0;pointer-events:none;background:var(--bg2)}
+.unlocked .stamp{animation:stamp .5s cubic-bezier(.3,1.6,.5,1) forwards}
+@keyframes stamp{to{opacity:1;transform:rotate(-8deg) scale(1)}}
+@media(max-width:800px){.stamp{position:relative;display:inline-block;top:0;margin:0 0 18px 4px}}
+.unlocked .counter-box{animation:shake .4s .1s}
+@keyframes shake{20%{transform:translate(-6px,2px)}40%{transform:translate(5px,-3px)}60%{transform:translate(-4px,1px)}80%{transform:translate(2px,-1px)}}
+
+/* ============ COLLECTION ============ */
+.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:56px}
+@media(max-width:900px){.cards{grid-template-columns:repeat(2,1fr);gap:10px}}
+.card{border:1px solid var(--line);background:#0e0e0e;position:relative;overflow:hidden;transition:border-color .25s,transform .35s var(--ease)}
+.card:hover{border-color:#fff;transform:skewX(-2deg) translateY(-4px)}
+.card .img{aspect-ratio:4/5;display:grid;place-items:center;position:relative;background:radial-gradient(circle at 50% 40%,#232323,#0b0b0b 70%)}
+.card svg{width:64%;filter:blur(6px);opacity:.6;transition:filter .8s,opacity .8s,transform .8s var(--ease)}
+.unlocked .card svg{filter:none;opacity:1}
+.card:hover svg{transform:scale(1.06) rotate(-3deg)}
+.badge{position:absolute;top:12px;left:12px;font-size:10px;letter-spacing:2px;border:1px solid #fff;padding:4px 8px;text-transform:uppercase;background:var(--bg)}
+.badge .on{display:none}
+.unlocked .badge{background:#fff;color:#000}
+.unlocked .badge .off{display:none}
+.unlocked .badge .on{display:inline}
+.card .info{padding:14px 14px 4px;display:flex;justify-content:space-between;gap:8px;font-size:12px;letter-spacing:1px;text-transform:uppercase}
+.price{color:var(--mut);transition:color .4s}
+.unlocked .price{color:var(--fg)}
+.add{display:block;width:calc(100% - 28px);margin:10px 14px 14px;padding:11px;border:1.5px solid var(--line);background:none;font-size:11px;letter-spacing:2px;text-transform:uppercase;cursor:not-allowed;color:var(--mut);transition:all .25s}
+.unlocked .add{cursor:pointer;border-color:#fff;color:#fff}
+.unlocked .add:hover{background:#fff;color:#000}
+.add.done{background:#fff!important;color:#000!important}
+
+/* ============ MANIFESTO ============ */
+.manifesto .big{font-family:var(--display);font-size:clamp(30px,5.5vw,56px);line-height:1.08;text-transform:uppercase;margin-top:24px;max-width:900px}
+.manifesto .big em{font-style:normal;color:transparent;-webkit-text-stroke:1.5px var(--fg)}
+.cols{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:60px}
+@media(max-width:800px){.cols{grid-template-columns:1fr}}
+.col{border-top:2px solid var(--fg);padding-top:16px}
+.col h3{font-family:var(--display);font-weight:400;font-size:26px;text-transform:uppercase;letter-spacing:1px}
+.col p{color:#a8a8a8;font-size:13px;line-height:1.7;margin-top:8px}
+
+/* ============ CULTURE ============ */
+.culture-grid{display:grid;grid-template-columns:2fr 1fr;gap:14px;margin-top:44px}
+@media(max-width:800px){.culture-grid{grid-template-columns:1fr}}
+.tile{position:relative;min-height:300px;border:1px solid var(--line);overflow:hidden;display:flex;align-items:flex-end;padding:22px}
+.tile.elba{background:linear-gradient(180deg,rgba(0,0,0,0) 30%,rgba(0,0,0,.85)),linear-gradient(160deg,#6d8fa8 0%,#9bb3a1 35%,#5f6e4e 60%,#333 100%)}
+.tile.elba::before{content:"";position:absolute;left:-10%;right:-10%;bottom:20%;height:120px;border-top:6px solid rgba(255,255,255,.85);border-radius:50% 50% 0 0;transform:rotate(-6deg)}
+.tile.night{background:repeating-linear-gradient(90deg,#0d0d0d 0 40px,#121212 40px 80px)}
+.tile h3{font-family:var(--display);font-weight:400;font-size:34px;text-transform:uppercase;position:relative}
+.tile p{font-size:12px;color:#ccc;letter-spacing:1px;margin-top:4px;position:relative}
+
+/* ============ NOTIFY ============ */
+.notify{text-align:center;border-top:1px solid var(--line)}
+.notify h2{transform-origin:center}
+.notify p{color:#bdbdbd;margin:18px auto 0;max-width:440px;line-height:1.6;font-size:14px}
+form{max-width:480px;margin:34px auto 0;text-align:left}
+form .row{display:flex;border:2px solid var(--fg)}
+.consent{display:flex;gap:12px;align-items:flex-start;margin-top:16px;font-size:12px;line-height:1.6;color:#a8a8a8;cursor:pointer}
+.consent input{appearance:none;-webkit-appearance:none;flex:0 0 20px;width:20px;height:20px;padding:0;border:2px solid var(--fg);margin-top:1px;cursor:pointer;display:grid;place-items:center}
+.consent input:checked{background:var(--fg)}
+.consent input:checked::after{content:"✓";color:var(--bg);font-size:13px;font-weight:700}
+.consent input:focus-visible{outline:2px solid #fff;outline-offset:3px}
+.consent a,.pv a{color:var(--fg);text-decoration:underline;text-underline-offset:3px}
+.consent.err{color:#fff;animation:shake .4s}
+.consent.err input{border-color:#fff;box-shadow:0 0 0 3px rgba(255,255,255,.25)}
+
+/* ============ PRIVACY ============ */
+.pv{display:none;position:fixed;inset:0;z-index:200;background:var(--bg);overflow-y:auto;-webkit-overflow-scrolling:touch}
+.pv:target,.pv.open{display:block}
+.pv .wrap{max-width:760px;padding-top:30px;padding-bottom:80px}
+.pv-top{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line);padding-bottom:18px;margin-bottom:40px;position:sticky;top:0;background:var(--bg);padding-top:10px;z-index:2}
+.pv h2{font-size:clamp(40px,8vw,68px)}
+.pv h3{font-family:var(--display);font-weight:400;font-size:24px;text-transform:uppercase;letter-spacing:1px;margin:38px 0 10px}
+.pv p,.pv li{font-size:13px;line-height:1.8;color:#bdbdbd}
+.pv ul{padding-left:18px;margin-top:6px}
+.pv .note{border:1px dashed #555;padding:14px;margin-top:26px;font-size:12px;color:#999}
+.pv .upd{font-size:11px;letter-spacing:2px;color:var(--mut);text-transform:uppercase;margin-top:16px}
+.ph{background:#222;color:#fff;padding:0 4px}
+input{flex:1;min-width:0;background:none;border:0;color:var(--fg);font-family:var(--mono);font-size:14px;padding:16px;outline:none}
+form .btn{border:0;border-left:2px solid var(--fg)}
+form .btn:hover{transform:none;box-shadow:none;background:#ccc}
+.ok{margin-top:18px;font-size:13px;letter-spacing:2px;text-transform:uppercase;opacity:0;transition:opacity .4s}
+.ok.show{opacity:1}
+
+footer{border-top:1px solid var(--line);padding:40px 0;font-size:12px;color:var(--mut)}
+footer .wrap{display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap}
+footer a:hover{color:var(--fg)}
+footer .links{display:flex;gap:18px}
+
+.reveal{opacity:0;transform:translateY(30px);transition:opacity .8s var(--ease),transform .8s var(--ease)}
+.reveal.in{opacity:1;transform:none}
+</style>
+</head>
+<body class="loading">
+
+<!-- LOADER: due auto in drift con fumo e segni di gomme -->
+<div id="loader" aria-label="Caricamento">
+  <canvas id="lcv"></canvas>
+  <div class="skip">Tocca per saltare</div>
+</div>
+
+<nav>
+  <div class="wrap">
+    <a href="#top" class="logo">SSW</a>
+    <ul>
+      <li class="hide-m"><a href="#drop">Drop 01</a></li>
+      <li class="hide-m"><a href="#manifesto">Manifesto</a></li>
+      <li class="hide-m"><a href="#culture">Culture</a></li>
+      <li><a href="#drop" class="cart" id="cart">Carrello <b id="cartN">0</b></a></li>
+    </ul>
+  </div>
+</nav>
+
+<header class="hero" id="top">
+  <canvas id="heroMarks"></canvas>
+  <div class="wrap">
+    <div class="tag fade"><span class="live"></span><b>Drop 01 · Out now</b> 🏁</div>
+    <h1><span>Stay</span><span class="out">Sideways.</span><span>Always.</span></h1>
+    <p class="sub fade">1000 di voi. Il primo drop è fuori. Streetwear built for those who live sideways: non è merch, è la nostra divisa.</p>
+    <div class="ctas fade">
+      <a href="#drop" class="btn solid">Shop Drop 01 →</a>
+      <a href="#manifesto" class="btn">La nostra storia</a>
+    </div>
+  </div>
+  <div class="scroll-hint fade">Scroll ↓</div>
+</header>
+
+<div class="marquee"><div>
+  Drop 01 out now ✦ Drift ✦ Wheelies ✦ Paddock ✦ Garage nights ✦ Gas aperto ✦ Senza fronzoli ✦&nbsp;
+  Drop 01 out now ✦ Drift ✦ Wheelies ✦ Paddock ✦ Garage nights ✦ Gas aperto ✦ Senza fronzoli ✦&nbsp;
+</div></div>
+
+<section class="drop" id="drop">
+  <div class="wrap drop-grid">
+    <div class="reveal">
+      <div class="label">// Drop 01</div>
+      <h2>1000.<br><span class="out">Grazie.</span></h2>
+      <p class="lead">Avevamo detto che il primo drop sarebbe uscito a 1000 follower. Ci siete arrivati. Drop 01 è online: pochi pezzi, puliti, aggressivi, autentici. Quando finiscono, finiscono.</p>
+    </div>
+    <div class="counter-box reveal">
+      <div class="stamp">UNLOCKED</div>
+      <div class="counter"><span id="count">0</span><small> / 1000</small></div>
+      <div class="track" id="track">
+        <img src="assets/car_white.png" alt="" class="bar-car" id="barCar">
+        <div class="bar"><span id="fill"></span></div>
+      </div>
+      <div class="bar-meta"><span>Community</span><span id="pct">0%</span></div>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <div class="cards">
+      <div class="card reveal">
+        <div class="img"><span class="badge"><span class="off">🔒 Locked</span><span class="on">✓ Disponibile</span></span>
+          <svg viewBox="0 0 100 100"><path fill="#f2f2f2" d="M30 15 L42 10 Q50 18 58 10 L70 15 L88 30 L78 42 L70 37 L70 90 L30 90 L30 37 L22 42 L12 30 Z"/><text x="50" y="46" text-anchor="middle" font-family="Anton,Impact" font-size="13" fill="#0a0a0a" transform="skewX(-14) translate(11 0)">SSW</text></svg></div>
+        <div class="info"><span>Tee Classic</span><span class="price">€ 35</span></div>
+        <button class="add" data-n="Tee">Aggiungi +</button>
+      </div>
+      <div class="card reveal">
+        <div class="img"><span class="badge"><span class="off">🔒 Locked</span><span class="on">✓ Disponibile</span></span>
+          <svg viewBox="0 0 100 100"><path fill="#f2f2f2" d="M32 14 Q50 4 68 14 L86 30 L90 80 L78 80 L74 44 L72 92 L28 92 L26 44 L22 80 L10 80 L14 30 Z"/><path d="M40 14 Q50 30 60 14" stroke="#0a0a0a" stroke-width="2" fill="none"/><text x="50" y="55" text-anchor="middle" font-family="Anton,Impact" font-size="14" fill="#0a0a0a" transform="skewX(-14) translate(13 0)">SSW</text></svg></div>
+        <div class="info"><span>Hoodie</span><span class="price">€ 65</span></div>
+        <button class="add" data-n="Hoodie">Aggiungi +</button>
+      </div>
+      <div class="card reveal">
+        <div class="img"><span class="badge"><span class="off">🔒 Locked</span><span class="on">✓ Disponibile</span></span>
+          <svg viewBox="0 0 100 100"><path fill="#f2f2f2" d="M20 62 Q20 28 50 28 Q80 28 80 62 L96 66 Q96 72 80 72 L20 72 Z"/><text x="50" y="56" text-anchor="middle" font-family="Anton,Impact" font-size="13" fill="#0a0a0a" transform="skewX(-14) translate(14 0)">SSW</text></svg></div>
+        <div class="info"><span>Cap</span><span class="price">€ 30</span></div>
+        <button class="add" data-n="Cap">Aggiungi +</button>
+      </div>
+      <div class="card reveal">
+        <div class="img"><span class="badge"><span class="off">🔒 Locked</span><span class="on">✓ Disponibile</span></span>
+          <svg viewBox="0 0 100 100"><rect x="18" y="30" width="64" height="40" rx="6" fill="#f2f2f2" transform="rotate(-8 50 50)"/><text x="50" y="60" text-anchor="middle" font-family="Anton,Impact" font-size="26" fill="#0a0a0a" transform="rotate(-8 50 50) skewX(-14) translate(15 0)">SSW</text></svg></div>
+        <div class="info"><span>Sticker pack</span><span class="price">€ 8</span></div>
+        <button class="add" data-n="Sticker">Aggiungi +</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="manifesto" id="manifesto">
+  <div class="wrap">
+    <div class="label reveal">// Come è nato SSW</div>
+    <p class="big reveal">Un piazzale, due amici e un'auto che <em>non voleva saperne</em> di andare dritta.</p>
+    <div class="cols">
+      <div class="col reveal"><h3>Passione</h3><p>Il drift non è solo uno sport. È uno stile di vita: tenere il gas aperto quando tutti frenerebbero.</p></div>
+      <div class="col reveal"><h3>Identità</h3><p>Non trovavamo un abbigliamento che ci rappresentasse davvero. Così l'abbiamo creato noi.</p></div>
+      <div class="col reveal"><h3>Divisa</h3><p>Per chi vive nel paddock, per chi passa le notti in garage, per chi sceglie di stare di traverso. Sempre.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="culture" style="padding-top:0">
+  <div class="wrap">
+    <div class="label reveal">// Culture</div>
+    <h2 class="reveal">On the road.</h2>
+    <div class="culture-grid">
+      <div class="tile elba reveal"><div><h3>Isola d'Elba</h3><p>Curve, mare e asfalto. Il primo capitolo SSW.</p></div></div>
+      <div class="tile night reveal"><div><h3>Garage nights</h3><p>Dove nasce tutto.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<section class="notify" id="notify">
+  <div class="wrap">
+    <div class="label">// Drop 02</div>
+    <h2>Il prossimo è<br>già in garage.</h2>
+    <p>Lascia la tua email: ti avvisiamo prima di tutti quando esce Drop 02.</p>
+    <form id="f" novalidate>
+      <div class="row">
+        <input type="email" id="email" placeholder="la-tua@email.it" required aria-label="Email">
+        <button class="btn solid" type="submit">Avvisami</button>
+      </div>
+      <label class="consent" id="consentBox">
+        <input type="checkbox" id="consent" required>
+        <span>Ho letto la <a href="#privacy">privacy policy</a> e acconsento a ricevere email da SSW sui nuovi drop. Puoi disiscriverti quando vuoi.</span>
+      </label>
+    </form>
+    <div class="ok" id="ok">✓ Sei nel crew. Stay sideways.</div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <span class="logo" style="font-size:22px">SSW</span>
+    <span>© 2026 Stay Sideways Motorsport · Owner <a href="https://instagram.com/oneway_dale" target="_blank" rel="noopener">@oneway_dale</a></span>
+    <span class="links"><a href="#privacy">Privacy</a><a href="https://instagram.com/stay_sideways.it" target="_blank" rel="noopener">Instagram ↗</a></span>
+  </div>
+</footer>
+
+<!-- ============ PRIVACY POLICY ============ -->
+<div class="pv" id="privacy" role="dialog" aria-label="Privacy policy">
+  <div class="wrap">
+    <div class="pv-top">
+      <span class="logo" style="font-size:24px">SSW</span>
+      <a href="#notify" class="btn" id="pvClose" style="padding:10px 16px">Chiudi ✕</a>
+    </div>
+    <div class="label">// Informativa ai sensi del Regolamento UE 2016/679 (GDPR)</div>
+    <h2>Privacy<br><span class="out">Policy.</span></h2>
+    <p class="upd">Ultimo aggiornamento: <span class="ph">[data]</span></p>
+
+    <h3>1. Titolare del trattamento</h3>
+    <p>Il titolare del trattamento dei dati è <span class="ph">[Nome e cognome / ragione sociale]</span>, <span class="ph">[indirizzo]</span>, <span class="ph">[P.IVA o codice fiscale]</span>, che gestisce il marchio SSW – Stay Sideways Motorsport. Per qualsiasi richiesta sulla privacy puoi scrivere a <span class="ph">[email]</span>.</p>
+
+    <h3>2. Quali dati raccogliamo</h3>
+    <ul>
+      <li><b>Indirizzo email</b>, che inserisci tu nel modulo di iscrizione alla newsletter.</li>
+      <li><b>Dati tecnici di navigazione</b> (ad esempio indirizzo IP e tipo di browser), trattati in automatico dai servizi che fanno funzionare il sito.</li>
+    </ul>
+    <p>Non raccogliamo dati di pagamento: gli eventuali acquisti avvengono tramite <span class="ph">[Instagram / WhatsApp / piattaforma di vendita]</span>.</p>
+
+    <h3>3. Perché li usiamo</h3>
+    <ul>
+      <li>Avvisarti dell'uscita dei nuovi drop e inviarti comunicazioni su SSW (newsletter).</li>
+      <li>Far funzionare il sito e mantenerlo sicuro.</li>
+    </ul>
+
+    <h3>4. Base giuridica</h3>
+    <p>Per la newsletter la base è il tuo <b>consenso</b> (art. 6.1.a GDPR), che dai spuntando la casella nel modulo e confermando l'email che ti inviamo. Per i dati tecnici la base è il <b>legittimo interesse</b> a far funzionare il sito (art. 6.1.f GDPR).</p>
+
+    <h3>5. Con chi li condividiamo</h3>
+    <p>I dati non vengono venduti né ceduti. Sono trattati per nostro conto da fornitori nominati responsabili del trattamento:</p>
+    <ul>
+      <li><b><span class="ph">[Brevo]</span></b>: invio della newsletter e gestione della lista contatti.</li>
+      <li><b>GitHub Pages</b>: hosting del sito.</li>
+      <li><b>Google Fonts</b>: caratteri tipografici del sito.</li>
+    </ul>
+    <p>Alcuni di questi fornitori possono trattare dati fuori dall'Unione Europea, con le garanzie previste dal GDPR (ad esempio clausole contrattuali standard).</p>
+
+    <h3>6. Per quanto tempo</h3>
+    <p>Teniamo la tua email finché resti iscritto. Quando ti disiscrivi viene cancellata, salvo eventuali obblighi di legge.</p>
+
+    <h3>7. I tuoi diritti</h3>
+    <p>In qualsiasi momento puoi chiedere di accedere ai tuoi dati, correggerli o cancellarli, limitarne l'uso, opporti al trattamento, riceverli in un formato leggibile (artt. 15–22 GDPR) e ritirare il consenso. Per disiscriverti basta il link presente in fondo a ogni email, oppure scrivere a <span class="ph">[email]</span>. Se ritieni che i tuoi dati siano trattati in modo scorretto puoi presentare reclamo al <a href="https://www.garanteprivacy.it" target="_blank" rel="noopener">Garante per la protezione dei dati personali</a>.</p>
+
+    <h3>8. Cookie</h3>
+    <p>Il sito non usa cookie di profilazione né strumenti di tracciamento pubblicitario. Eventuali cookie tecnici sono necessari al funzionamento e non richiedono consenso.</p>
+
+    <h3>9. Modifiche</h3>
+    <p>Questa informativa può essere aggiornata. La data in alto indica l'ultima versione.</p>
+
+    <p class="note">Bozza da completare con i dati del titolare e da far verificare prima della pubblicazione.</p>
+  </div>
+</div>
+
+<script>
+/* =========================================================
+   LOADER — due auto in drift: una sopra (otto), una sotto
+   (donuts che attraversano lo schermo). Fumo + segni gomme.
+   ========================================================= */
+(function () {
+  const loader = document.getElementById('loader');
+  const cv = document.getElementById('lcv');
+  const ctx = cv.getContext('2d');
+  const MIN = 5.2;                 // durata minima del loader (secondi)
+  const segs = [];                 // segni gomme, riusati nella hero
+  let W, H, dpr, marks, mctx, fmarks, fctx, asphalt, len;
+  let pageLoaded = false, finished = false;
+
+  addEventListener('load', () => pageLoaded = true);
+  setTimeout(() => pageLoaded = true, 9000); // sicurezza
+
+  function makeAsphalt() {
+    asphalt = document.createElement('canvas');
+    asphalt.width = W * dpr; asphalt.height = H * dpr;
+    const a = asphalt.getContext('2d');
+    a.scale(dpr, dpr);
+    const g = a.createRadialGradient(W / 2, H / 2, 0, W / 2, H / 2, Math.max(W, H) * .75);
+    g.addColorStop(0, '#4a4a4a'); g.addColorStop(1, '#262626');
+    a.fillStyle = g; a.fillRect(0, 0, W, H);
+    for (let i = 0; i < W * H / 60; i++) {           // grana dell'asfalto
+      const v = Math.random() * 255 | 0;
+      a.fillStyle = `rgba(${v},${v},${v},${Math.random() * .09})`;
+      a.fillRect(Math.random() * W, Math.random() * H, 1.4, 1.4);
+    }
+  }
+  function resize() {
+    dpr = Math.min(devicePixelRatio || 1, 2);
+    W = innerWidth; H = innerHeight;
+    cv.width = W * dpr; cv.height = H * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    marks = document.createElement('canvas');
+    marks.width = W * dpr; marks.height = H * dpr;
+    mctx = marks.getContext('2d'); mctx.scale(dpr, dpr);
+    mctx.lineCap = 'round'; mctx.strokeStyle = '#070707';
+    fmarks = document.createElement('canvas');
+    fmarks.width = W * dpr; fmarks.height = H * dpr;
+    fctx = fmarks.getContext('2d'); fctx.scale(dpr, dpr);
+    fctx.lineCap = 'round'; fctx.strokeStyle = '#070707';
+    len = Math.max(105, Math.min(Math.min(W, H / 2) * .44, 230));
+    makeAsphalt();
+    segs.length = 0;
+    cars.forEach(c => { c.prev = null; if (c.img && c.img.naturalWidth) bake(c); });
+  }
+
+  // sprite del fumo (pre-renderizzato, leggero)
+  const puff = document.createElement('canvas');
+  puff.width = puff.height = 128;
+  (() => {
+    const p = puff.getContext('2d');
+    const g = p.createRadialGradient(64, 64, 0, 64, 64, 64);
+    g.addColorStop(0, 'rgba(235,235,235,1)');
+    g.addColorStop(.45, 'rgba(220,220,220,.55)');
+    g.addColorStop(1, 'rgba(210,210,210,0)');
+    p.fillStyle = g; p.fillRect(0, 0, 128, 128);
+  })();
+
+  // ---- percorsi (curve continue, nessun salto) ----
+  const top = s => {           // otto (lemniscata) nella metà alta
+    const om = 2 * Math.PI / 4.2;
+    const A = W / 2 - len * .55, B = Math.min(H * .15, W * .3) * .9, cy = H * .26;
+    const lem = w => [W / 2 + A * Math.sin(w), cy + B * Math.sin(2 * w)];
+    // entra da destra in rettilineo, frena e si butta di traverso
+    // nella parte alta dell'otto (stessa velocità nel punto d'aggancio)
+    const w0 = Math.PI * .75, p0 = lem(w0), v0 = A * Math.cos(w0) * om;   // v0 < 0: va a sinistra
+    const D = W + len * .7 - p0[0];
+    const Tin = Math.min(.9, D / -v0);
+    const k = Math.max(0, (D + v0 * Tin) / (Tin * Tin));
+    const t = s - Tin;
+    if (t < 0) return [p0[0] + v0 * t + k * t * t, p0[1]];
+    return lem(w0 + om * t);
+  };
+  const CROSS = 6.2;            // secondi per attraversare lo schermo
+  const bottom = s => {        // donuts: sbuca da sinistra già in derapata e attraversa
+    const u = ((s % CROSS) + CROSS) % CROSS, w = 2 * Math.PI / 1.6;
+    const R = Math.min(H * .13, W * .17);
+    return [-len * 1.1 + (W + len * 2.2) * (u / CROSS) + R * Math.cos(w * s),
+            H * .74 + R * Math.sin(w * s)];
+  };
+
+  const cars = [
+    { src: 'assets/car_red.png', path: top, slip: .8 },
+    { src: 'assets/car_white.png', path: bottom, slip: .9 }
+  ];
+
+  // ogni auto viene pre-renderizzata con la sua ombra una volta sola
+  // (l'ombra sfocata calcolata a ogni frame è la cosa più pesante sul telefono)
+  function bake(c) {
+    const pad = 30, sc = Math.min(devicePixelRatio || 1, 2);
+    c.w = len * (c.img.naturalHeight / c.img.naturalWidth);
+    const o = document.createElement('canvas');
+    o.width = (len + pad * 2) * sc; o.height = (c.w + pad * 2) * sc;
+    const x = o.getContext('2d'); x.scale(sc, sc);
+    x.shadowColor = 'rgba(0,0,0,.6)'; x.shadowBlur = 20;
+    x.drawImage(c.img, pad, pad, len, c.w);
+    c.baked = o; c.pad = pad;
+  }
+  cars.forEach(c => {
+    c.img = new Image();
+    c.img.onload = () => bake(c);
+    c.img.src = c.src;
+  });
+
+  const parts = [];
+  const MAXP = 520;
+  function emit(x, y, vx, vy, r, life, a) {
+    if (parts.length >= MAXP) parts.shift();
+    parts.push({ x, y, vx, vy, r, g: r * (1.8 + Math.random()), life, t: 0, a });
+  }
+
+  const wrapA = a => Math.atan2(Math.sin(a), Math.cos(a));
+
+  // stato dell'auto al tempo s: posizione, velocità, angolo di derapata
+  function kin(c, s) {
+    const e = .01;
+    const p = c.path(s), p1 = c.path(s - e), p2 = c.path(s + e);
+    const vx = (p2[0] - p1[0]) / (2 * e), vy = (p2[1] - p1[1]) / (2 * e);
+    const ax = (p2[0] - 2 * p[0] + p1[0]) / (e * e), ay = (p2[1] - 2 * p[1] + p1[1]) / (e * e);
+    const sp = Math.hypot(vx, vy) || 1;
+    const k = (vx * ay - vy * ax) / (sp * sp * sp);      // curvatura con segno
+    // la derapata cresce in modo morbido con la curva (niente scatti nei cambi di direzione)
+    const slip = c.slip * Math.tanh(k * len * 2.2) * Math.min(1, sp / 120);
+    return { x: p[0], y: p[1], vx, vy, sp, target: Math.atan2(vy, vx) + slip };
+  }
+
+  function wheelsAt(c, x, y, a) {
+    const cos = Math.cos(a), sin = Math.sin(a);
+    const ox = -sin * c.w * .4, oy = cos * c.w * .4;
+    const bx = x - cos * len * .3, by = y - sin * len * .3;
+    const fx = x + cos * len * .3, fy = y + sin * len * .3;
+    return { r: [[bx + ox, by + oy], [bx - ox, by - oy]], f: [[fx + ox, fy + oy], [fx - ox, fy - oy]] };
+  }
+
+  function updateCar(c, s, dt) {
+    if (!c.baked) return;
+    const lw = c.w * .17;
+    // 3 sotto-passi per frame: curve dei segni più lisce anche se il telefono rallenta
+    const N = 3;
+    for (let i = 1; i <= N; i++) {
+      const si = s - dt + dt * i / N + (c.delay || 0), h = dt / N;
+      const q = kin(c, si);
+      if (c.ang == null) { c.ang = q.target; c.av = 0; }
+      // molla smorzata sull'angolo: il posteriore "segue" con inerzia, come un'auto vera
+      const diff = wrapA(q.target - c.ang);
+      c.av += (diff * 90 - c.av * 17) * h;
+      c.ang += c.av * h;
+      c.x = q.x; c.y = q.y; c.vx = q.vx; c.vy = q.vy; c.sp = q.sp;
+
+      const wh = wheelsAt(c, c.x, c.y, c.ang);
+      // se ricomincia da sinistra non tracciare una riga attraverso lo schermo
+      if (c.prev && Math.hypot(c.prev.r[0][0] - wh.r[0][0], c.prev.r[0][1] - wh.r[0][1]) > len) c.prev = null;
+      if (c.prev) {
+        mctx.lineWidth = lw; fctx.lineWidth = lw * .8;
+        mctx.beginPath();
+        wh.r.forEach((wp, j) => { mctx.moveTo(c.prev.r[j][0], c.prev.r[j][1]); mctx.lineTo(wp[0], wp[1]);
+          segs.push([c.prev.r[j][0], c.prev.r[j][1], wp[0], wp[1], lw]); });
+        mctx.stroke();
+        fctx.beginPath();
+        wh.f.forEach((fp, j) => { fctx.moveTo(c.prev.f[j][0], c.prev.f[j][1]); fctx.lineTo(fp[0], fp[1]); });
+        fctx.stroke();
+      }
+      c.prev = wh;
+    }
+
+    // fumo dalle ruote posteriori, a ritmo costante (non dipende dagli fps)
+    c.acc = (c.acc || 0) + dt * Math.min(46, 18 + c.sp / 18);
+    while (c.acc >= 1) {
+      c.acc -= 1;
+      c.prev.r.forEach(wp => emit(
+        wp[0] + (Math.random() - .5) * 8, wp[1] + (Math.random() - .5) * 8,
+        -c.vx * .1 + (Math.random() - .5) * 50, -c.vy * .1 + (Math.random() - .5) * 50 - 14,
+        c.w * (.2 + Math.random() * .18), 1.6 + Math.random() * 1.4, .3));
+    }
+  }
+
+  function drawCar(c) {
+    if (!c.baked || c.x == null) return;
+    ctx.save();
+    ctx.translate(c.x, c.y); ctx.rotate(c.ang);
+    ctx.drawImage(c.baked, -len / 2 - c.pad, -c.w / 2 - c.pad, len + c.pad * 2, c.w + c.pad * 2);
+    ctx.restore();
+  }
+
+  function drawUI(prog) {
+    const fs = Math.min(W * .24, 170);
+    ctx.save();
+    ctx.translate(W / 2, H / 2);
+    ctx.transform(1, 0, -.22, 1, 0, 0);
+    ctx.font = `${fs}px Anton, Impact, sans-serif`;
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.lineWidth = 3; ctx.strokeStyle = 'rgba(255,255,255,.9)';
+    ctx.fillStyle = 'rgba(20,20,20,.55)';
+    ctx.fillText('SSW', 0, -fs * .08);
+    ctx.strokeText('SSW', 0, -fs * .08);
+    // riempimento bianco che sale con la percentuale
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(-fs * 2, fs * .42 - fs * .9 * prog, fs * 4, fs);
+    ctx.clip();
+    ctx.fillStyle = '#fff';
+    ctx.fillText('SSW', 0, -fs * .08);
+    ctx.restore();
+    ctx.restore();
+
+    ctx.font = '700 12px "Space Mono", monospace';
+    ctx.textAlign = 'center'; ctx.fillStyle = 'rgba(255,255,255,.85)';
+    ctx.fillText('STAY SIDEWAYS MOTORSPORT', W / 2, H / 2 + fs * .5 + 14);
+    ctx.font = '700 15px "Space Mono", monospace';
+    ctx.fillText(String(Math.floor(prog * 100)).padStart(2, '0') + '%', W / 2, H / 2 + fs * .5 + 40);
+  }
+
+  let t0 = null, last = 0, prog = 0, ending = false, skip = false;
+  loader.addEventListener('click', () => skip = true);
+
+  function frame(now) {
+    if (finished) return;
+    if (t0 == null) { t0 = now; last = now; }
+    const s = (now - t0) / 1000, dt = Math.min(.05, (now - last) / 1000 || .016);
+    last = now;
+    let target = Math.min(s / MIN, pageLoaded ? 1 : .93);
+    if (skip) target = 1;
+    prog += (target - prog) * Math.min(1, dt * (skip ? 10 : 3.5));
+    if (target >= 1 && prog > .993) prog = 1;
+
+    if (!ending) cars.forEach(c => updateCar(c, s, dt));
+
+    for (let i = parts.length - 1; i >= 0; i--) {
+      const p = parts[i];
+      p.t += dt;
+      if (p.t >= p.life) { parts.splice(i, 1); continue; }
+      p.x += p.vx * dt; p.y += p.vy * dt;
+      p.vx *= .985; p.vy *= .985;
+    }
+
+    ctx.globalAlpha = 1;
+    ctx.drawImage(asphalt, 0, 0, W, H);
+    ctx.globalAlpha = .2; ctx.drawImage(fmarks, 0, 0, W, H);
+    ctx.globalAlpha = .62; ctx.drawImage(marks, 0, 0, W, H);
+    ctx.globalAlpha = 1;
+    drawUI(prog);
+    if (!ending) cars.forEach(drawCar);
+    for (const p of parts) {
+      const k = p.t / p.life, r = p.r + p.g * k;
+      ctx.globalAlpha = p.a * (1 - k) * Math.min(1, k * 6);
+      ctx.drawImage(puff, p.x - r, p.y - r, r * 2, r * 2);
+    }
+    ctx.globalAlpha = 1;
+
+    if (prog >= 1 && !ending) {
+      ending = true;
+      // nuvola finale: le auto spariscono nel fumo
+      cars.forEach(c => { for (let i = 0; i < 40; i++)
+        emit(c.x + (Math.random() - .5) * len, c.y + (Math.random() - .5) * len * .6,
+          (Math.random() - .5) * 260, (Math.random() - .5) * 260, len * (.3 + Math.random() * .3), 1.6, .55); });
+      for (let i = 0; i < 90; i++)
+        emit(Math.random() * W, Math.random() * H, (Math.random() - .5) * 120, -20 - Math.random() * 40,
+          Math.max(W, H) * (.08 + Math.random() * .12), 1.8 + Math.random(), .5);
+      setTimeout(finish, 650);
+    }
+    requestAnimationFrame(frame);
+  }
+
+  function finish() {
+    loader.classList.add('out');
+    document.body.classList.remove('loading');
+    document.body.classList.add('ready');
+    paintHeroMarks();
+    setTimeout(() => { finished = true; loader.remove(); }, 950);
+  }
+
+  // i segni delle gomme restano "impressi" in trasparenza nella hero
+  function paintHeroMarks() {
+    const hc = document.getElementById('heroMarks');
+    const r = hc.getBoundingClientRect();
+    hc.width = r.width * dpr; hc.height = r.height * dpr;
+    const h = hc.getContext('2d');
+    h.scale(dpr, dpr); h.lineCap = 'round';
+    h.strokeStyle = '#fff';
+    const sx = r.width / W, sy = r.height / H;
+    for (const s of segs) {
+      h.lineWidth = s[4];
+      h.beginPath(); h.moveTo(s[0] * sx, s[1] * sy); h.lineTo(s[2] * sx, s[3] * sy); h.stroke();
+    }
+  }
+
+  resize();
+  addEventListener('resize', () => { if (!finished) resize(); });
+  const go = () => requestAnimationFrame(frame);
+  (document.fonts && document.fonts.load) ?
+    Promise.race([document.fonts.load('40px Anton'), new Promise(r => setTimeout(r, 1200))]).then(go) : go();
+})();
+
+/* ======== reveal on scroll ======== */
+const io = new IntersectionObserver(es => es.forEach(e => {
+  if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+}), { threshold: .15 });
+document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+/* ======== DROP: contatore fino a 1000 + auto sulla barra + UNLOCKED ======== */
+(function () {
+  const GOAL = 1000, FOLLOWERS = 1000;
+  const drop = document.getElementById('drop');
+  const count = document.getElementById('count'), fill = document.getElementById('fill');
+  const pct = document.getElementById('pct'), car = document.getElementById('barCar');
+  const track = document.getElementById('track');
+  let started = false;
+
+  function smoke(x, y, n, big) {
+    for (let i = 0; i < n; i++) {
+      const d = document.createElement('span');
+      d.className = 'puff';
+      d.style.left = (x - 8) + 'px'; d.style.top = (y - 8) + 'px';
+      d.style.setProperty('--dx', (big ? (Math.random() - .5) * 220 : -20 - Math.random() * 40) + 'px');
+      d.style.setProperty('--dy', (big ? (Math.random() - .5) * 160 : -10 - Math.random() * 30) + 'px');
+      d.style.setProperty('--s', big ? 4 + Math.random() * 4 : 2 + Math.random() * 2.5);
+      track.appendChild(d);
+      setTimeout(() => d.remove(), 1200);
+    }
+  }
+
+  function run() {
+    const T = 2600, t0 = performance.now();
+    let lastPuff = 0;
+    (function step(now) {
+      const k = Math.min(1, (now - t0) / T);
+      const e = 1 - Math.pow(1 - k, 3);
+      const n = Math.round(FOLLOWERS * e), p = n / GOAL;
+      count.textContent = n;
+      pct.textContent = Math.round(p * 100) + '%';
+      fill.style.width = p * 100 + '%';
+      const tw = track.clientWidth;
+      const x = p * tw;
+      car.style.left = (x - 62) + 'px';
+      if (now - lastPuff > 50 && k < 1) { lastPuff = now; smoke(x - 56, 8, 2); }
+      if (k < 1) requestAnimationFrame(step);
+      else {
+        drop.classList.add('unlocked');
+        smoke(tw - 30, 0, 26, true);
+        if (navigator.vibrate) navigator.vibrate([30, 40, 60]);
+      }
+    })(t0);
+  }
+
+  new IntersectionObserver((es, o) => {
+    if (es[0].isIntersecting && !started) { started = true; o.disconnect(); setTimeout(run, 250); }
+  }, { threshold: .35 }).observe(drop.querySelector('.counter-box'));
+
+  // carrello demo
+  let cart = 0;
+  const cartEl = document.getElementById('cart'), cartN = document.getElementById('cartN');
+  document.querySelectorAll('.add').forEach(b => b.addEventListener('click', () => {
+    if (!drop.classList.contains('unlocked')) return;
+    cart++; cartN.textContent = cart;
+    cartEl.classList.remove('bump'); void cartEl.offsetWidth; cartEl.classList.add('bump');
+    b.classList.add('done'); b.textContent = '✓ Aggiunto';
+    setTimeout(() => { b.classList.remove('done'); b.textContent = 'Aggiungi +'; }, 1300);
+  }));
+})();
+
+/* ======== form demo ======== */
+document.getElementById('f').addEventListener('submit', e => {
+  e.preventDefault();
+  const email = document.getElementById('email'), consent = document.getElementById('consent');
+  const box = document.getElementById('consentBox'), ok = document.getElementById('ok');
+  if (!email.checkValidity()) { email.focus(); email.reportValidity(); return; }
+  if (!consent.checked) {
+    box.classList.remove('err'); void box.offsetWidth; box.classList.add('err');
+    ok.textContent = 'Accetta la privacy per iscriverti'; ok.classList.add('show');
+    return;
+  }
+  box.classList.remove('err');
+  e.target.reset();
+  ok.textContent = '✓ Sei nel crew. Stay sideways.'; ok.classList.add('show');
+});
+document.getElementById('consent').addEventListener('change', () => document.getElementById('consentBox').classList.remove('err'));
+
+/* ======== privacy: apri/chiudi senza perdere la posizione ======== */
+(function () {
+  const pv = document.getElementById('privacy');
+  let y = 0;
+  document.querySelectorAll('a[href="#privacy"]').forEach(a => a.addEventListener('click', e => {
+    e.preventDefault(); y = scrollY; pv.classList.add('open'); pv.scrollTop = 0;
+    document.body.style.overflow = 'hidden';
+  }));
+  const close = e => { if (e) e.preventDefault(); pv.classList.remove('open'); document.body.style.overflow = ''; scrollTo(0, y); };
+  document.getElementById('pvClose').addEventListener('click', close);
+  addEventListener('keydown', e => { if (e.key === 'Escape' && pv.classList.contains('open')) close(); });
+})();
+</script>
+</body>
+</html>
