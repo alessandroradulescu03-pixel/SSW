@@ -48,8 +48,13 @@ em{font-style:italic}
 /* ============ INTRO ============ */
 #intro{position:fixed;inset:0;z-index:300;background:var(--bg);display:grid;place-items:center;transition:transform 1.05s var(--curtain);cursor:pointer}
 #intro.gone{transform:translateY(-100%)}
-.intro-in{text-align:center;position:relative;z-index:1}
-#icv{position:absolute;inset:0;width:100%;height:100%;z-index:2;pointer-events:none}
+.intro-in{text-align:center;position:relative;z-index:3}
+#ivid{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:2;pointer-events:none;background:var(--bg);transition:opacity .6s var(--slow)}
+#ivid.off{opacity:0}
+@media (min-aspect-ratio:3/4){
+  /* su schermi larghi il video verticale sta al centro e sfuma ai lati nel bianco */
+  #ivid{object-fit:contain;-webkit-mask-image:linear-gradient(90deg,transparent calc(50% - 31vh),#000 calc(50% - 22vh),#000 calc(50% + 22vh),transparent calc(50% + 31vh));mask-image:linear-gradient(90deg,transparent calc(50% - 31vh),#000 calc(50% - 22vh),#000 calc(50% + 22vh),transparent calc(50% + 31vh))}
+}
 .mark{font-family:var(--sans);font-weight:300;font-size:clamp(46px,9vw,92px);letter-spacing:.42em;margin-right:-.42em;display:flex;justify-content:center}
 .mark span{display:inline-block;opacity:0;filter:blur(10px);transform:translateY(10px);transition:opacity 1s var(--slow),filter 1s var(--slow),transform 1s var(--slow)}
 .mark span:nth-child(2){transition-delay:.12s}
@@ -59,7 +64,7 @@ em{font-style:italic}
 #intro.on .mark span{opacity:1;filter:none;transform:none}
 #intro.on .intro-line{transform:scaleX(1)}
 #intro.on .intro-sub{opacity:1}
-.intro-owner{position:absolute;z-index:1;left:0;right:0;bottom:max(34px,6vh);text-align:center;font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:var(--mut);opacity:0;transition:opacity 1.2s var(--slow) .9s}
+.intro-owner{position:absolute;z-index:3;left:0;right:0;bottom:max(34px,6vh);text-align:center;font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:var(--mut);opacity:0;transition:opacity 1.2s var(--slow) .9s}
 #intro.on .intro-owner{opacity:1}
 #intro.gone .intro-owner{opacity:0;transition:opacity .6s}
 #intro.gone .intro-in{opacity:0;transform:translateY(-30px);transition:all 1s var(--slow)}
@@ -330,7 +335,7 @@ footer ul a:hover{color:#fff}
 
 <!-- ============ INTRO ============ -->
 <div id="intro" aria-hidden="true">
-  <canvas id="icv"></canvas>
+  <video id="ivid" poster="assets/intro-drift-poster.jpg" muted playsinline preload="auto"><source src="assets/intro-drift.mp4" type="video/mp4"><source src="assets/intro-drift.webm" type="video/webm"></video>
   <div class="intro-in">
     <div class="mark"><span>S</span><span>S</span><span>W</span></div>
     <div class="intro-line"></div>
@@ -656,156 +661,45 @@ footer ul a:hover{color:#fff}
 </div>
 
 <script>
-/* ======== INTRO: la macchina vista da dietro entra, si allontana derapando,
-            sparisce nel fumo, il fumo svanisce e resta il logo ======== */
+/* ======== INTRO: video della M2 che entra derapando e si allontana nel fumo,
+            il video sfuma nel bianco, compare il logo SSW, poi si apre il sito ======== */
 (function () {
   const intro = document.getElementById('intro');
-  const cv = document.getElementById('icv'), ctx = cv.getContext('2d');
+  const vid = document.getElementById('ivid');
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  let loaded = false, shown = false, closed = false;
-  addEventListener('load', () => { loaded = true; tryClose(); });
-  setTimeout(() => { loaded = true; tryClose(); }, 5000);
+  const RATE = 1.12;        // velocità del video (1 = normale)
+  const LOGO_AT = 3.9;      // secondo del video in cui compare il logo (inizio sfumatura al bianco)
+  let closed = false, logoOn = false, started = false;
 
-  // --- tempi (secondi) ---
-  const PASS = 2.2;       // la macchina entra e si allontana
-  const LOGO = 1.7;       // il logo inizia a comparire sotto il fumo
-  const FADE = 2.35;       // il fumo inizia a svanire
-  const END  = 3.9;       // si apre il sito
-
-  // punti della foto (px su larghezza 900): ruote posteriori e appoggio a terra
-  const IMG_W = 900, REAR_NEAR = [480, 380], REAR_FAR = [800, 362], GROUND = [470, 386];
-
-  let W, H, dpr, car, ar;
-  function size() {
-    dpr = Math.min(devicePixelRatio || 1, 2);
-    W = innerWidth; H = innerHeight;
-    cv.width = W * dpr; cv.height = H * dpr;
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  }
-
-  const puff = document.createElement('canvas'); puff.width = puff.height = 128;
-  (() => { const p = puff.getContext('2d'), g = p.createRadialGradient(64, 64, 0, 64, 64, 64);
-    g.addColorStop(0, 'rgba(120,122,118,1)'); g.addColorStop(.5, 'rgba(150,152,148,.5)'); g.addColorStop(1, 'rgba(170,172,168,0)');
-    p.fillStyle = g; p.fillRect(0, 0, 128, 128); })();
-  const shadow = document.createElement('canvas'); shadow.width = 256; shadow.height = 64;
-  (() => { const p = shadow.getContext('2d'); p.scale(1, .25);
-    const g = p.createRadialGradient(128, 128, 0, 128, 128, 128);
-    g.addColorStop(0, 'rgba(0,0,0,.45)'); g.addColorStop(1, 'rgba(0,0,0,0)');
-    p.fillStyle = g; p.fillRect(0, 0, 256, 256); })();
-  const parts = [];
-
-  // 1) entra di lato in primo piano, di traverso (derapata)
-  // 2) si raddrizza e si allontana dritta verso il centro, come se entrasse nel telefono
-  const SIDE = .4;                                   // parte del tempo dedicata all'entrata laterale
-  function pose(t) {
-    const u = Math.min(1, Math.max(0, t / PASS));
-    const w0 = Math.min(W * .95, 820), w1 = Math.min(W * .18, 150);
-    const near = H * .88, horizon = H * .5 + w1 * .18;
-    let w, gx, gy, rot, f, side;
-    if (u < SIDE) {                                  // derapata laterale da destra verso il centro
-      const v = u / SIDE, e = 1 - Math.pow(1 - v, 3);
-      w = w0; f = 1; side = 1;
-      gx = W + w0 * .65 - (W * .5 + w0 * .65) * e;
-      gy = near - Math.sin(Math.PI * v) * H * .015;
-      rot = -.16 * (1 - e) + .05 * Math.sin(Math.PI * v);            // di traverso, poi controsterzo
-    } else {                                         // dritta verso il fondo
-      const v = (u - SIDE) / (1 - SIDE);
-      const d = 1 + (w0 / w1 - 1) * Math.pow(v, 1.1);
-      w = w0 / d; f = (w - w1) / (w0 - w1); side = 0;
-      gx = W * .5;
-      gy = horizon + f * (near - horizon);
-      rot = .05 * Math.sin(Math.PI * (1 + v)) * (1 - v);             // si assesta
-    }
-    const alpha = u < .82 ? 1 : Math.max(0, 1 - (u - .82) / .18);   // sparisce nel fumo
-    return { u, w, gx, gy, rot, alpha, f, side };
-  }
-
-  let t0 = null, last = 0, logoOn = false;
-  function frame(now) {
-    if (closed && !intro.isConnected) return;
-    if (t0 == null) { t0 = now; last = now; }
-    const t = (now - t0) / 1000, dt = Math.min(.05, (now - last) / 1000 || .016); last = now;
-
-    if (!logoOn && t >= LOGO) { logoOn = true; intro.classList.add('on'); }
-    if (t >= END && !shown) { shown = true; tryClose(); }
-
-    ctx.clearRect(0, 0, W, H);
-    let P = null;
-    if (t <= PASS) {
-      P = pose(t);
-      const k = P.w / IMG_W, h = P.w * ar;
-      const cos = Math.cos(P.rot), sin = Math.sin(P.rot);
-      const toScreen = ([ix, iy]) => {                // punto della foto → schermo
-        const dx = (ix - GROUND[0]) * k, dy = (iy - GROUND[1]) * k;
-        return [P.gx + dx * cos - dy * sin, P.gy + dx * sin + dy * cos];
-      };
-      const big = Math.min(W, H);
-      const rate = P.side ? 3.6 : 1.8;
-      for (const pt of [REAR_NEAR, REAR_FAR]) {
-        const [sx, sy] = toScreen(pt);
-        for (let i = 0; i < rate; i++) parts.push({
-          x: sx + (Math.random() - .5) * P.w * .06, y: sy - P.w * .03,
-          vx: P.side ? (Math.random() * .9 + .3) * P.w : (Math.random() - .5) * P.w * .7, vy: -(Math.random() * .6 + .2) * P.w * (P.side ? .2 : .3),
-          r: P.w * (.08 + Math.random() * .07),
-          g: P.w * (.5 + Math.random() * .5) + big * .1 * (1 - P.f),
-          life: 1.5 + Math.random() * 1.1, t: 0 });
-      }
-      // arrivata in fondo: nuvola grande che copre il logo
-      if (P.u > .62) for (let i = 0; i < 3; i++) parts.push({
-        x: W * .5 + (P.gx - W * .5) * .5 + (Math.random() - .5) * big * .45, y: H * .46 + (Math.random() - .5) * big * .16,
-        vx: (Math.random() - .5) * big * .25, vy: -(Math.random() * .12) * big,
-        r: big * (.08 + Math.random() * .06), g: big * (.22 + Math.random() * .2),
-        life: 1.6 + Math.random() * .9, t: 0 });
-      P.h = h; P.k = k;
-    }
-
-    const fade = t < FADE ? 1 : Math.max(0, 1 - (t - FADE) / 1.15);
-    // ombra a terra
-    if (P && P.alpha > 0) {
-      ctx.globalAlpha = P.alpha * .9;
-      ctx.drawImage(shadow, P.gx - P.w * .55, P.gy - P.w * .06, P.w * 1.1, P.w * .12);
-    }
-    // macchina
-    if (P && P.alpha > 0 && car.complete) {
-      ctx.save();
-      ctx.globalAlpha = P.alpha;
-      ctx.translate(P.gx, P.gy); ctx.rotate(P.rot);
-      ctx.drawImage(car, -GROUND[0] * P.k, -GROUND[1] * P.k, P.w, P.h);
-      ctx.restore();
-    }
-    // fumo davanti alla macchina (la macchina ci "entra" dentro)
-    for (let i = parts.length - 1; i >= 0; i--) {
-      const p = parts[i]; p.t += dt;
-      if (p.t >= p.life) { parts.splice(i, 1); continue; }
-      p.x += p.vx * dt; p.y += p.vy * dt; p.vx *= .955; p.vy *= .955;
-      const kk = p.t / p.life, r = p.r + p.g * Math.sqrt(kk);
-      ctx.globalAlpha = .14 * (1 - kk) * Math.min(1, kk * 4) * fade;
-      ctx.drawImage(puff, p.x - r, p.y - r, r * 2, r * 2);
-    }
-    ctx.globalAlpha = 1;
-    requestAnimationFrame(frame);
-  }
-
-  function tryClose(force) {
-    if (closed || (!force && !(loaded && shown))) return;
+  function showLogo() { if (!logoOn) { logoOn = true; intro.classList.add('on'); } }
+  function tryClose() {
+    if (closed) return;
     closed = true;
     intro.classList.add('on', 'gone');
     document.body.classList.remove('loading');
     setTimeout(() => document.body.classList.add('ready'), 250);
     setTimeout(() => intro.remove(), 1200);
   }
-  intro.addEventListener('click', () => tryClose(true));
-
-  function start() {
-    if (reduce) { intro.classList.add('on'); setTimeout(() => { shown = true; tryClose(); }, 900); return; }
-    size(); addEventListener('resize', size);
-    car = new Image();
-    car.onload = () => { ar = car.naturalHeight / car.naturalWidth; requestAnimationFrame(frame); };
-    car.onerror = () => { intro.classList.add('on'); setTimeout(() => { shown = true; tryClose(); }, 1700); };
-    car.src = 'assets/car-retro.png';
+  // se il video non parte (risparmio energetico, connessione lenta...): solo logo
+  function fallback() {
+    if (started || closed) return;
+    vid.classList.add('off');
+    showLogo();
+    setTimeout(tryClose, 1800);
   }
-  const fonts = document.fonts && document.fonts.load ? document.fonts.load('300 60px Jost') : Promise.resolve();
-  Promise.race([fonts, new Promise(r => setTimeout(r, 500))]).then(start);
+
+  intro.addEventListener('click', tryClose);
+  if (reduce) { vid.remove(); showLogo(); setTimeout(tryClose, 1200); return; }
+
+  vid.playbackRate = RATE;
+  vid.addEventListener('playing', () => { started = true; vid.playbackRate = RATE; });
+  vid.addEventListener('timeupdate', () => { if (vid.currentTime >= LOGO_AT) showLogo(); });
+  vid.addEventListener('ended', () => { showLogo(); setTimeout(tryClose, 900); });
+  vid.addEventListener('error', fallback);
+  const p = vid.play();
+  if (p && p.catch) p.catch(fallback);
+  setTimeout(fallback, 2500);        // se dopo 2,5 s non è ancora partito
+  setTimeout(tryClose, 9000);        // sicurezza: il sito si apre comunque
 })();
 
 /* ======== header trasparente → pieno dopo l'hero ======== */
