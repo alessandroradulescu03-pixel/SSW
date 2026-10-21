@@ -1,0 +1,950 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SSW — Stay Sideways</title>
+<meta name="description" content="SSW Stay Sideways. Abbigliamento essenziale in edizione limitata, per lei e per lui. Drop 01 disponibile ora.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+/* =========================================================
+   SSW — Stay Sideways · sito demo v2 (fashion / minimal)
+   Le foto vanno in assets/ con i nomi indicati in ogni <img>.
+   Finché una foto manca, si vede il riquadro neutro al suo posto.
+   ========================================================= */
+:root{
+  --bg:#ffffff;        /* bianco */
+  --bg-2:#ffffff;
+  --ink:#111111;       /* nero */
+  --green:#4a5039;     /* verde militare opaco */
+  --green-d:#363b29;
+  --mut:#71726b;
+  --line:#e2e2de;
+  --serif:'Cormorant Garamond',Georgia,serif;
+  --sans:'Jost','Helvetica Neue',Arial,sans-serif;
+  --slow:cubic-bezier(.22,.61,.36,1);
+  --curtain:cubic-bezier(.76,0,.24,1);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-weight:300;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+body.loading,body.lock{overflow:hidden}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+img{display:block;max-width:100%}
+.wrap{width:min(1320px,100% - 48px);margin-inline:auto}
+@media(max-width:640px){.wrap{width:calc(100% - 32px)}}
+
+.eyebrow{font-family:var(--sans);font-size:11px;font-weight:400;letter-spacing:.28em;text-transform:uppercase;color:var(--green)}
+h1,h2,h3{font-family:var(--serif);font-weight:300;line-height:1.02;letter-spacing:-.01em}
+h2{font-size:clamp(40px,6vw,76px)}
+em{font-style:italic}
+.link{display:inline-flex;align-items:center;gap:14px;font-size:12px;font-weight:400;letter-spacing:.24em;text-transform:uppercase;padding-bottom:6px;position:relative}
+.link::after{content:"";position:absolute;left:0;right:0;bottom:0;height:1px;background:currentColor;transform-origin:right;transition:transform .9s var(--slow)}
+.link:hover::after{transform:scaleX(.35)}
+
+/* ============ INTRO ============ */
+#intro{position:fixed;inset:0;z-index:300;background:var(--bg);display:grid;place-items:center;transition:transform 1.05s var(--curtain);cursor:pointer}
+#intro.gone{transform:translateY(-100%)}
+.intro-in{text-align:center;position:relative;z-index:3}
+#ivid{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:2;pointer-events:none;background:#fff;transition:opacity 1.1s ease;will-change:transform}
+#ivid.off{opacity:0}
+
+.mark{font-family:var(--sans);font-weight:300;font-size:clamp(46px,9vw,92px);letter-spacing:.42em;margin-right:-.42em;display:flex;justify-content:center}
+.mark span{display:inline-block;opacity:0;filter:blur(14px);transform:scale(.86);transition:opacity 1.1s var(--slow),filter 1.3s var(--slow),transform 1.4s var(--slow)}
+.mark span:nth-child(2){transition-delay:.06s}
+.mark span:nth-child(3){transition-delay:.12s}
+.intro-line{width:120px;height:1px;background:var(--green);margin:26px auto 22px;transform:scaleX(0);transition:transform .7s var(--slow) .25s}
+.intro-sub{opacity:0;transition:opacity .6s var(--slow) .4s}
+#intro.on .mark span{opacity:1;filter:none;transform:none}
+/* nuvola bianca morbida dietro la scritta: SSW "esce" dal fumo */
+.intro-in::before{content:"";position:absolute;left:50%;top:var(--mark-y,38%);width:min(115vw,780px);height:min(75vw,460px);transform:translate(-50%,-50%) scale(.35);background:radial-gradient(closest-side,#fff 0%,rgba(255,255,255,.92) 40%,rgba(255,255,255,.55) 68%,rgba(255,255,255,0) 100%);opacity:0;z-index:-1;pointer-events:none;transition:opacity .9s ease,transform 1.6s var(--slow)}
+#intro.on .intro-in::before{opacity:1;transform:translate(-50%,-50%) scale(1)}
+#intro.on .intro-line{transform:scaleX(1)}
+#intro.on .intro-sub{opacity:1}
+.intro-owner{position:absolute;z-index:3;left:0;right:0;bottom:max(34px,6vh);text-align:center;font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:var(--mut);opacity:0;transition:opacity .6s var(--slow) .45s}
+#intro.on .intro-owner{opacity:1}
+#intro.gone .intro-owner{opacity:0;transition:opacity .6s}
+#intro.gone .intro-in{opacity:0;transform:translateY(-30px);transition:all 1s var(--slow)}
+
+/* ============ HEADER ============ */
+header{position:fixed;top:0;left:0;right:0;z-index:100;color:#fff;transition:background .8s var(--slow),color .8s var(--slow),border-color .8s var(--slow);border-bottom:1px solid transparent}
+header.solid{background:rgba(255,255,255,.94);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);color:var(--ink);border-color:var(--line)}
+.bar{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;height:74px}
+.nav{display:flex;gap:34px;font-size:11px;font-weight:400;letter-spacing:.24em;text-transform:uppercase}
+.nav a{opacity:.85;transition:opacity .4s}
+.nav a:hover{opacity:1}
+.nav.right{justify-content:flex-end}
+.logo{font-weight:400;font-size:20px;letter-spacing:.5em;margin-right:-.5em;text-align:center;line-height:1}
+.logo small{display:block;font-size:8px;letter-spacing:.42em;margin-top:6px;font-weight:400;opacity:.8}
+.cartN{display:inline-block;min-width:1.4em;text-align:center}
+.menu-btn{display:none;width:28px;height:14px;position:relative}
+.menu-btn::before,.menu-btn::after{content:"";position:absolute;left:0;right:0;height:1px;background:currentColor;transition:transform .6s var(--slow)}
+.menu-btn::before{top:0}.menu-btn::after{bottom:0}
+body.menu-open .menu-btn::before{transform:translateY(6.5px) rotate(45deg)}
+body.menu-open .menu-btn::after{transform:translateY(-6.5px) rotate(-45deg)}
+@media(max-width:860px){
+  .nav.left a{display:none}
+  .menu-btn{display:block}
+  .nav.right .hide-m{display:none}
+}
+.mobile-menu{position:fixed;inset:0;z-index:90;background:var(--bg);display:flex;flex-direction:column;justify-content:center;padding:0 32px;opacity:0;visibility:hidden;transition:opacity .8s var(--slow),visibility .8s}
+body.menu-open .mobile-menu{opacity:1;visibility:visible}
+body.menu-open header{color:var(--ink)}
+.mobile-menu a{font-family:var(--serif);font-size:44px;line-height:1.3;opacity:0;transform:translateY(14px);transition:all .9s var(--slow)}
+body.menu-open .mobile-menu a{opacity:1;transform:none}
+body.menu-open .mobile-menu a:nth-child(2){transition-delay:.08s}
+body.menu-open .mobile-menu a:nth-child(3){transition-delay:.16s}
+body.menu-open .mobile-menu a:nth-child(4){transition-delay:.24s}
+
+/* ============ FOTO (con riquadro neutro di riserva) ============ */
+.ph{position:relative;overflow:hidden;background:linear-gradient(160deg,var(--t1,#dcdcd8),var(--t2,#bdbeb6))}
+.ph::before{content:attr(data-label);position:absolute;inset:0;display:grid;place-items:center;font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:rgba(21,21,21,.38);text-align:center;padding:20px}
+.ph::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:.35;mix-blend-mode:multiply;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .5 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+.ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1}
+.ph.plain{background:#fff}.ph.plain::after{display:none}
+.ph.dark{--t1:#5d6349;--t2:#2f3324}
+.ph.dark::before{color:rgba(255,255,255,.45)}
+.ph.sand{--t1:#e6e7e2;--t2:#c9cbc3}
+.ph.stone{--t1:#dadad7;--t2:#b5b5b0}
+.ph.milk{--t1:#f1f1ee;--t2:#dededa}
+.ph.char{--t1:#555750;--t2:#232421}
+.ph.char::before{color:rgba(255,255,255,.45)}
+
+/* rivelazione lenta delle immagini */
+.reveal-img{clip-path:inset(12% 0 0 0);transition:clip-path 1.6s var(--slow)}
+.reveal-img img,.reveal-img::before{transform:scale(1.12);transition:transform 2.4s var(--slow)}
+.reveal-img.in{clip-path:inset(0 0 0 0)}
+.reveal-img.in img,.reveal-img.in::before{transform:scale(1)}
+.reveal{opacity:0;transform:translateY(26px);transition:opacity 1.4s var(--slow),transform 1.4s var(--slow)}
+.reveal.in{opacity:1;transform:none}
+.d1{transition-delay:.15s!important}.d2{transition-delay:.3s!important}.d3{transition-delay:.45s!important}
+
+/* ============ HERO ============ */
+.hero{position:relative;height:100svh;min-height:560px;color:#fff;overflow:hidden}
+.hero .ph{position:absolute;inset:0}
+.hero .ph::before{place-items:start center;padding-top:32vh}
+.hero .ph img,.hero .ph::before{animation:breathe 22s ease-in-out infinite alternate}
+@keyframes breathe{from{transform:scale(1.04)}to{transform:scale(1.14)}}
+.hero::after{content:"";position:absolute;inset:0;z-index:2;background:linear-gradient(180deg,rgba(0,0,0,.22) 0%,rgba(0,0,0,0) 30%,rgba(0,0,0,0) 50%,rgba(0,0,0,.45) 100%)}
+.hero-txt{position:absolute;z-index:3;left:0;right:0;bottom:clamp(40px,8vh,90px)}
+.hero-txt .wrap{display:flex;justify-content:space-between;align-items:flex-end;gap:30px;flex-wrap:wrap}
+.hero .eyebrow{color:rgba(255,255,255,.85)}
+.hero h1{font-size:clamp(54px,9vw,132px);margin:18px 0 30px}
+.hero h1 .ln{display:block;overflow:hidden}
+.hero h1 .ln span{display:block;transform:translateY(105%);transition:transform 1.6s var(--slow)}
+.hero h1 .ln:nth-child(2) span{transition-delay:.18s}
+.hero .fade{opacity:0;transition:opacity 1.6s var(--slow) .7s}
+body.ready .hero h1 .ln span{transform:none}
+body.ready .hero .fade{opacity:1}
+.season{text-align:right;font-size:11px;letter-spacing:.28em;text-transform:uppercase;line-height:2}
+.scroll-line{display:block;width:1px;height:54px;background:rgba(255,255,255,.35);margin:16px 0 0 auto;position:relative;overflow:hidden}
+.scroll-line::after{content:"";position:absolute;left:0;top:-50%;width:1px;height:50%;background:#fff;animation:drip 2.6s var(--slow) infinite}
+@keyframes drip{to{top:110%}}
+@media(max-width:640px){.season{display:none}}
+
+/* ============ STATEMENT ============ */
+.statement{padding:clamp(110px,16vw,200px) 0;text-align:center}
+.statement p{font-family:var(--serif);font-weight:300;font-size:clamp(28px,3.8vw,50px);line-height:1.25;max-width:980px;margin:26px auto 0}
+.statement p em{color:var(--green)}
+
+/* ============ DROP / COLLEZIONE ============ */
+.drop{padding:0 0 clamp(100px,12vw,160px)}
+.drop-head{display:flex;justify-content:space-between;align-items:flex-end;gap:40px;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:40px;margin-bottom:56px}
+.drop-head h2{margin-top:14px}
+.count{min-width:260px;text-align:right}
+.count .num{font-family:var(--serif);font-size:clamp(44px,5vw,64px);line-height:1;font-variant-numeric:tabular-nums}
+.count .num small{font-size:.42em;color:var(--green)}
+.count .track{height:1px;background:var(--line);margin:16px 0 12px;position:relative;overflow:hidden}
+.count .track i{position:absolute;inset:0;background:var(--green);transform-origin:left;transform:scaleX(0)}
+.count .eyebrow b{color:var(--ink);font-weight:400}
+@media(max-width:640px){.count{text-align:left;width:100%}}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:56px 20px}
+@media(max-width:900px){.grid{grid-template-columns:repeat(2,1fr);gap:40px 12px}}
+.item .ph{aspect-ratio:3/4}
+.item .ph img,.item .ph::before{transition:transform 1.8s var(--slow)}
+.item:hover .ph img,.item:hover .ph::before{transform:scale(1.045)}
+.item-info{display:flex;justify-content:space-between;gap:12px;margin-top:16px;font-size:13px;letter-spacing:.04em}
+.item-info .name{font-weight:400}
+.item-info .col{color:var(--mut);font-size:12px;margin-top:2px}
+.item-info .price{white-space:nowrap}
+.tag{position:absolute;z-index:2;top:14px;left:14px;font-size:9px;letter-spacing:.24em;text-transform:uppercase;background:var(--green);color:#fff;padding:6px 10px}
+.plus{position:absolute;z-index:4;right:12px;bottom:12px;width:38px;height:38px;border-radius:50%;background:var(--bg);display:grid;place-items:center;font-size:18px;font-weight:300;opacity:0;transform:translateY(8px);transition:all .7s var(--slow)}
+.item:hover .plus,.item.open .plus{opacity:1;transform:none}
+@media(hover:none){.plus{opacity:1;transform:none}}
+.quick{position:absolute;z-index:3;left:0;right:0;bottom:0;background:var(--bg);padding:18px 16px 64px;transform:translateY(101%);transition:transform .9s var(--slow)}
+.item.open .quick{transform:none}
+.item.open .plus{transform:rotate(45deg)}
+.quick .eyebrow{font-size:10px;margin-bottom:12px}
+.sizes{display:flex;flex-wrap:wrap;gap:6px}
+.sizes button{min-width:42px;padding:9px 10px;border:1px solid var(--line);font-size:11px;letter-spacing:.12em;transition:all .4s var(--slow)}
+.sizes button:hover{border-color:var(--green);background:var(--green);color:#fff}
+
+/* ============ LOOKBOOK ============ */
+.look{padding-bottom:clamp(100px,12vw,160px)}
+.look-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:20px;align-items:end}
+.look-grid .a{aspect-ratio:4/5}
+.look-grid .b{aspect-ratio:3/4}
+.cap{display:flex;justify-content:space-between;margin-top:14px;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--mut)}
+.look-txt{display:grid;grid-template-columns:1fr 1fr;gap:40px;margin-top:80px;align-items:start}
+.look-txt p{font-size:15px;color:#3c3d39;max-width:440px;line-height:1.8}
+@media(max-width:800px){.look-grid,.look-txt{grid-template-columns:1fr}.look-txt{margin-top:50px;gap:22px}}
+
+/* ============ VALORI ============ */
+.values{background:var(--green);color:#f3f3ee;padding:clamp(90px,10vw,130px) 0}
+.values .val p{color:rgba(243,243,238,.78)!important}
+.values .val .n{color:rgba(243,243,238,.6)!important}
+.vals{display:grid;grid-template-columns:repeat(3,1fr);gap:48px}
+@media(max-width:800px){.vals{grid-template-columns:1fr;gap:38px}}
+.val{border-top:1px solid rgba(243,243,238,.3);padding-top:22px}
+.val .n{font-size:11px;letter-spacing:.24em;color:var(--mut)}
+.val h3{font-size:32px;margin:14px 0 12px}
+.val p{font-size:14px;color:#3c3d39;line-height:1.8}
+
+/* ============ STORIA ============ */
+.story{padding:clamp(110px,14vw,180px) 0}
+.story-grid{display:grid;grid-template-columns:.9fr 1.1fr;gap:clamp(40px,7vw,110px);align-items:center}
+.story .ph{aspect-ratio:4/5}
+.story h2{margin:18px 0 30px}
+.story p{font-size:15px;color:#3c3d39;line-height:1.9;max-width:470px}
+.story p+p{margin-top:18px}
+.story .sign{font-family:var(--serif);font-style:italic;font-size:30px;margin-top:34px;color:var(--green)}
+@media(max-width:800px){.story-grid{grid-template-columns:1fr}}
+
+/* ============ NEWSLETTER ============ */
+.news{border-top:1px solid var(--line);padding:clamp(100px,12vw,150px) 0;text-align:center}
+.news h2{margin:16px 0 18px}
+.news .lead{color:#3c3d39;font-size:15px;max-width:420px;margin:0 auto}
+form{max-width:520px;margin:46px auto 0;text-align:left}
+.field{display:flex;align-items:center;border-bottom:1px solid var(--green)}
+.field button{color:var(--green)}
+.field input{flex:1;min-width:0;background:none;border:0;outline:none;font:300 16px var(--sans);color:var(--ink);padding:14px 0}
+.field input::placeholder{color:#9a9b95}
+.field button{font-size:11px;font-weight:400;letter-spacing:.24em;text-transform:uppercase;padding:14px 0 14px 18px}
+.consent{display:flex;gap:12px;align-items:flex-start;margin-top:20px;font-size:12px;line-height:1.7;color:var(--mut);cursor:pointer}
+.consent input{appearance:none;-webkit-appearance:none;flex:0 0 16px;width:16px;height:16px;border:1px solid #9a9b95;margin-top:3px;cursor:pointer;display:grid;place-items:center;transition:all .3s}
+.consent input:checked{background:var(--green);border-color:var(--green)}
+.consent input:checked::after{content:"";width:4px;height:8px;border:solid var(--bg);border-width:0 1.5px 1.5px 0;transform:translateY(-1px) rotate(45deg)}
+.consent input:focus-visible{outline:1px solid var(--green);outline-offset:3px}
+.consent a,.pv a{color:var(--ink);text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1px}
+.consent.err{color:var(--ink)}
+.consent.err input{border-color:var(--ink);box-shadow:0 0 0 3px rgba(21,21,21,.08)}
+.msg{text-align:center;margin-top:26px;font-size:11px;letter-spacing:.24em;text-transform:uppercase;min-height:1.6em;opacity:0;transition:opacity .8s}
+.msg.show{opacity:1}
+
+/* ============ FOOTER ============ */
+footer{background:var(--green-d);color:#e4e6dc;padding:90px 0 34px}
+.f-top{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:40px}
+@media(max-width:800px){.f-top{grid-template-columns:1fr 1fr}}
+footer .logo{text-align:left;margin:0;color:#fff;font-size:22px}
+footer .tagline{font-family:var(--serif);font-style:italic;font-size:22px;color:#b9bfa6;margin-top:22px;max-width:260px;line-height:1.3}
+footer h4{font-weight:400;font-size:10px;letter-spacing:.28em;text-transform:uppercase;color:#a6ab95;margin-bottom:18px}
+footer ul{list-style:none;font-size:13px;line-height:2.3}
+footer ul a{transition:color .4s}
+footer ul a:hover{color:#fff}
+.f-bot{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;border-top:1px solid rgba(255,255,255,.14);margin-top:70px;padding-top:26px;font-size:11px;letter-spacing:.08em;color:#8a8b84}
+
+/* ============ SCHEDA PRODOTTO ============ */
+.pd{position:fixed;inset:0;z-index:220;background:var(--bg);overflow-y:auto;-webkit-overflow-scrolling:touch;opacity:0;visibility:hidden;transition:opacity .7s var(--slow),visibility .7s}
+.pd.open{opacity:1;visibility:visible}
+.pd-top{position:sticky;top:0;z-index:3;background:rgba(255,255,255,.94);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.pd-top .wrap{display:flex;justify-content:space-between;align-items:center;height:74px}
+.pd-top .logo{margin:0;text-align:left}
+@media(max-width:640px){.pd-top .logo{display:none}}
+.pd-grid{display:grid;grid-template-columns:1.25fr 1fr;gap:clamp(30px,5vw,80px);padding:40px 0 100px;align-items:start}
+.pd-gal{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.pd-gal .ph{aspect-ratio:3/4}
+.pd-gal .ph:first-child{grid-column:1/-1;aspect-ratio:4/5}
+.pd-gal img{opacity:0;transform:scale(1.04);transition:opacity 1.1s var(--slow),transform 1.6s var(--slow)}
+.pd.open .pd-gal img{opacity:1;transform:none}
+.pd-info{position:sticky;top:110px}
+.pd-info h2{font-size:clamp(40px,5vw,60px);margin:14px 0 6px}
+.pd-info .pcol{color:var(--mut);font-size:14px}
+.pd-info .pprice{font-size:18px;margin:22px 0 26px;font-weight:400}
+.pd-info .desc{font-size:14px;line-height:1.85;color:#3c3d39;max-width:460px}
+.pd-info .lbl{display:flex;justify-content:space-between;margin:34px 0 12px}
+.pd-info .lbl a{font-size:11px;color:var(--mut);text-decoration:underline;text-underline-offset:3px}
+.pd .sizes button{min-width:54px;padding:13px 12px}
+.pd .sizes button.sel{background:var(--green);color:#fff;border-color:var(--green)}
+.btn-main{display:block;width:100%;margin-top:22px;padding:19px;background:var(--green);color:#fff;font-size:11px;font-weight:400;letter-spacing:.26em;text-transform:uppercase;transition:opacity .4s,background .4s}
+.btn-main:disabled{opacity:.35;cursor:not-allowed}
+.btn-main:not(:disabled):hover{background:var(--green-d)}
+.pd-note{font-size:12px;color:var(--mut);margin-top:14px;min-height:1.4em}
+.acc{border-top:1px solid var(--line);margin-top:40px}
+.acc details{border-bottom:1px solid var(--line)}
+.acc summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;padding:18px 0;font-size:11px;font-weight:400;letter-spacing:.24em;text-transform:uppercase}
+.acc summary::-webkit-details-marker{display:none}
+.acc summary::after{content:"+";font-size:16px;font-weight:300;transition:transform .5s var(--slow)}
+.acc details[open] summary::after{transform:rotate(45deg)}
+.acc details p{font-size:13px;line-height:1.85;color:#3c3d39;padding:0 0 20px}
+@media(max-width:860px){.pd-grid{grid-template-columns:1fr;padding-top:0}.pd-info{position:static}.pd-gal{margin:0 -16px}.pd-gal .ph:not(:first-child){display:none}}
+
+/* ============ CARRELLO ============ */
+.veil{position:fixed;inset:0;z-index:230;background:rgba(21,21,21,.32);opacity:0;visibility:hidden;transition:opacity .7s var(--slow),visibility .7s}
+.veil.open{opacity:1;visibility:visible}
+.cart{position:fixed;top:0;right:0;bottom:0;z-index:240;width:min(460px,100%);background:var(--bg);display:flex;flex-direction:column;transform:translateX(100%);transition:transform .9s var(--curtain)}
+.cart.open{transform:none}
+.cart-head{display:flex;justify-content:space-between;align-items:center;height:74px;padding:0 28px;border-bottom:1px solid var(--line)}
+.cart-head h3{font-size:30px}
+.cart-list{flex:1;overflow-y:auto;padding:8px 28px}
+.ci{display:grid;grid-template-columns:84px 1fr auto;gap:16px;padding:20px 0;border-bottom:1px solid var(--line);align-items:start}
+.ci .ph{aspect-ratio:3/4}
+.ci .nm{font-size:14px;font-weight:400}
+.ci .mt{font-size:12px;color:var(--mut);margin-top:2px}
+.qty{display:inline-flex;align-items:center;border:1px solid var(--line);margin-top:14px}
+.qty button{width:30px;height:30px;font-size:15px}
+.qty span{min-width:22px;text-align:center;font-size:13px}
+.ci .rm{font-size:11px;color:var(--mut);text-decoration:underline;text-underline-offset:3px;margin-top:10px;display:block}
+.ci .pr{font-size:14px;white-space:nowrap}
+.cart-empty{text-align:center;padding:80px 10px;color:var(--mut)}
+.cart-empty p{font-family:var(--serif);font-size:28px;color:var(--ink);margin-bottom:10px}
+.cart-foot{border-top:1px solid var(--line);padding:22px 28px 28px}
+.cart-foot .row{display:flex;justify-content:space-between;font-size:13px;margin-bottom:8px}
+.cart-foot .row.tot{font-size:16px;font-weight:400;margin-top:12px}
+.cart-foot small{display:block;font-size:11px;color:var(--mut);margin-top:6px}
+.cart-foot .btn-main{margin-top:20px}
+.cart-msg{font-size:12px;color:var(--mut);text-align:center;margin-top:14px;min-height:1.4em}
+.item .ph{cursor:pointer}
+.item-info{cursor:pointer}
+
+/* ============ TOAST ============ */
+.toast{position:fixed;z-index:150;left:50%;bottom:28px;transform:translate(-50%,20px);background:var(--green);color:#fff;font-size:11px;letter-spacing:.2em;text-transform:uppercase;padding:14px 22px;opacity:0;pointer-events:none;transition:all .8s var(--slow);white-space:nowrap}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+
+/* ============ PRIVACY ============ */
+.pv{position:fixed;inset:0;z-index:250;background:var(--bg);overflow-y:auto;-webkit-overflow-scrolling:touch;opacity:0;visibility:hidden;transition:opacity .7s var(--slow),visibility .7s}
+.pv.open{opacity:1;visibility:visible}
+.pv .wrap{max-width:760px;padding-bottom:100px}
+.pv-top{position:sticky;top:0;z-index:2;background:var(--bg);display:flex;justify-content:space-between;align-items:center;height:74px;border-bottom:1px solid var(--line);margin-bottom:60px}
+.pv-top .logo{text-align:left;margin:0}
+.pv h2{font-size:clamp(44px,7vw,72px);margin:16px 0 10px}
+.pv h3{font-family:var(--serif);font-size:28px;margin:44px 0 10px}
+.pv p,.pv li{font-size:14px;line-height:1.85;color:#3c3d39}
+.pv ul{padding-left:18px;margin-top:6px}
+.pv .note{border:1px dashed #b9b3aa;padding:16px;margin-top:40px;font-size:12px;color:var(--mut)}
+.phx{background:#e8eadf;padding:0 4px}
+
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition-duration:.01ms!important;transition-delay:0s!important}
+}
+</style>
+</head>
+<body class="loading">
+
+<!-- ============ INTRO ============ -->
+<div id="intro" aria-hidden="true">
+  <video id="ivid" muted playsinline preload="auto"
+    data-v-mp4="assets/intro-drift.mp4" data-v-webm="assets/intro-drift.webm" data-v-poster="assets/intro-drift-poster.jpg"
+    data-h-mp4="assets/intro-drift-16x9.mp4" data-h-webm="assets/intro-drift-16x9.webm" data-h-poster="assets/intro-drift-16x9-poster.jpg"></video>
+  <div class="intro-in">
+    <div class="mark"><span>S</span><span>S</span><span>W</span></div>
+    <div class="intro-line"></div>
+    <div class="intro-sub eyebrow">Stay Sideways</div>
+  </div>
+  <div class="intro-owner">Proprietà di Andrea D'Alessandro</div>
+</div>
+
+<!-- ============ HEADER ============ -->
+<header id="hdr">
+  <div class="wrap bar">
+    <nav class="nav left">
+      <button class="menu-btn" id="menuBtn" aria-label="Menu"></button>
+      <a href="#collezione">Collezione</a>
+      <a href="#lookbook">Lookbook</a>
+      <a href="#storia">Storia</a>
+    </nav>
+    <a href="#top" class="logo">SSW<small>STAY SIDEWAYS</small></a>
+    <nav class="nav right">
+      <a href="#newsletter" class="hide-m">Newsletter</a>
+      <a href="#carrello" class="open-cart">Carrello (<span class="cartN" id="cartN">0</span>)</a>
+    </nav>
+  </div>
+</header>
+
+<div class="mobile-menu" id="mMenu">
+  <a href="#collezione">Collezione</a>
+  <a href="#lookbook">Lookbook</a>
+  <a href="#storia">Storia</a>
+  <a href="#newsletter">Newsletter</a>
+</div>
+
+<main id="top">
+
+<!-- ============ HERO ============ -->
+<section class="hero">
+  <div class="ph dark" data-label="Foto hero · capo indossato">
+    <img src="assets/coppia.jpg" alt="Drop 01 SSW indossato" style="object-position:50% 22%">
+  </div>
+  <div class="hero-txt">
+    <div class="wrap">
+      <div>
+        <div class="eyebrow fade">Drop 01 — Disponibile ora</div>
+        <h1><span class="ln"><span>Essenziale,</span></span><span class="ln"><span><em>a modo tuo.</em></span></span></h1>
+        <a href="#collezione" class="link fade">Scopri la collezione</a>
+      </div>
+      <div class="season fade">Autunno / Inverno<br>2026<span class="scroll-line"></span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ STATEMENT ============ -->
+<section class="statement">
+  <div class="wrap">
+    <div class="eyebrow reveal">SSW — Stay Sideways</div>
+    <p class="reveal d1">Capi essenziali per chi sceglie la propria strada. Linee pulite, tessuti pesanti, colori neutri. <em>Nessun eccesso.</em></p>
+  </div>
+</section>
+
+<!-- ============ DROP 01 ============ -->
+<section class="drop" id="collezione">
+  <div class="wrap">
+    <div class="drop-head">
+      <div class="reveal">
+        <div class="eyebrow">Collezione</div>
+        <h2>Drop <em>01</em></h2>
+      </div>
+      <div class="count reveal d1" id="count">
+        <div class="num"><span id="cnum">0</span><small> / 1000</small></div>
+        <div class="track"><i id="ctrack"></i></div>
+        <div class="eyebrow">Sbloccato da <b>1000 di voi</b>. Grazie.</div>
+      </div>
+    </div>
+
+    <div class="grid" id="grid">
+      <article class="item reveal" data-name="Hoodie Oversize" data-sizes="XS,S,M,L,XL">
+        <div class="ph sand reveal-img" data-label="Foto · Hoodie Petrolio">
+          <img src="assets/coppia-lei.jpg" alt="Hoodie Oversize Petrolio">
+          <span class="tag">Nuovo</span>
+          <div class="quick"><div class="eyebrow">Seleziona la taglia</div><div class="sizes"></div></div>
+          <button class="plus" aria-label="Aggiungi">+</button>
+        </div>
+        <div class="item-info"><div><div class="name">Hoodie Oversize</div><div class="col">Petrolio</div></div><div class="price">€ 75</div></div>
+      </article>
+
+      <article class="item reveal d1" data-name="Hoodie Classic" data-sizes="XS,S,M,L,XL">
+        <div class="ph stone reveal-img" data-label="Foto · Hoodie Azzurro">
+          <img src="assets/azzurro.jpg" alt="Hoodie Classic Azzurro Cielo" style="object-position:50% 30%">
+          <div class="quick"><div class="eyebrow">Seleziona la taglia</div><div class="sizes"></div></div>
+          <button class="plus" aria-label="Aggiungi">+</button>
+        </div>
+        <div class="item-info"><div><div class="name">Hoodie Classic</div><div class="col">Azzurro Cielo</div></div><div class="price">€ 65</div></div>
+      </article>
+
+      <article class="item reveal d2" data-name="Hoodie Boxy" data-sizes="XS,S,M,L,XL">
+        <div class="ph plain reveal-img" data-label="Foto · Hoodie Nero">
+          <img src="assets/nero.jpg" alt="Hoodie Boxy Nero" style="object-fit:contain;padding:8%">
+          <div class="quick"><div class="eyebrow">Seleziona la taglia</div><div class="sizes"></div></div>
+          <button class="plus" aria-label="Aggiungi">+</button>
+        </div>
+        <div class="item-info"><div><div class="name">Hoodie Boxy</div><div class="col">Nero</div></div><div class="price">€ 70</div></div>
+      </article>
+
+      <article class="item reveal" data-name="Set Hoodie + Cargo" data-sizes="XS,S,M,L,XL">
+        <div class="ph char reveal-img" data-label="Foto · Set Petrolio">
+          <img src="assets/coppia-lui.jpg" alt="Set Hoodie e Cargo Petrolio e Panna">
+          <div class="quick"><div class="eyebrow">Seleziona la taglia</div><div class="sizes"></div></div>
+          <button class="plus" aria-label="Aggiungi">+</button>
+        </div>
+        <div class="item-info"><div><div class="name">Set Hoodie + Cargo</div><div class="col">Petrolio / Panna</div></div><div class="price">€ 140</div></div>
+      </article>
+
+      <article class="item reveal d1" data-name="Hoodie Relaxed" data-sizes="XS,S,M,L,XL">
+        <div class="ph sand reveal-img" style="--t1:#ececea;--t2:#d3d4cf" data-label="Foto · Hoodie Azzurro">
+          <img src="assets/azzurro-flip.jpg" alt="Hoodie Relaxed Azzurro" style="object-position:50% 30%">
+          <div class="quick"><div class="eyebrow">Taglia</div><div class="sizes"></div></div>
+          <button class="plus" aria-label="Aggiungi">+</button>
+        </div>
+        <div class="item-info"><div><div class="name">Hoodie Relaxed</div><div class="col">Azzurro</div></div><div class="price">€ 65</div></div>
+      </article>
+
+      <article class="item reveal d2" data-name="Hoodie Oversize" data-sizes="XS,S,M,L,XL">
+        <div class="ph plain reveal-img" data-label="Foto · Hoodie Nero">
+          <img src="assets/nero-flip.jpg" alt="Hoodie Oversize Nero" style="object-fit:contain;padding:8%">
+          <span class="tag">Edizione limitata</span>
+          <div class="quick"><div class="eyebrow">Taglia</div><div class="sizes"></div></div>
+          <button class="plus" aria-label="Aggiungi">+</button>
+        </div>
+        <div class="item-info"><div><div class="name">Hoodie Oversize</div><div class="col">Nero</div></div><div class="price">€ 75</div></div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ============ LOOKBOOK ============ -->
+<section class="look" id="lookbook">
+  <div class="wrap">
+    <div class="look-grid">
+      <figure class="reveal">
+        <div class="ph sand reveal-img a" data-label="Foto · Look 01 — Lei">
+          <img src="assets/coppia.jpg" alt="Look 01, lei" style="object-position:90% 25%">
+        </div>
+        <figcaption class="cap"><span>Look 01 — Lei</span><span>Hoodie Oversize Petrolio</span></figcaption>
+      </figure>
+      <figure class="reveal d2">
+        <div class="ph stone reveal-img b" data-label="Foto · Look 02 — Lui">
+          <img src="assets/azzurro.jpg" alt="Look 02, lui" style="object-position:50% 25%">
+        </div>
+        <figcaption class="cap"><span>Look 02 — Lui</span><span>Hoodie Classic Azzurro</span></figcaption>
+      </figure>
+    </div>
+    <div class="look-txt">
+      <div class="reveal">
+        <div class="eyebrow">Lookbook</div>
+        <h2 style="margin-top:14px">Una divisa,<br><em>due modi</em> di portarla.</h2>
+      </div>
+      <p class="reveal d1">Ogni capo SSW nasce per stare bene addosso a lei e a lui. Vestibilità morbide, proporzioni studiate, dettagli discreti: si porta oversize con un jeans chiaro o stretto in vita con una gonna lunga. Il carattere lo metti tu.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ VALORI ============ -->
+<section class="values">
+  <div class="wrap vals">
+    <div class="val reveal"><div class="n">01</div><h3>Edizione limitata</h3><p>Ogni drop esce una sola volta, in pochi pezzi. Quando finisce, finisce.</p></div>
+    <div class="val reveal d1"><div class="n">02</div><h3>Per lei, per lui</h3><p>Taglie e vestibilità pensate per entrambi. Nessun capo "da uomo" adattato.</p></div>
+    <div class="val reveal d2"><div class="n">03</div><h3>Senza fronzoli</h3><p>Logo discreto, tessuti pesanti, colori neutri. Capi che durano più di una stagione.</p></div>
+  </div>
+</section>
+
+<!-- ============ STORIA ============ -->
+<section class="story" id="storia">
+  <div class="wrap story-grid">
+    <div class="ph stone reveal-img" style="--t1:#c9cbbf;--t2:#8f9480" data-label="Foto · Le origini">
+      <img src="assets/coppia.jpg" alt="Le origini di SSW" style="object-position:50% 30%">
+    </div>
+    <div>
+      <div class="eyebrow reveal">La nostra storia</div>
+      <h2 class="reveal d1">Trasformare una passione<br>in <em>un'identità.</em></h2>
+      <p class="reveal d2">SSW nasce da due amici e da un'idea semplice: non trovavamo un abbigliamento che ci rappresentasse davvero. Volevamo qualcosa di pulito, autentico, senza fronzoli.</p>
+      <p class="reveal d2">Così l'abbiamo creato noi. Stay Sideways è un modo di stare al mondo: seguire la propria direzione, anche quando tutti vanno dritti.</p>
+      <div class="sign reveal d3">Questo non è merch. È la nostra divisa.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ NEWSLETTER ============ -->
+<section class="news" id="newsletter">
+  <div class="wrap">
+    <div class="eyebrow reveal">Drop 02</div>
+    <h2 class="reveal d1">Prima di <em>tutti.</em></h2>
+    <p class="lead reveal d2">Iscriviti per sapere in anticipo quando esce il prossimo drop.</p>
+    <form id="f" novalidate class="reveal d2">
+      <div class="field">
+        <input type="email" id="email" placeholder="Il tuo indirizzo email" required aria-label="Email">
+        <button type="submit">Iscriviti</button>
+      </div>
+      <label class="consent" id="consentBox">
+        <input type="checkbox" id="consent" required>
+        <span>Ho letto la <a href="#privacy" class="open-pv">privacy policy</a> e acconsento a ricevere email da SSW sui nuovi drop. Puoi disiscriverti in qualsiasi momento.</span>
+      </label>
+      <div class="msg" id="msg"></div>
+    </form>
+  </div>
+</section>
+
+</main>
+
+<!-- ============ FOOTER ============ -->
+<footer>
+  <div class="wrap">
+    <div class="f-top">
+      <div>
+        <div class="logo">SSW<small>STAY SIDEWAYS</small></div>
+        <p class="tagline">Essenziale, a modo tuo.</p>
+      </div>
+      <div><h4>Shop</h4><ul><li><a href="#collezione">Drop 01</a></li><li><a href="#lookbook">Lookbook</a></li><li><a href="#newsletter">Drop 02</a></li></ul></div>
+      <div><h4>Brand</h4><ul><li><a href="#storia">La nostra storia</a></li><li><a href="https://instagram.com/stay_sideways.it" target="_blank" rel="noopener">Instagram</a></li></ul></div>
+      <div><h4>Assistenza</h4><ul><li><a href="#privacy" class="open-pv">Privacy policy</a></li><li><a href="https://instagram.com/stay_sideways.it" target="_blank" rel="noopener">Contattaci</a></li></ul></div>
+    </div>
+    <div class="f-bot"><span>© 2026 SSW — Stay Sideways</span><span>Proprietà di <a href="https://instagram.com/oneway_dale" target="_blank" rel="noopener">Andrea D'Alessandro</a></span></div>
+  </div>
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<!-- ============ SCHEDA PRODOTTO ============ -->
+<div class="pd" id="pd" role="dialog" aria-label="Scheda prodotto">
+  <div class="pd-top"><div class="wrap">
+    <button class="link" id="pdClose">← Collezione</button>
+    <span class="logo">SSW</span>
+    <a href="#carrello" class="link open-cart">Carrello (<span class="cartN2">0</span>)</a>
+  </div></div>
+  <div class="wrap pd-grid">
+    <div class="pd-gal" id="pdGal"></div>
+    <div class="pd-info">
+      <div class="eyebrow">Drop 01 — Edizione limitata</div>
+      <h2 id="pdName"></h2>
+      <div class="pcol" id="pdCol"></div>
+      <div class="pprice" id="pdPrice"></div>
+      <p class="desc" id="pdDesc"></p>
+      <div class="lbl"><span class="eyebrow">Taglia</span><a href="#" id="guide">Guida alle taglie</a></div>
+      <div class="sizes" id="pdSizes"></div>
+      <button class="btn-main" id="pdAdd" disabled>Seleziona una taglia</button>
+      <div class="pd-note" id="pdNote"></div>
+      <div class="acc">
+        <details><summary>Dettagli e composizione</summary><p id="pdComp"></p></details>
+        <details id="fitBox"><summary>Vestibilità</summary><p>Vestibilità ampia e unisex. La modella indossa la S ed è alta 172 cm, il modello indossa la M ed è alto 183 cm. Per un fit più asciutto scegli una taglia in meno.</p></details>
+        <details><summary>Spedizioni e resi</summary><p>Spedizione in tutta Italia in 2–4 giorni lavorativi. Reso gratuito entro 14 giorni dalla consegna, con il capo integro e l'etichetta.</p></details>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ CARRELLO ============ -->
+<div class="veil" id="veil"></div>
+<aside class="cart" id="cart" aria-label="Carrello">
+  <div class="cart-head"><h3>Carrello</h3><button class="link" id="cartClose">Chiudi</button></div>
+  <div class="cart-list" id="cartList"></div>
+  <div class="cart-foot" id="cartFoot">
+    <div class="row"><span>Subtotale</span><span id="sub">€ 0</span></div>
+    <div class="row"><span>Spedizione</span><span id="ship">—</span></div>
+    <div class="row tot"><span>Totale</span><span id="tot">€ 0</span></div>
+    <small>Spedizione gratuita sopra € 120. IVA inclusa.</small>
+    <button class="btn-main" id="checkout">Procedi all'ordine</button>
+    <div class="cart-msg" id="cartMsg"></div>
+  </div>
+</aside>
+
+<!-- ============ PRIVACY POLICY ============ -->
+<div class="pv" id="privacy" role="dialog" aria-label="Privacy policy">
+  <div class="wrap">
+    <div class="pv-top">
+      <span class="logo">SSW</span>
+      <button class="link" id="pvClose">Chiudi</button>
+    </div>
+    <div class="eyebrow">Informativa ai sensi del Regolamento UE 2016/679 (GDPR)</div>
+    <h2>Privacy <em>policy</em></h2>
+    <p class="eyebrow" style="margin-top:6px">Ultimo aggiornamento: <span class="phx">[data]</span></p>
+
+    <h3>1. Titolare del trattamento</h3>
+    <p>Il titolare del trattamento dei dati è <span class="phx">[Nome e cognome / ragione sociale]</span>, <span class="phx">[indirizzo]</span>, <span class="phx">[P.IVA o codice fiscale]</span>, che gestisce il marchio SSW – Stay Sideways. Per qualsiasi richiesta sulla privacy puoi scrivere a <span class="phx">[email]</span>.</p>
+
+    <h3>2. Quali dati raccogliamo</h3>
+    <ul>
+      <li><b>Indirizzo email</b>, che inserisci tu nel modulo di iscrizione alla newsletter.</li>
+      <li><b>Dati tecnici di navigazione</b> (ad esempio indirizzo IP e tipo di browser), trattati in automatico dai servizi che fanno funzionare il sito.</li>
+    </ul>
+    <p>Non raccogliamo dati di pagamento: gli eventuali acquisti avvengono tramite <span class="phx">[Instagram / WhatsApp / piattaforma di vendita]</span>.</p>
+
+    <h3>3. Perché li usiamo</h3>
+    <ul>
+      <li>Avvisarti dell'uscita dei nuovi drop e inviarti comunicazioni su SSW (newsletter).</li>
+      <li>Far funzionare il sito e mantenerlo sicuro.</li>
+    </ul>
+
+    <h3>4. Base giuridica</h3>
+    <p>Per la newsletter la base è il tuo <b>consenso</b> (art. 6.1.a GDPR), che dai spuntando la casella nel modulo e confermando l'email che ti inviamo. Per i dati tecnici la base è il <b>legittimo interesse</b> a far funzionare il sito (art. 6.1.f GDPR).</p>
+
+    <h3>5. Con chi li condividiamo</h3>
+    <p>I dati non vengono venduti né ceduti. Sono trattati per nostro conto da fornitori nominati responsabili del trattamento:</p>
+    <ul>
+      <li><b><span class="phx">[Brevo]</span></b>: invio della newsletter e gestione della lista contatti.</li>
+      <li><b>GitHub Pages</b>: hosting del sito.</li>
+      <li><b>Google Fonts</b>: caratteri tipografici del sito.</li>
+    </ul>
+    <p>Alcuni di questi fornitori possono trattare dati fuori dall'Unione Europea, con le garanzie previste dal GDPR (ad esempio clausole contrattuali standard).</p>
+
+    <h3>6. Per quanto tempo</h3>
+    <p>Teniamo la tua email finché resti iscritto. Quando ti disiscrivi viene cancellata, salvo eventuali obblighi di legge.</p>
+
+    <h3>7. I tuoi diritti</h3>
+    <p>In qualsiasi momento puoi chiedere di accedere ai tuoi dati, correggerli o cancellarli, limitarne l'uso, opporti al trattamento, riceverli in un formato leggibile (artt. 15–22 GDPR) e ritirare il consenso. Per disiscriverti basta il link presente in fondo a ogni email, oppure scrivere a <span class="phx">[email]</span>. Se ritieni che i tuoi dati siano trattati in modo scorretto puoi presentare reclamo al <a href="https://www.garanteprivacy.it" target="_blank" rel="noopener">Garante per la protezione dei dati personali</a>.</p>
+
+    <h3>8. Cookie</h3>
+    <p>Il sito non usa cookie di profilazione né strumenti di tracciamento pubblicitario. Eventuali cookie tecnici sono necessari al funzionamento e non richiedono consenso.</p>
+
+    <h3>9. Modifiche</h3>
+    <p>Questa informativa può essere aggiornata. La data in alto indica l'ultima versione.</p>
+
+    <p class="note">Bozza da completare con i dati del titolare e da far verificare prima della pubblicazione.</p>
+  </div>
+</div>
+
+<script>
+/* ======== INTRO: video della M2 che sbuca da destra, derapa e si allontana dritta.
+            Il punto in cui sparisce nel fumo è allineato al centro della scritta SSW:
+            la scritta esce dal fumo, il video sfuma nel bianco e poi si apre il sito. ======== */
+(function () {
+  const intro = document.getElementById('intro');
+  const vid = document.getElementById('ivid');
+  const mark = intro.querySelector('.mark');
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const RATE = 1.3;                                   // velocità del video (1 = normale)
+  const wide = matchMedia('(min-aspect-ratio: 1/1)').matches;
+  const k = wide ? 'h' : 'v';
+  // punto (in % del video) in cui la macchina sparisce nel fumo, e secondo del video in cui succede
+  const VP  = wide ? [0.49, 0.47] : [0.48, 0.46];
+  const CUT = wide ? 3.8 : 4.0;                     // da qui la scritta inizia a uscire dal fumo
+  const HOLD = 1900;                                  // ms dalla comparsa della scritta all'apertura del sito
+  const webm = !vid.canPlayType('video/mp4; codecs="avc1.640028"') && vid.canPlayType('video/webm; codecs="vp9"');
+  vid.poster = vid.dataset[k + 'Poster'];
+  vid.src = webm ? vid.dataset[k + 'Webm'] : vid.dataset[k + 'Mp4'];
+  let closed = false, cut = false, started = false;
+
+  // sposta il video in modo che il punto di fuga cada al centro della scritta,
+  // e lo ingrandisce quanto basta perché copra sempre tutto lo schermo (niente bordi vuoti)
+  function align() {
+    const vw = vid.videoWidth || (wide ? 1280 : 720), vh = vid.videoHeight || (wide ? 720 : 1280);
+    const W = innerWidth, H = innerHeight, sc = Math.max(W / vw, H / vh);
+    const L = (W - vw * sc) / 2, T = (H - vh * sc) / 2, R = L + vw * sc, B = T + vh * sc;
+    const px = L + VP[0] * vw * sc, py = T + VP[1] * vh * sc;
+    const r = mark.getBoundingClientRect();
+    const mx = r.left + r.width / 2, my = r.top + r.height / 2;
+    const z = Math.max(1, mx / (px - L), (W - mx) / (R - px), my / (py - T), (H - my) / (B - py)) * 1.01;
+    // il video ha la sua misura intera (non ritagliata allo schermo), così spostandolo non lascia buchi
+    Object.assign(vid.style, { inset: 'auto', left: L.toFixed(1) + 'px', top: T.toFixed(1) + 'px',
+      width: (vw * sc).toFixed(1) + 'px', height: (vh * sc).toFixed(1) + 'px', objectFit: 'fill' });
+    vid.style.transformOrigin = `${(px - L).toFixed(1)}px ${(py - T).toFixed(1)}px`;
+    vid.style.transform = `translate(${(mx - px).toFixed(1)}px, ${(my - py).toFixed(1)}px) scale(${z.toFixed(3)})`;
+    intro.style.setProperty('--mark-y', (my - intro.querySelector('.intro-in').getBoundingClientRect().top) + 'px');
+  }
+
+  function tryClose() {
+    if (closed) return;
+    closed = true;
+    intro.classList.add('on', 'gone');
+    document.body.classList.remove('loading');
+    setTimeout(() => document.body.classList.add('ready'), 250);
+    setTimeout(() => intro.remove(), 1200);
+  }
+  function emerge() {                                 // la scritta esce dal fumo, il video sfuma nel bianco
+    if (cut) return; cut = true;
+    intro.classList.add('on');
+    setTimeout(() => vid.classList.add('off'), 250);
+    setTimeout(() => vid.pause(), 1500);
+    setTimeout(tryClose, HOLD);
+  }
+  function fallback() {                               // video non partito: solo la scritta
+    if (started || cut) return;
+    vid.classList.add('off');
+    emerge();
+  }
+
+  intro.addEventListener('click', tryClose);
+  if (reduce) { vid.remove(); emerge(); return; }
+
+  align();
+  vid.addEventListener('loadedmetadata', align);
+  addEventListener('resize', align);
+  vid.playbackRate = RATE;
+  vid.addEventListener('playing', () => { started = true; vid.playbackRate = RATE; });
+  vid.addEventListener('timeupdate', () => { if (vid.currentTime >= CUT) emerge(); });
+  vid.addEventListener('ended', emerge);
+  vid.addEventListener('error', fallback);
+  const p = vid.play();
+  if (p && p.catch) p.catch(fallback);
+  setTimeout(fallback, 2500);
+  setTimeout(tryClose, 9000);
+})();
+
+/* ======== header trasparente → pieno dopo l'hero ======== */
+const hdr = document.getElementById('hdr');
+const onScroll = () => hdr.classList.toggle('solid', scrollY > innerHeight * .75);
+addEventListener('scroll', onScroll, { passive: true }); onScroll();
+
+/* ======== menu mobile ======== */
+document.getElementById('menuBtn').addEventListener('click', () => document.body.classList.toggle('menu-open'));
+document.querySelectorAll('#mMenu a').forEach(a => a.addEventListener('click', () => document.body.classList.remove('menu-open')));
+
+/* ======== comparsa lenta allo scroll ======== */
+const io = new IntersectionObserver(es => es.forEach(e => {
+  if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+}), { threshold: .12, rootMargin: '0px 0px -6% 0px' });
+document.querySelectorAll('.reveal,.reveal-img').forEach(el => io.observe(el));
+
+/* ======== contatore 1000 (lento e morbido) ======== */
+(function () {
+  const box = document.getElementById('count'), num = document.getElementById('cnum'), tr = document.getElementById('ctrack');
+  const GOAL = 1000, FOLLOWERS = 1000;
+  new IntersectionObserver((es, o) => {
+    if (!es[0].isIntersecting) return;
+    o.disconnect();
+    const T = 3200, t0 = performance.now();
+    (function step(now) {
+      const k = Math.min(1, (now - t0) / T), e = 1 - Math.pow(1 - k, 4);
+      num.textContent = Math.round(FOLLOWERS * e);
+      tr.style.transform = `scaleX(${FOLLOWERS * e / GOAL})`;
+      if (k < 1) requestAnimationFrame(step);
+    })(t0);
+  }, { threshold: .6 }).observe(box);
+})();
+
+/* ======== prodotti, scheda e carrello (demo, senza pagamento) ======== */
+(function () {
+  const $ = id => document.getElementById(id);
+  const INFO = [
+    { d: 'La nostra felpa più amata. Volume ampio, spalla scesa e cappuccio strutturato che resta in forma. Logo SSW ricamato tono su tono.', c: 'Felpa garzata 380 g/m², 100% cotone. Polsini e fondo a costine. Lavare a 30°, al rovescio.' },
+    { d: 'Linea pulita, fit regolare. Il colore azzurro cielo si abbina a tutto, dal denim chiaro al nero.', c: 'Felpa 320 g/m², 80% cotone, 20% poliestere. Lavare a 30°, al rovescio.' },
+    { d: 'Taglio boxy, corto in vita, maniche ampie. Pensata per chi la vuole portare con un pantalone a vita alta.', c: 'Felpa garzata 400 g/m², 100% cotone. Lavare a 30°, al rovescio.' },
+    { d: 'Il set completo del Drop 01: hoodie oversize petrolio e cargo panna. Si possono abbinare anche separatamente.', c: 'Hoodie: felpa 380 g/m², 100% cotone. Cargo: twill di cotone 280 g/m².' },
+    { d: 'Morbida e rilassata, con spalla scesa e lunghezza media. Il capo da tutti i giorni.', c: 'Felpa 320 g/m², 80% cotone, 20% poliestere. Lavare a 30°, al rovescio.' },
+    { d: 'Oversize, essenziale, nera. Nessun eccesso: solo il logo SSW piccolo sul petto.', c: 'Felpa garzata 380 g/m², 100% cotone. Lavare a 30°, al rovescio.' }
+  ];
+  const items = [...document.querySelectorAll('.item')];
+  const P = items.map((el, i) => ({
+    id: i, el,
+    name: el.dataset.name,
+    col: el.querySelector('.col').textContent,
+    price: parseFloat(el.querySelector('.price').textContent.replace(/[^\d,]/g, '').replace(',', '.')),
+    img: el.querySelector('img') ? el.querySelector('img').getAttribute('src') : '',
+    fit: el.querySelector('img') ? el.querySelector('img').getAttribute('style') || '' : '',
+    plain: el.querySelector('.ph').classList.contains('plain'),
+    sizes: el.dataset.sizes.split(','),
+    d: INFO[i % INFO.length].d, c: INFO[i % INFO.length].c
+  }));
+  const eur = n => '€ ' + (Math.round(n * 100) / 100).toLocaleString('it-IT', { minimumFractionDigits: n % 1 ? 2 : 0 });
+
+  /* ---- stato carrello (resta salvato in questo browser) ---- */
+  let cart = [];
+  try { cart = JSON.parse(localStorage.getItem('ssw-cart') || '[]'); } catch (e) {}
+  const save = () => { try { localStorage.setItem('ssw-cart', JSON.stringify(cart)); } catch (e) {} };
+
+  const toast = $('toast'); let tt;
+  const say = t => { toast.textContent = t; toast.classList.add('show'); clearTimeout(tt); tt = setTimeout(() => toast.classList.remove('show'), 2400); };
+
+  function add(id, size) {
+    const line = cart.find(l => l.id === id && l.size === size);
+    if (line) line.q++; else cart.push({ id, size, q: 1 });
+    save(); render();
+    const p = P[id];
+    say(`Aggiunto · ${p.name} ${p.col}${size === 'Taglia unica' ? '' : ' — ' + size}`);
+  }
+
+  function thumb(p) {
+    return `<div class="ph ${p.plain ? 'plain' : 'stone'}">${p.img ? `<img src="${p.img}" alt="" style="${p.fit}">` : ''}</div>`;
+  }
+
+  function render() {
+    const n = cart.reduce((a, l) => a + l.q, 0);
+    document.querySelectorAll('.cartN,.cartN2').forEach(e => e.textContent = n);
+    const list = $('cartList');
+    if (!cart.length) {
+      list.innerHTML = '<div class="cart-empty"><p>Il carrello è vuoto.</p>Scopri il Drop 01 e scegli il tuo capo.</div>';
+      $('cartFoot').style.display = 'none';
+      return;
+    }
+    $('cartFoot').style.display = '';
+    list.innerHTML = cart.map((l, i) => {
+      const p = P[l.id];
+      return `<div class="ci">${thumb(p)}
+        <div><div class="nm">${p.name}</div><div class="mt">${p.col} · ${l.size}</div>
+          <div class="qty"><button data-a="-" data-i="${i}" aria-label="Meno">−</button><span>${l.q}</span><button data-a="+" data-i="${i}" aria-label="Più">+</button></div>
+          <button class="rm" data-a="x" data-i="${i}">Rimuovi</button></div>
+        <div class="pr">${eur(p.price * l.q)}</div></div>`;
+    }).join('');
+    const sub = cart.reduce((a, l) => a + P[l.id].price * l.q, 0);
+    const ship = sub >= 120 ? 0 : 7;
+    $('sub').textContent = eur(sub);
+    $('ship').textContent = ship ? eur(ship) : 'Gratuita';
+    $('tot').textContent = eur(sub + ship);
+  }
+  $('cartList').addEventListener('click', e => {
+    const b = e.target.closest('button[data-a]'); if (!b) return;
+    const l = cart[+b.dataset.i];
+    if (b.dataset.a === '+') l.q++;
+    if (b.dataset.a === '-') l.q--;
+    if (b.dataset.a === 'x' || l.q < 1) cart.splice(+b.dataset.i, 1);
+    save(); render();
+  });
+
+  /* ---- apri / chiudi carrello ---- */
+  const openCart = e => { if (e) e.preventDefault(); $('cartMsg').textContent = ''; $('cart').classList.add('open'); $('veil').classList.add('open'); document.body.classList.add('lock'); };
+  const closeCart = () => { $('cart').classList.remove('open'); $('veil').classList.remove('open'); if (!$('pd').classList.contains('open')) document.body.classList.remove('lock'); };
+  document.querySelectorAll('.open-cart').forEach(a => a.addEventListener('click', openCart));
+  $('cartClose').addEventListener('click', closeCart);
+  $('veil').addEventListener('click', closeCart);
+  $('checkout').addEventListener('click', () => {
+    $('cartMsg').textContent = 'Il pagamento online arriverà a breve. Per ora scrivici su Instagram per completare l’ordine.';
+  });
+
+  /* ---- scheda prodotto ---- */
+  let cur = null, sel = null;
+  function openPD(id) {
+    cur = P[id]; sel = null;
+    $('pdName').textContent = cur.name;
+    $('pdCol').textContent = cur.col;
+    $('pdPrice').textContent = eur(cur.price);
+    $('pdDesc').textContent = cur.d;
+    $('pdComp').textContent = cur.c;
+    $('pdNote').textContent = '';
+    // galleria: foto principale + due dettagli presi dagli altri capi dello stesso colore/stile
+    const others = P.filter(p => p.id !== id).slice(0, 2);
+    $('pdGal').innerHTML = [cur, ...others].map(p => thumb(p)).join('');
+    const box = $('pdSizes'); box.innerHTML = '';
+    cur.sizes.forEach(sz => {
+      const b = document.createElement('button');
+      b.textContent = sz;
+      b.addEventListener('click', () => {
+        sel = sz;
+        box.querySelectorAll('button').forEach(x => x.classList.toggle('sel', x === b));
+        $('pdAdd').disabled = false; $('pdAdd').textContent = 'Aggiungi al carrello';
+      });
+      box.appendChild(b);
+    });
+    if (cur.sizes.length === 1) box.firstChild.click();
+    else { $('pdAdd').disabled = true; $('pdAdd').textContent = 'Seleziona una taglia'; }
+    $('pd').scrollTop = 0;
+    $('pd').classList.add('open'); document.body.classList.add('lock');
+  }
+  const closePD = () => { $('pd').classList.remove('open'); document.body.classList.remove('lock'); };
+  $('pdClose').addEventListener('click', closePD);
+  $('pdAdd').addEventListener('click', () => {
+    if (!sel) return;
+    add(cur.id, sel);
+    $('pdNote').textContent = 'Aggiunto al carrello.';
+    setTimeout(openCart, 450);
+  });
+  $('guide').addEventListener('click', e => { e.preventDefault(); $('fitBox').open = true; $('fitBox').scrollIntoView({ behavior: 'smooth', block: 'center' }); });
+
+  /* ---- griglia: clic sulla foto = scheda, "+" = aggiunta veloce ---- */
+  items.forEach((item, i) => {
+    const box = item.querySelector('.sizes');
+    P[i].sizes.forEach(sz => {
+      const b = document.createElement('button');
+      b.textContent = sz;
+      b.addEventListener('click', e => { e.stopPropagation(); item.classList.remove('open'); add(i, sz); });
+      box.appendChild(b);
+    });
+    item.querySelector('.plus').addEventListener('click', e => {
+      e.stopPropagation();
+      const was = item.classList.contains('open');
+      document.querySelectorAll('.item.open').forEach(x => x.classList.remove('open'));
+      if (!was) item.classList.add('open');
+    });
+    item.querySelector('.quick').addEventListener('click', e => e.stopPropagation());
+    item.querySelector('.ph').addEventListener('click', () => openPD(i));
+    item.querySelector('.item-info').addEventListener('click', () => openPD(i));
+  });
+  document.addEventListener('click', e => { if (!e.target.closest('.item')) document.querySelectorAll('.item.open').forEach(x => x.classList.remove('open')); });
+  addEventListener('keydown', e => { if (e.key === 'Escape') { closeCart(); closePD(); } });
+
+  render();
+})();
+
+/* ======== newsletter con consenso privacy ======== */
+document.getElementById('f').addEventListener('submit', e => {
+  e.preventDefault();
+  const email = document.getElementById('email'), consent = document.getElementById('consent');
+  const box = document.getElementById('consentBox'), msg = document.getElementById('msg');
+  if (!email.checkValidity() || !email.value) { msg.textContent = 'Inserisci un indirizzo email valido'; msg.classList.add('show'); email.focus(); return; }
+  if (!consent.checked) { box.classList.add('err'); msg.textContent = 'Accetta la privacy policy per iscriverti'; msg.classList.add('show'); return; }
+  box.classList.remove('err');
+  e.target.reset();
+  msg.textContent = 'Grazie. Ti scriveremo prima del Drop 02.'; msg.classList.add('show');
+});
+document.getElementById('consent').addEventListener('change', () => document.getElementById('consentBox').classList.remove('err'));
+
+/* ======== privacy: apri / chiudi ======== */
+(function () {
+  const pv = document.getElementById('privacy');
+  const open = e => { e.preventDefault(); pv.scrollTop = 0; pv.classList.add('open'); document.body.classList.add('lock'); };
+  const close = () => { pv.classList.remove('open'); document.body.classList.remove('lock'); };
+  document.querySelectorAll('.open-pv').forEach(a => a.addEventListener('click', open));
+  document.getElementById('pvClose').addEventListener('click', close);
+  addEventListener('keydown', e => { if (e.key === 'Escape') { close(); document.body.classList.remove('menu-open'); } });
+})();
+</script>
+</body>
+</html>

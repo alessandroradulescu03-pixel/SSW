@@ -7,7 +7,7 @@
 <meta name="description" content="SSW Stay Sideways. Abbigliamento essenziale in edizione limitata, per lei e per lui. Drop 01 disponibile ora.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
 <style>
 /* =========================================================
    SSW — Stay Sideways · sito demo v2 (fashion / minimal)
@@ -22,8 +22,8 @@
   --green-d:#363b29;
   --mut:#71726b;
   --line:#e2e2de;
-  --serif:'Cormorant Garamond',Georgia,serif;
-  --sans:'Jost','Helvetica Neue',Arial,sans-serif;
+  --serif:'Space Mono',ui-monospace,monospace;
+  --sans:'Space Mono',ui-monospace,monospace;
   --slow:cubic-bezier(.22,.61,.36,1);
   --curtain:cubic-bezier(.76,0,.24,1);
 }
@@ -329,6 +329,10 @@ footer ul a:hover{color:#fff}
 @media(prefers-reduced-motion:reduce){
   *,*::before,*::after{animation:none!important;transition-duration:.01ms!important;transition-delay:0s!important}
 }
+/* Space Mono dalla prima bozza */
+body,h1,h2,h3,.mark,.statement p,.count .num,.field input{font-weight:400}
+h1,h2,h3{letter-spacing:-.03em}
+.statement p{font-size:clamp(20px,2.8vw,36px)!important}
 </style>
 </head>
 <body class="loading">
