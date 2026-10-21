@@ -49,22 +49,22 @@ em{font-style:italic}
 #intro{position:fixed;inset:0;z-index:300;background:var(--bg);display:grid;place-items:center;transition:transform 1.05s var(--curtain);cursor:pointer}
 #intro.gone{transform:translateY(-100%)}
 .intro-in{text-align:center;position:relative;z-index:3}
-#ivid{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:2;pointer-events:none;background:var(--bg);transition:opacity .6s var(--slow)}
+#ivid{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:2;pointer-events:none;background:var(--bg);transition:opacity .5s ease}
 #ivid.off{opacity:0}
 @media (min-aspect-ratio:3/4){
   /* su schermi larghi il video verticale sta al centro e sfuma ai lati nel bianco */
   #ivid{object-fit:contain;-webkit-mask-image:linear-gradient(90deg,transparent calc(50% - 31vh),#000 calc(50% - 22vh),#000 calc(50% + 22vh),transparent calc(50% + 31vh));mask-image:linear-gradient(90deg,transparent calc(50% - 31vh),#000 calc(50% - 22vh),#000 calc(50% + 22vh),transparent calc(50% + 31vh))}
 }
 .mark{font-family:var(--sans);font-weight:300;font-size:clamp(46px,9vw,92px);letter-spacing:.42em;margin-right:-.42em;display:flex;justify-content:center}
-.mark span{display:inline-block;opacity:0;filter:blur(10px);transform:translateY(10px);transition:opacity 1s var(--slow),filter 1s var(--slow),transform 1s var(--slow)}
-.mark span:nth-child(2){transition-delay:.12s}
-.mark span:nth-child(3){transition-delay:.24s}
-.intro-line{width:120px;height:1px;background:var(--green);margin:26px auto 22px;transform:scaleX(0);transition:transform 1s var(--slow) .45s}
-.intro-sub{opacity:0;transition:opacity .9s var(--slow) .7s}
-#intro.on .mark span{opacity:1;filter:none;transform:none}
+.mark span{display:inline-block;opacity:0;transform:translateY(6px);transition:opacity .7s var(--slow),transform .7s var(--slow)}
+.mark span:nth-child(2){transition-delay:.07s}
+.mark span:nth-child(3){transition-delay:.14s}
+.intro-line{width:120px;height:1px;background:var(--green);margin:26px auto 22px;transform:scaleX(0);transition:transform .7s var(--slow) .25s}
+.intro-sub{opacity:0;transition:opacity .6s var(--slow) .4s}
+#intro.on .mark span{opacity:1;transform:none}
 #intro.on .intro-line{transform:scaleX(1)}
 #intro.on .intro-sub{opacity:1}
-.intro-owner{position:absolute;z-index:3;left:0;right:0;bottom:max(34px,6vh);text-align:center;font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:var(--mut);opacity:0;transition:opacity 1.2s var(--slow) .9s}
+.intro-owner{position:absolute;z-index:3;left:0;right:0;bottom:max(34px,6vh);text-align:center;font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:var(--mut);opacity:0;transition:opacity .6s var(--slow) .45s}
 #intro.on .intro-owner{opacity:1}
 #intro.gone .intro-owner{opacity:0;transition:opacity .6s}
 #intro.gone .intro-in{opacity:0;transform:translateY(-30px);transition:all 1s var(--slow)}
@@ -661,17 +661,19 @@ footer ul a:hover{color:#fff}
 </div>
 
 <script>
-/* ======== INTRO: video della M2 che entra derapando e si allontana nel fumo,
-            il video sfuma nel bianco, compare il logo SSW, poi si apre il sito ======== */
+/* ======== INTRO: video della M2 che entra derapando e si allontana nel fumo.
+            Quando la macchina sparisce il video sfuma tutto nel bianco,
+            poi su bianco pulito compare il logo SSW e si apre il sito. ======== */
 (function () {
   const intro = document.getElementById('intro');
   const vid = document.getElementById('ivid');
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const RATE = 1.12;        // velocità del video (1 = normale)
-  const LOGO_AT = 3.9;      // secondo del video in cui compare il logo (inizio sfumatura al bianco)
-  let closed = false, logoOn = false, started = false;
+  const RATE = 1.3;         // velocità del video (1 = normale)
+  const CUT  = 3.05;        // secondo del video in cui la macchina è sparsa nel fumo: da qui sfuma al bianco
+  const FADE = 450;         // ms della sfumatura del video al bianco (uguale al CSS di #ivid)
+  const HOLD = 1050;        // ms in cui il logo resta visibile prima di aprire il sito
+  let closed = false, cut = false, started = false;
 
-  function showLogo() { if (!logoOn) { logoOn = true; intro.classList.add('on'); } }
   function tryClose() {
     if (closed) return;
     closed = true;
@@ -680,26 +682,34 @@ footer ul a:hover{color:#fff}
     setTimeout(() => document.body.classList.add('ready'), 250);
     setTimeout(() => intro.remove(), 1200);
   }
-  // se il video non parte (risparmio energetico, connessione lenta...): solo logo
-  function fallback() {
-    if (started || closed) return;
-    vid.classList.add('off');
-    showLogo();
-    setTimeout(tryClose, 1800);
+  function logoThenOpen(wait) {
+    setTimeout(() => intro.classList.add('on'), wait);
+    setTimeout(tryClose, wait + HOLD);
+  }
+  function cutToWhite() {
+    if (cut) return; cut = true;
+    vid.classList.add('off');                       // il video sparisce nel bianco
+    setTimeout(() => vid.pause(), FADE);
+    logoThenOpen(FADE + 60);                         // il logo entra solo su bianco pulito
+  }
+  function fallback() {                              // video non partito: solo logo
+    if (started || cut) return;
+    cut = true; vid.classList.add('off');
+    logoThenOpen(150);
   }
 
   intro.addEventListener('click', tryClose);
-  if (reduce) { vid.remove(); showLogo(); setTimeout(tryClose, 1200); return; }
+  if (reduce) { vid.remove(); cut = true; logoThenOpen(100); return; }
 
   vid.playbackRate = RATE;
   vid.addEventListener('playing', () => { started = true; vid.playbackRate = RATE; });
-  vid.addEventListener('timeupdate', () => { if (vid.currentTime >= LOGO_AT) showLogo(); });
-  vid.addEventListener('ended', () => { showLogo(); setTimeout(tryClose, 900); });
+  vid.addEventListener('timeupdate', () => { if (vid.currentTime >= CUT) cutToWhite(); });
+  vid.addEventListener('ended', cutToWhite);
   vid.addEventListener('error', fallback);
   const p = vid.play();
   if (p && p.catch) p.catch(fallback);
-  setTimeout(fallback, 2500);        // se dopo 2,5 s non è ancora partito
-  setTimeout(tryClose, 9000);        // sicurezza: il sito si apre comunque
+  setTimeout(fallback, 2500);
+  setTimeout(tryClose, 8000);
 })();
 
 /* ======== header trasparente → pieno dopo l'hero ======== */
