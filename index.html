@@ -675,8 +675,8 @@ footer ul a:hover{color:#fff}
   const wide = matchMedia('(min-aspect-ratio: 1/1)').matches;
   const k = wide ? 'h' : 'v';
   // punto (in % del video) in cui la macchina sparisce nel fumo, e secondo del video in cui succede
-  const VP  = wide ? [0.49, 0.45] : [0.47, 0.455];
-  const CUT = wide ? 4.2 : 3.85;                     // da qui la scritta inizia a uscire dal fumo
+  const VP  = wide ? [0.49, 0.47] : [0.48, 0.46];
+  const CUT = wide ? 3.8 : 4.0;                     // da qui la scritta inizia a uscire dal fumo
   const HOLD = 1900;                                  // ms dalla comparsa della scritta all'apertura del sito
   const webm = !vid.canPlayType('video/mp4; codecs="avc1.640028"') && vid.canPlayType('video/webm; codecs="vp9"');
   vid.poster = vid.dataset[k + 'Poster'];
