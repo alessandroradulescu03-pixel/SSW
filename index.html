@@ -683,14 +683,21 @@ footer ul a:hover{color:#fff}
   vid.src = webm ? vid.dataset[k + 'Webm'] : vid.dataset[k + 'Mp4'];
   let closed = false, cut = false, started = false;
 
-  // sposta il video in modo che il punto di fuga cada al centro della scritta
+  // sposta il video in modo che il punto di fuga cada al centro della scritta,
+  // e lo ingrandisce quanto basta perché copra sempre tutto lo schermo (niente bordi vuoti)
   function align() {
     const vw = vid.videoWidth || (wide ? 1280 : 720), vh = vid.videoHeight || (wide ? 720 : 1280);
     const W = innerWidth, H = innerHeight, sc = Math.max(W / vw, H / vh);
-    const px = (W - vw * sc) / 2 + VP[0] * vw * sc, py = (H - vh * sc) / 2 + VP[1] * vh * sc;
+    const L = (W - vw * sc) / 2, T = (H - vh * sc) / 2, R = L + vw * sc, B = T + vh * sc;
+    const px = L + VP[0] * vw * sc, py = T + VP[1] * vh * sc;
     const r = mark.getBoundingClientRect();
     const mx = r.left + r.width / 2, my = r.top + r.height / 2;
-    vid.style.transform = `translate(${(mx - px).toFixed(1)}px, ${(my - py).toFixed(1)}px)`;
+    const z = Math.max(1, mx / (px - L), (W - mx) / (R - px), my / (py - T), (H - my) / (B - py)) * 1.01;
+    // il video ha la sua misura intera (non ritagliata allo schermo), così spostandolo non lascia buchi
+    Object.assign(vid.style, { inset: 'auto', left: L.toFixed(1) + 'px', top: T.toFixed(1) + 'px',
+      width: (vw * sc).toFixed(1) + 'px', height: (vh * sc).toFixed(1) + 'px', objectFit: 'fill' });
+    vid.style.transformOrigin = `${(px - L).toFixed(1)}px ${(py - T).toFixed(1)}px`;
+    vid.style.transform = `translate(${(mx - px).toFixed(1)}px, ${(my - py).toFixed(1)}px) scale(${z.toFixed(3)})`;
     intro.style.setProperty('--mark-y', (my - intro.querySelector('.intro-in').getBoundingClientRect().top) + 'px');
   }
 
