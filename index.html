@@ -100,15 +100,6 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .btn.pink:hover{background:#fff}
 @media(max-width:760px){.hero .info{flex-direction:column;align-items:flex-start;bottom:28vw}.hero .wm{transform:translateY(12%)}}
 
-/* ---------- TICKER ---------- */
-.tick{background:#000;border-block:1px solid var(--line);overflow:hidden;padding:15px 0}
-.tick .row{display:flex;width:max-content;animation:tick 34s linear infinite}
-.tick span{font-size:13px;font-weight:800;letter-spacing:.2em;text-transform:uppercase;font-style:italic;font-stretch:112%;padding:0 22px;display:flex;align-items:center;gap:44px;white-space:nowrap}
-.tick span::after{content:"";width:9px;height:9px;background:var(--pink);transform:skewX(-14deg)}
-.tick span:nth-child(3n+2)::after{background:var(--g)}
-.tick span:nth-child(3n)::after{background:var(--r)}
-@keyframes tick{to{transform:translateX(-50%)}}
-
 /* ---------- TRE RIQUADRI ---------- */
 .tiles{display:grid;grid-template-columns:repeat(3,1fr);background:#000}
 .tile{position:relative;aspect-ratio:3/4;overflow:hidden;display:block}
@@ -321,7 +312,6 @@ footer .bot{display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;p
 
 @media(prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:.01ms!important;animation-delay:0s!important;transition-duration:.01ms!important}
-  .tick .row{animation:none}
   html{scroll-behavior:auto}
 }
 </style>
@@ -371,9 +361,6 @@ footer .bot{display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;p
   </div>
   <div class="wm disp" aria-hidden="true"><span id="wm"><i>S</i>TAY SIDEWAYS</span></div>
 </section>
-
-<!-- ============ TICKER ============ -->
-<div class="tick" aria-hidden="true"><div class="row" id="tick"></div></div>
 
 <!-- ============ TRE RIQUADRI ============ -->
 <section class="tiles">
@@ -631,13 +618,6 @@ function fitWM() {
 }
 fitWM(); addEventListener('resize', fitWM);
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitWM);
-
-/* ======== ticker ======== */
-(function () {
-  const words = ['Stay Sideways', 'Drop 01 online', 'Edizione limitata', 'Made in Italy', 'SSW Motorsport', 'Spedizione gratuita sopra € 120'];
-  const one = words.map(w => `<span>${w}</span>`).join('');
-  $('tick').innerHTML = one + one + one + one;
-})();
 
 /* ======== header: si nasconde scendendo, torna salendo ======== */
 (function () {
