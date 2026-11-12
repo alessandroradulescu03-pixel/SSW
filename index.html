@@ -779,7 +779,7 @@ $('veil').addEventListener('click', closeCart);
    Per andare online va sostituito con il Client ID LIVE del conto PayPal Business di SSW
    (developer.paypal.com → Apps & Credentials). Per le prove si può usare il Client ID sandbox.
    Il Client ID è pubblico: il Secret invece NON va mai messo in questo file. */
-const PAYPAL_CLIENT_ID = 'test';
+const PAYPAL_CLIENT_ID = 'AUAn5Y1nJv3HFOleWP06pybLxPYlehzX91Va1eLci2eB5JYTFvIfStydhoi1ZuJJ7zcW6BoF_PqnGLM0'; // SANDBOX di Ale (prove). Prima del lancio: Client ID LIVE del conto Business di SSW
 const m2 = n => n.toFixed(2), EUR = v => ({ currency_code: 'EUR', value: m2(v) });
 let ppLoad = null, ppDone = false;
 const loadPP = () => ppLoad || (ppLoad = new Promise((ok, ko) => {
