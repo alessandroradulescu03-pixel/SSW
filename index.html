@@ -268,6 +268,17 @@ footer .bot{display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;p
 .bmain:hover:not(:disabled){background:var(--pink);color:#000}
 .bmain:disabled{background:#d6d6d6;color:#888;cursor:default}
 .cart .cm{font-size:13px;color:#555;margin-top:12px;min-height:18px}
+.pay{margin-top:18px}
+.pay[hidden]{display:none}
+.pay .pl{font-size:11px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;margin-bottom:12px}
+.pay #ppBtns{min-height:52px}
+.pay .wait{font-size:13px;color:#777;padding:14px 0}
+.pay .bk{font-size:12px;color:#777;text-decoration:underline;margin-top:6px}
+.pay .bk:hover{color:#000}
+.cart .done{padding:56px 0;text-align:center;color:#555;font-size:14.5px}
+.cart .done b{display:block;color:#000;font-size:30px;line-height:1;margin-bottom:14px}
+.cart .done b i{color:var(--pink);font-style:inherit}
+.cart .done .oid{display:inline-block;margin-top:18px;padding:8px 14px;border:1px solid #ddd;border-radius:999px;font-size:12px;font-weight:700;letter-spacing:.06em;color:#000}
 
 /* ---------- SCHEDA PRODOTTO ---------- */
 .pd{position:fixed;inset:0;z-index:80;background:#fff;color:var(--ink);overflow:auto;transform:translateY(100%);visibility:hidden;transition:transform .6s var(--ease),visibility .6s}
@@ -544,7 +555,12 @@ footer .bot{display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;p
     <div class="r t"><span>Totale</span><span id="tot">€ 0</span></div>
     <small>Spedizione gratuita sopra € 120. IVA inclusa.</small>
     <button class="bmain" id="checkout">Procedi all'ordine</button>
-    <div class="cm" id="cartMsg"></div>
+    <div class="pay" id="payBox" hidden>
+      <div class="pl">Scegli come pagare</div>
+      <div id="ppBtns"></div>
+      <button class="bk" id="payBack">← Torna al carrello</button>
+    </div>
+    <div class="cm" id="cartMsg" role="status"></div>
   </div>
 </aside>
 
@@ -567,7 +583,7 @@ footer .bot{display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;p
       <li><b>Indirizzo email</b>, che inserisci tu nel modulo di iscrizione alla newsletter.</li>
       <li><b>Dati tecnici di navigazione</b> (ad esempio indirizzo IP e tipo di browser), trattati in automatico dai servizi che fanno funzionare il sito.</li>
     </ul>
-    <p>Non raccogliamo dati di pagamento: gli eventuali acquisti avvengono tramite <span class="phx">[Instagram / WhatsApp / piattaforma di vendita]</span>.</p>
+    <p>I pagamenti sono gestiti da <b>PayPal</b>: i dati della tua carta o del tuo conto li inserisci direttamente su PayPal e noi non li vediamo né li conserviamo. Quando completi un acquisto PayPal ci comunica solo i dati necessari per evadere l'ordine: nome, email, indirizzo di spedizione e capi acquistati.</p>
 
     <h3>3. Perché li usiamo</h3>
     <ul>
@@ -704,17 +720,21 @@ new IntersectionObserver((es, o) => {
   rail.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(e); } });
 })();
 
-/* ======== carrello (demo, senza pagamento) ======== */
+/* ======== carrello ======== */
 let cart = [];
 try { cart = JSON.parse(localStorage.getItem('ssw-cart') || '[]').filter(l => P[l.id]); } catch (e) {}
 const save = () => { try { localStorage.setItem('ssw-cart', JSON.stringify(cart)); } catch (e) {} };
 let tt;
 const say = t => { const el = $('toast'); el.textContent = t; el.classList.add('show'); clearTimeout(tt); tt = setTimeout(() => el.classList.remove('show'), 2400); };
 
+const totals = () => { const sub = cart.reduce((a, l) => a + P[l.id].price * l.q, 0), ship = sub >= 120 ? 0 : 7; return { sub, ship, tot: sub + ship }; };
+const payView = on => { $('payBox').hidden = !on; $('checkout').style.display = on ? 'none' : ''; };
+
 function render() {
   const n = cart.reduce((a, l) => a + l.q, 0);
   document.querySelectorAll('.cartN').forEach(e => e.textContent = n);
   if (!cart.length) {
+    payView(false);
     $('cartList').innerHTML = '<div class="empty"><b class="disp">Vuoto.</b>Scopri il Drop 01 e scegli il tuo capo.</div>';
     $('cartFoot').style.display = 'none';
     return;
@@ -728,7 +748,7 @@ function render() {
         <button class="rm" data-a="x" data-i="${i}">Rimuovi</button></div>
       <div class="pr">${eur(p.price * l.q)}</div></div>`;
   }).join('');
-  const sub = cart.reduce((a, l) => a + P[l.id].price * l.q, 0), ship = sub >= 120 ? 0 : 7;
+  const { sub, ship } = totals();
   $('sub').textContent = eur(sub);
   $('ship').textContent = ship ? eur(ship) : 'Gratuita';
   $('tot').textContent = eur(sub + ship);
@@ -741,12 +761,68 @@ $('cartList').addEventListener('click', e => {
   if (b.dataset.a === 'x' || l.q < 1) cart.splice(+b.dataset.i, 1);
   save(); render();
 });
-const openCart = e => { if (e) e.preventDefault(); $('cartMsg').textContent = ''; $('cart').classList.add('open'); $('veil').classList.add('open'); document.body.classList.add('lock'); };
+const openCart = e => { if (e) e.preventDefault(); $('cartMsg').textContent = ''; if (!cart.length) render(); $('cart').classList.add('open'); $('veil').classList.add('open'); document.body.classList.add('lock'); };
 const closeCart = () => { $('cart').classList.remove('open'); $('veil').classList.remove('open'); if (!$('pd').classList.contains('open')) document.body.classList.remove('lock'); };
 document.querySelectorAll('.open-cart').forEach(a => a.addEventListener('click', openCart));
 $('cartClose').addEventListener('click', closeCart);
 $('veil').addEventListener('click', closeCart);
-$('checkout').addEventListener('click', () => { $('cartMsg').textContent = 'Il pagamento online arriverà a breve. Per ora scrivici su Instagram per completare l’ordine.'; });
+
+/* ======== pagamento PayPal ========
+   PAYPAL_CLIENT_ID: 'test' = modalità demo di PayPal (non muove soldi veri).
+   Per andare online va sostituito con il Client ID LIVE del conto PayPal Business di SSW
+   (developer.paypal.com → Apps & Credentials). Per le prove si può usare il Client ID sandbox.
+   Il Client ID è pubblico: il Secret invece NON va mai messo in questo file. */
+const PAYPAL_CLIENT_ID = 'test';
+const m2 = n => n.toFixed(2), EUR = v => ({ currency_code: 'EUR', value: m2(v) });
+let ppLoad = null, ppDone = false;
+const loadPP = () => ppLoad || (ppLoad = new Promise((ok, ko) => {
+  const s = document.createElement('script');
+  s.src = 'https://www.paypal.com/sdk/js?client-id=' + encodeURIComponent(PAYPAL_CLIENT_ID) + '&currency=EUR&components=buttons&enable-funding=card&locale=it_IT';
+  s.onload = () => window.paypal ? ok() : ko();
+  s.onerror = () => { ppLoad = null; s.remove(); ko(); };
+  document.head.appendChild(s);
+}));
+function orderDone(d, id) {
+  cart = []; save(); render();
+  const who = d && d.payer && d.payer.name && d.payer.name.given_name, mail = d && d.payer && d.payer.email_address;
+  const box = document.createElement('div'); box.className = 'done';
+  box.innerHTML = '<b class="disp">Ordine <i>confermato.</i></b><span class="tx"></span><br><span class="oid"></span>';
+  box.querySelector('.tx').textContent = (who ? 'Grazie ' + who + '! ' : 'Grazie! ') + 'Il pagamento è andato a buon fine.' + (mail ? ' La ricevuta arriva a ' + mail + '.' : ' La ricevuta ti arriva via email da PayPal.');
+  box.querySelector('.oid').textContent = 'Ordine n. ' + id;
+  $('cartList').replaceChildren(box);
+  say('Pagamento completato');
+}
+function mountPP() {
+  if (ppDone) return;
+  ppDone = true;
+  paypal.Buttons({
+    style: { layout: 'vertical', color: 'black', shape: 'pill', label: 'pay', height: 50 },
+    onClick: (data, actions) => cart.length ? actions.resolve() : actions.reject(),
+    createOrder: (data, actions) => {
+      const t = totals();   // il totale viene letto dal carrello nel momento in cui si clicca
+      $('cartMsg').textContent = '';
+      return actions.order.create({
+        intent: 'CAPTURE',
+        purchase_units: [{
+          description: 'Ordine SSW Motorsport',
+          amount: { ...EUR(t.tot), breakdown: { item_total: EUR(t.sub), shipping: EUR(t.ship) } },
+          items: cart.map(l => ({ name: (P[l.id].name + ' ' + P[l.id].col + ' · Taglia ' + l.size).slice(0, 127), unit_amount: EUR(P[l.id].price), quantity: String(l.q), category: 'PHYSICAL_GOODS' }))
+        }]
+      });
+    },
+    onApprove: (data, actions) => actions.order.capture().then(d => orderDone(d, data.orderID)),
+    onCancel: () => { $('cartMsg').textContent = 'Pagamento annullato. Il carrello è ancora qui, puoi riprovare quando vuoi.'; },
+    onError: err => { console.error(err); $('cartMsg').textContent = 'Il pagamento non è andato a buon fine e non ti è stato addebitato nulla. Riprova tra poco.'; }
+  }).render('#ppBtns');
+}
+$('checkout').addEventListener('click', () => {
+  if (!cart.length) return;
+  payView(true);
+  $('cartMsg').textContent = ppDone ? '' : 'Carico il pagamento sicuro…';
+  loadPP().then(() => { mountPP(); if ($('cartMsg').textContent.startsWith('Carico')) $('cartMsg').textContent = ''; })
+    .catch(() => { payView(false); $('cartMsg').textContent = 'Non riesco a caricare PayPal. Controlla la connessione (o disattiva il blocco pubblicità) e riprova.'; });
+});
+$('payBack').addEventListener('click', () => { payView(false); $('cartMsg').textContent = ''; });
 
 /* ======== scheda prodotto ======== */
 let cur = null, sel = null;
