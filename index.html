@@ -248,13 +248,13 @@ footer .bot{display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;p
 /* ---------- CARRELLO ---------- */
 .veil{position:fixed;inset:0;z-index:90;background:rgba(0,0,0,.6);opacity:0;visibility:hidden;transition:opacity .4s,visibility .4s}
 .veil.open{opacity:1;visibility:visible}
-.cart{position:fixed;top:0;right:0;bottom:0;z-index:100;width:min(440px,100%);background:#fff;color:var(--ink);display:flex;flex-direction:column;transform:translateX(102%);transition:transform .55s var(--ease)}
+.cart{position:fixed;top:0;right:0;bottom:0;z-index:100;width:min(440px,100%);background:#fff;color:var(--ink);display:flex;flex-direction:column;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;transform:translateX(102%);transition:transform .55s var(--ease)}
 .cart.open{transform:none}
-.cart .ch{display:flex;justify-content:space-between;align-items:center;padding:22px 24px;background:#000;color:#fff}
+.cart .ch{display:flex;justify-content:space-between;align-items:center;padding:22px 24px;background:#000;color:#fff;position:sticky;top:0;z-index:5;flex:none}
 .cart .ch h3{font-size:26px}
 .x{font-size:12px;font-weight:700;letter-spacing:.16em;text-transform:uppercase}
 .x:hover{color:var(--pink)}
-.cart .list{flex:1;overflow:auto;padding:8px 24px}
+.cart .list{flex:1 0 auto;padding:8px 24px}
 .cart .empty{padding:60px 0;text-align:center;color:#777}
 .cart .empty b{display:block;color:#000;font-size:26px;margin-bottom:10px}
 .ci{display:grid;grid-template-columns:78px 1fr auto;gap:14px;padding:16px 0;border-bottom:1px solid #e8e8e8}
@@ -264,7 +264,7 @@ footer .bot{display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;p
 .ci .pr{font-weight:800}
 .qty{display:inline-flex;align-items:center;gap:12px;border:1px solid #ccc;border-radius:999px;padding:3px 12px;margin-top:10px;font-size:14px}
 .ci .rm{display:block;margin-top:8px;font-size:12px;color:#777;text-decoration:underline}
-.cart .cf{padding:20px 24px 24px;border-top:1px solid #e8e8e8}
+.cart .cf{flex:none;padding:20px 24px calc(24px + env(safe-area-inset-bottom));border-top:1px solid #e8e8e8}
 .cart .cf .r{display:flex;justify-content:space-between;font-size:14.5px;margin-bottom:6px}
 .cart .cf .r.t{font-weight:900;font-size:19px;margin:12px 0 4px}
 .cart .cf small{color:#777;font-size:12px}
