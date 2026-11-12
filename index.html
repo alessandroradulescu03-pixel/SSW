@@ -79,8 +79,9 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 /* ---------- HERO ---------- */
 .hero{position:relative;height:100svh;min-height:600px;overflow:hidden;background:#000}
 .hero .bg{position:absolute;inset:0}
-.hero .bg img{object-position:50% 22%;filter:grayscale(.25) contrast(1.06);transform:scale(1.08);animation:heroZoom 2.4s var(--ease) 1.2s forwards}
+.hero .bg img{object-position:50% 72%;filter:grayscale(.25) contrast(1.06);transform:scale(1.08);animation:heroZoom 2.4s var(--ease) 1.2s forwards}
 @keyframes heroZoom{to{transform:scale(1)}}
+@media (max-aspect-ratio:1/1){.hero .bg img{object-position:46% 82%}}
 .hero::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.45) 0,rgba(0,0,0,0) 28%,rgba(0,0,0,0) 48%,rgba(0,0,0,.82) 100%)}
 .hero .info{position:absolute;z-index:2;left:0;right:0;bottom:clamp(120px,23vw,300px);display:flex;justify-content:space-between;align-items:flex-end;gap:20px}
 .hero .info p{max-width:340px;font-size:15px;color:rgba(255,255,255,.82);margin-top:10px}
@@ -123,7 +124,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .promoS{background:#fff;padding:calc(var(--pad) + 4vw) var(--pad) var(--pad);clip-path:polygon(0 4vw,100% 0,100% 100%,0 100%);margin-top:-4vw;position:relative;z-index:2}
 .promo{position:relative;border-radius:18px;overflow:hidden;background:#000;min-height:min(86vh,720px);display:flex;align-items:flex-end}
 .promo .bg{position:absolute;inset:0}
-.promo .bg img{object-position:50% 28%;filter:grayscale(.2)}
+.promo .bg img{object-position:50% 57%;filter:grayscale(.2)}
 .promo::after{content:"";position:absolute;inset:0;background:linear-gradient(100deg,rgba(0,0,0,.9) 0,rgba(0,0,0,.55) 45%,rgba(0,0,0,.05) 100%)}
 .promo .in{position:relative;z-index:2;padding:clamp(24px,5vw,64px);width:100%;display:grid;grid-template-columns:1.25fr .75fr;gap:30px;align-items:end}
 .promo h2{font-size:clamp(60px,11.5vw,170px)}
@@ -177,6 +178,9 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .story .g2{display:grid;grid-template-columns:1fr 1fr;gap:clamp(28px,6vw,90px);align-items:center}
 .story .pic{position:relative;aspect-ratio:4/5;border-radius:18px;overflow:hidden}
 .story .pic img{filter:grayscale(1) contrast(1.1)}
+.story .duo{position:relative;padding:0 14% 9% 0}
+.story .pic2{position:absolute;right:0;bottom:0;width:44%;aspect-ratio:3/4;border-radius:14px;overflow:hidden;border:6px solid #000;rotate:3deg;box-shadow:0 18px 50px rgba(0,0,0,.6)}
+.story .pic2 img{filter:grayscale(1) contrast(1.1)}
 .story .pic .tri{position:absolute;left:0;right:0;bottom:0;height:6px}
 .story h2{font-size:clamp(40px,6vw,92px);margin:16px 0 26px}
 .story p{color:rgba(255,255,255,.78);max-width:520px;margin-bottom:16px}
@@ -374,7 +378,7 @@ footer .bot{display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;p
 
 <!-- ============ HERO ============ -->
 <section class="hero grain">
-  <div class="bg"><img src="https://images.unsplash.com/photo-1608145550502-f53571aa63e1?auto=format&fit=crop&w=2400&q=85" alt="Drop 01 SSW indossato"></div>
+  <div class="bg"><img src="assets/ssw-m2-torre.jpg" alt="SSW Motorsport: BMW M2 nera davanti alla torre"></div>
   <div class="wrap info">
     <div>
       <div class="kick"><span class="pk">●</span>&nbsp; Drop 01 — Disponibile ora</div>
@@ -408,7 +412,7 @@ footer .bot{display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;p
 <!-- ============ PROMO 1000 ============ -->
 <section class="promoS">
   <div class="promo rv" id="promo">
-    <div class="bg"><img src="https://images.unsplash.com/photo-1611817757591-c3f345024273?auto=format&fit=crop&w=2000&q=80" alt="" loading="lazy"></div>
+    <div class="bg"><img src="assets/ssw-m2-notte.jpg" alt="" loading="lazy"></div>
     <svg class="doodle d1" viewBox="0 0 300 150" aria-hidden="true" style="--len:520"><path d="M8 20C70 4 170 22 214 96c8 14 12 26 14 40"/><path d="M200 112l28 26 20-34"/></svg>
     <svg class="doodle d2" viewBox="0 0 80 80" aria-hidden="true" style="--len:80"><line x1="40" y1="6" x2="40" y2="74"/><line x1="6" y1="40" x2="74" y2="40"/></svg>
     <div class="in">
@@ -460,7 +464,10 @@ footer .bot{display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;p
 <section class="story" id="storia">
   <div class="wrap">
     <div class="g2">
-      <div class="pic rv"><img src="https://images.unsplash.com/photo-1635650805023-f2529440b5aa?auto=format&fit=crop&w=1600&q=85" alt="Le origini di SSW" loading="lazy" style="object-position:50% 30%"><span class="tri"></span></div>
+      <div class="duo">
+        <div class="pic rv"><img src="assets/ssw-m2-garage-2.jpg" alt="Le origini di SSW: in garage, appoggiato alla BMW M2 nera" loading="lazy" style="object-position:50% 60%"><span class="tri"></span></div>
+        <div class="pic2 rv t2"><img src="assets/ssw-m2-garage.jpg" alt="Cofano aperto sul motore della BMW M2" loading="lazy" style="object-position:60% 42%"></div>
+      </div>
       <div>
         <div class="kick pk rv">La nostra storia</div>
         <h2 class="disp rv t1">Una passione<br>diventata <span class="pk">identità.</span></h2>
