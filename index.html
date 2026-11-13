@@ -541,7 +541,7 @@ footer .bot{display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;p
       <div class="note" id="pdNote"></div>
       <div class="acc">
         <details><summary>Dettagli e composizione</summary><p id="pdComp"></p></details>
-        <details id="fitBox"><summary>Vestibilità</summary><p>Vestibilità ampia e unisex. La modella indossa la S ed è alta 172 cm, il modello indossa la M ed è alto 183 cm. Per un fit più asciutto scegli una taglia in meno.</p></details>
+        <details id="fitBox"><summary>Vestibilità</summary><p id="pdFit">Vestibilità ampia e unisex. La modella indossa la S ed è alta 172 cm, il modello indossa la M ed è alto 183 cm. Per un fit più asciutto scegli una taglia in meno.</p></details>
         <details><summary>Spedizioni e resi</summary><p>Spedizione in tutta Italia in 2–4 giorni lavorativi. Reso gratuito entro 14 giorni dalla consegna, con il capo integro e l'etichetta.</p></details>
       </div>
     </div>
@@ -629,6 +629,7 @@ footer .bot{display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;p
 /* ======== PRODOTTI (demo: foto segnaposto da sostituire con quelle vere) ======== */
 const U = id => `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&w=1200&q=80`;
 const SZ = ['XS','S','M','L','XL'];
+const FIT_DEFAULT = 'Vestibilità ampia e unisex. La modella indossa la S ed è alta 172 cm, il modello indossa la M ed è alto 183 cm. Per un fit più asciutto scegli una taglia in meno.';
 const P = [
   { name:'Hoodie Oversize', col:'Petrolio', price:75, img:U('1508216310976-c518daae0cdc'), tag:'Nuovo', tp:1,
     d:'La nostra felpa più amata. Volume ampio, spalla scesa e cappuccio strutturato che resta in forma. Logo SSW ricamato sul petto.', c:'Felpa garzata 380 g/m², 100% cotone. Polsini e fondo a costine. Lavare a 30°, al rovescio.' },
@@ -672,12 +673,12 @@ function api(path, body) {
   }).then(r => r.ok ? r.json() : Promise.reject(new Error('database: errore ' + r.status)));
 }
 async function loadProducts() {
-  const rows = await api('products?select=id,name,color,price,description,composition,tag,images,variants(id,size,stock,sort)&active=eq.true&order=position.asc,created_at.asc');
+  const rows = await api('products?select=id,name,color,price,description,composition,fit,tag,images,variants(id,size,stock,sort)&active=eq.true&order=position.asc,created_at.asc');
   P.length = 0;
   rows.forEach(r => {
     const imgs = (r.images || []).filter(u => /^https:\/\//i.test(u));
     P.push({
-      uid: r.id, name: r.name, col: r.color, price: Number(r.price), tag: r.tag, d: r.description, c: r.composition,
+      uid: r.id, name: r.name, col: r.color, price: Number(r.price), tag: r.tag, d: r.description, c: r.composition, fit: r.fit,
       img: imgs[0] || NOIMG, imgs: imgs.length ? imgs : [NOIMG],
       sizes: (r.variants || []).sort((a, b) => a.sort - b.sort).map(v => ({ vid: v.id, size: v.size, stock: v.stock }))
     });
@@ -991,6 +992,7 @@ function openPD(uid) {
   $('pdPrice').textContent = eur(p.price);
   $('pdDesc').textContent = p.d;
   $('pdComp').textContent = p.c;
+  $('pdFit').textContent = p.fit || FIT_DEFAULT;   // se Andrea non la scrive resta il testo standard
   $('pdNote').textContent = out ? 'Questo capo è esaurito.' : '';
   // dal database: tutte le foto del capo. In demo: il capo più altre due foto di contorno
   $('pdGal').innerHTML = (DB ? p.imgs.map(u => ({ ...p, img: u })) : [p, ...P.filter(x => x !== p).slice(0, 2)]).map(x => pic(x, 'th')).join('');

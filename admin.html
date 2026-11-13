@@ -180,6 +180,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#000}
         </div>
         <label class="f"><span>Descrizione</span><textarea id="eDesc" maxlength="800"></textarea></label>
         <label class="f"><span>Dettagli e composizione</span><textarea id="eComp" maxlength="800"></textarea></label>
+        <label class="f"><span>Vestibilità</span><textarea id="eFit" maxlength="800" placeholder="Es. Vestibilità ampia e unisex. La modella indossa la S ed è alta 172 cm…"></textarea></label>
         <label class="f"><span>Posizione in vetrina (1 = primo)</span><input type="number" id="ePos" min="0" step="1" inputmode="numeric"></label>
         <label class="chk"><input type="checkbox" id="eActive" checked> Visibile sul sito</label>
       </div>
@@ -391,6 +392,7 @@ function openEdit(p) {
   $('eName').value = p ? p.name : ''; $('eColor').value = p ? p.color : '';
   $('ePrice').value = p ? p.price : ''; $('eTag').value = p ? p.tag : '';
   $('eDesc').value = p ? p.description : ''; $('eComp').value = p ? p.composition : '';
+  $('eFit').value = p ? (p.fit || '') : '';
   $('ePos').value = p ? p.position : products.length + 1;
   $('eActive').checked = p ? p.active : true;
   $('eDel').hidden = !p; $('eMsg').textContent = ''; $('eImgMsg').textContent = '';
@@ -475,7 +477,7 @@ $('eSave').addEventListener('click', async () => {
   $('eSave').disabled = true; msg.className = 'msg'; msg.textContent = 'Salvo…';
   const row = {
     name, price, color: $('eColor').value.trim(), tag: $('eTag').value.trim(),
-    description: $('eDesc').value.trim(), composition: $('eComp').value.trim(),
+    description: $('eDesc').value.trim(), composition: $('eComp').value.trim(), fit: $('eFit').value.trim(),
     position: parseInt($('ePos').value, 10) || 0, active: $('eActive').checked, images: ed.images
   };
   try {

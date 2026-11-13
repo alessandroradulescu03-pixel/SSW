@@ -24,12 +24,16 @@ create table if not exists public.products (
   price       numeric(10,2) not null check (price >= 0),
   description text not null default '',
   composition text not null default '',
+  fit         text not null default '',        -- testo della tendina "Vestibilità"
   tag         text not null default '',
   images      text[] not null default '{}',     -- la prima è la copertina
   position    int  not null default 0,          -- ordine in vetrina (dal più basso)
   active      boolean not null default true,    -- false = nascosto dal sito
   created_at  timestamptz not null default now()
 );
+
+-- per i database creati prima che esistesse la vestibilità
+alter table public.products add column if not exists fit text not null default '';
 
 -- ---------- taglie e quantità ----------
 create table if not exists public.variants (
