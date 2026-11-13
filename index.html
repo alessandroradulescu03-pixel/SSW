@@ -637,6 +637,11 @@ const P = [
   { name:'Hoodie Oversize', col:'Nero', price:75, img:U('1578470507807-3fc541d5f544'), tag:'Edizione limitata',
     d:'Oversize, essenziale, nera. Solo il logo SSW sul petto, con la S fucsia.', c:'Felpa garzata 380 g/m², 100% cotone. Lavare a 30°, al rovescio.' }
 ];
+/* ======== TEST REALE ========
+   TEST_PRICE = 0.01 → tutti i capi a 1 centesimo e spedizione a 0, per provare il pagamento vero.
+   Per tornare ai prezzi normali: TEST_PRICE = null */
+const TEST_PRICE = 0.01;
+if (TEST_PRICE) P.forEach(p => p.price = TEST_PRICE);
 const $ = id => document.getElementById(id);
 const eur = n => '€ ' + (Math.round(n * 100) / 100).toLocaleString('it-IT', { minimumFractionDigits: n % 1 ? 2 : 0 });
 const pic = (p, cls) => `<div class="${cls}"><img src="${p.img}" alt="${p.name} ${p.col}" loading="lazy"${p.pos ? ` style="object-position:${p.pos}"` : ''}></div>`;
@@ -727,7 +732,7 @@ const save = () => { try { localStorage.setItem('ssw-cart', JSON.stringify(cart)
 let tt;
 const say = t => { const el = $('toast'); el.textContent = t; el.classList.add('show'); clearTimeout(tt); tt = setTimeout(() => el.classList.remove('show'), 2400); };
 
-const totals = () => { const sub = cart.reduce((a, l) => a + P[l.id].price * l.q, 0), ship = sub >= 120 ? 0 : 7; return { sub, ship, tot: sub + ship }; };
+const totals = () => { const sub = cart.reduce((a, l) => a + P[l.id].price * l.q, 0), ship = TEST_PRICE ? 0 : (sub >= 120 ? 0 : 7); return { sub, ship, tot: sub + ship }; };
 const payView = on => { $('payBox').hidden = !on; $('checkout').style.display = on ? 'none' : ''; };
 
 function render() {
@@ -772,7 +777,7 @@ $('veil').addEventListener('click', closeCart);
    Per andare online va sostituito con il Client ID LIVE del conto PayPal Business di SSW
    (developer.paypal.com → Apps & Credentials). Per le prove si può usare il Client ID sandbox.
    Il Client ID è pubblico: il Secret invece NON va mai messo in questo file. */
-const PAYPAL_CLIENT_ID = 'AUAn5Y1nJv3HFOleWP06pybLxPYlehzX91Va1eLci2eB5JYTFvIfStydhoi1ZuJJ7zcW6BoF_PqnGLM0'; // SANDBOX di Ale (prove). Prima del lancio: Client ID LIVE del conto Business di SSW
+const PAYPAL_CLIENT_ID = 'AYQWlGVOivJ_cgvjdYEdsAjMjmG3RrvsmB_9napP7xkgQxvtuw2wB5eJlmdCm131QmYJlo9YyMsxD7yo'; // LIVE di Ale, solo per il test reale. Prima del lancio: Client ID LIVE del conto Business di SSW
 const m2 = n => n.toFixed(2), EUR = v => ({ currency_code: 'EUR', value: m2(v) });
 let ppLoad = null, ppDone = false;
 const loadPP = () => ppLoad || (ppLoad = new Promise((ok, ko) => {
