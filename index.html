@@ -777,7 +777,7 @@ $('veil').addEventListener('click', closeCart);
    Per andare online va sostituito con il Client ID LIVE del conto PayPal Business di SSW
    (developer.paypal.com → Apps & Credentials). Per le prove si può usare il Client ID sandbox.
    Il Client ID è pubblico: il Secret invece NON va mai messo in questo file. */
-const PAYPAL_CLIENT_ID = 'AYQWlGVOivJ_cgvjdYEdsAjMjmG3RrvsmB_9napP7xkgQxvtuw2wB5eJlmdCm131QmYJlo9YyMsxD7yo'; // LIVE di Ale, solo per il test reale. Prima del lancio: Client ID LIVE del conto Business di SSW
+const PAYPAL_CLIENT_ID = 'BAAGoX2dMvumrOPocUQRLFajpTH3ufv3jbVIcZEbmb08gyPQTcpX6rxv7hx8ufQTVQnvluKo5HW0wkX7lA'; // LIVE di Ale, solo per il test reale. Prima del lancio: Client ID LIVE del conto Business di SSW
 const m2 = n => n.toFixed(2), EUR = v => ({ currency_code: 'EUR', value: m2(v) });
 let ppLoad = null, ppDone = false;
 const loadPP = () => ppLoad || (ppLoad = new Promise((ok, ko) => {
@@ -815,7 +815,11 @@ function mountPP() {
         }]
       });
     },
-    onApprove: (data, actions) => actions.order.capture().then(d => orderDone(d, data.orderID)),
+    onApprove: (data, actions) => actions.order.capture().then(d => {
+      // conferma solo se PayPal dice che l'incasso è davvero completato
+      if (d && d.status === 'COMPLETED') orderDone(d, data.orderID);
+      else $('cartMsg').textContent = 'Il pagamento non risulta completato (' + ((d && d.status) || 'stato sconosciuto') + '). Non ti è stato addebitato nulla: riprova o scrivici.';
+    }),
     onCancel: () => { $('cartMsg').textContent = 'Pagamento annullato. Il carrello è ancora qui, puoi riprovare quando vuoi.'; },
     onError: err => { console.error(err); $('cartMsg').textContent = 'Il pagamento non è andato a buon fine e non ti è stato addebitato nulla. Riprova tra poco.'; }
   }).render('#ppBtns');
