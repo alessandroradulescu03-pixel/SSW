@@ -8,6 +8,6 @@
    Finché restano vuote il sito continua a funzionare coi capi demo.
    ===================================================================== */
 window.SSW_CONFIG = {
-  SUPABASE_URL: '',
-  SUPABASE_KEY: ''
+  SUPABASE_URL: 'https://iiuqzcmwwiquyssjxrfw.supabase.co',
+  SUPABASE_KEY: 'sb_publishable_ZeDV7ibewtzZ3Aed-Bpzew_2yA-TKMk'
 };
