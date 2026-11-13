@@ -161,6 +161,8 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .pc .ph{position:relative;aspect-ratio:3/4;border-radius:12px;overflow:hidden;background:var(--card)}
 .pc .ph img{transition:transform .9s var(--ease)}
 .pc:hover .ph img{transform:scale(1.05)}
+.pc.out .ph img{filter:grayscale(1);opacity:.5}
+.rail .none{color:#666;font-size:15px;padding:30px 0}
 .pc .tag{position:absolute;top:12px;left:12px;background:#000;color:#fff;font-size:10px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;padding:6px 10px 5px;border-radius:999px}
 .pc .tag.p{background:var(--pink);color:#000}
 .pc .add{position:absolute;right:12px;bottom:12px;width:44px;height:44px;border-radius:50%;background:#000;color:#fff;display:grid;place-items:center;font-size:22px;font-weight:400;font-style:normal;transform:translateY(14px);opacity:0;transition:transform .35s var(--ease),opacity .35s,background .25s}
@@ -308,6 +310,8 @@ footer .bot{display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;p
 .sizes button{min-width:54px;height:48px;padding:0 14px;border:1.5px solid #cfcfcf;border-radius:999px;font-weight:800;font-size:14px;transition:all .2s}
 .sizes button:hover{border-color:#000}
 .sizes button.sel{background:#000;border-color:#000;color:#fff}
+.sizes button:disabled{opacity:.35;text-decoration:line-through;cursor:not-allowed;border-color:#cfcfcf}
+.qty button:disabled{opacity:.3;cursor:default}
 .pd .note{font-size:13px;color:#555;min-height:18px;margin-top:12px}
 .pd details{border-top:1px solid #e3e3e3;padding:16px 0}
 .pd details:last-child{border-bottom:1px solid #e3e3e3}
@@ -598,6 +602,7 @@ footer .bot{display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;p
     <p>I dati non vengono venduti né ceduti. Sono trattati per nostro conto da fornitori nominati responsabili del trattamento:</p>
     <ul>
       <li><b>PayPal</b>: gestione dei pagamenti (tratta i dati di pagamento come titolare autonomo).</li>
+      <li><b>Supabase</b>: database in cui conserviamo gli ordini e il catalogo.</li>
       <li><b>GitHub Pages</b>: hosting del sito.</li>
       <li><b>Google Fonts</b>: caratteri tipografici del sito.</li>
     </ul>
@@ -619,6 +624,7 @@ footer .bot{display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;p
   </div>
 </div>
 
+<script src="config.js"></script>
 <script>
 /* ======== PRODOTTI (demo: foto segnaposto da sostituire con quelle vere) ======== */
 const U = id => `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&w=1200&q=80`;
@@ -641,10 +647,48 @@ const P = [
    TEST_PRICE = 0.01 → tutti i capi a 1 centesimo e spedizione a 0, per provare il pagamento vero.
    Per tornare ai prezzi normali: TEST_PRICE = null */
 const TEST_PRICE = 0.01;
-if (TEST_PRICE) P.forEach(p => p.price = TEST_PRICE);
+const applyTest = () => { if (TEST_PRICE) P.forEach(p => p.price = TEST_PRICE); };
+// i capi demo qui sopra: taglie fisse e nessun limite di pezzi (stock null)
+P.forEach((p, i) => { p.uid = 'demo-' + i; p.imgs = [p.img]; p.sizes = SZ.map(s => ({ vid: null, size: s, stock: null })); });
+applyTest();
 const $ = id => document.getElementById(id);
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const eur = n => '€ ' + (Math.round(n * 100) / 100).toLocaleString('it-IT', { minimumFractionDigits: n % 1 ? 2 : 0 });
-const pic = (p, cls) => `<div class="${cls}"><img src="${p.img}" alt="${p.name} ${p.col}" loading="lazy"${p.pos ? ` style="object-position:${p.pos}"` : ''}></div>`;
+const pic = (p, cls) => `<div class="${cls}"><img src="${esc(p.img)}" alt="${esc(p.name)} ${esc(p.col)}" loading="lazy"${p.pos ? ` style="object-position:${p.pos}"` : ''}></div>`;
+
+/* ======== DATABASE (Supabase) ========
+   Con config.js compilato i capi, le foto e le quantità arrivano dal database
+   (li gestisce Andrea da admin.html) e i capi demo qui sopra non vengono più usati.
+   Con config.js vuoto il sito resta in modalità demo. */
+const CFG = window.SSW_CONFIG || {};
+const DB = !!(CFG.SUPABASE_URL && CFG.SUPABASE_KEY);
+const NOIMG = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 3 4'%3E%3Crect width='3' height='4' fill='%23e6e6e6'/%3E%3C/svg%3E";
+let dbState = DB ? 'loading' : 'demo';   // demo | loading | ok | error
+function api(path, body) {
+  return fetch(CFG.SUPABASE_URL.replace(/\/+$/, '') + '/rest/v1/' + path, {
+    method: body ? 'POST' : 'GET',
+    headers: { apikey: CFG.SUPABASE_KEY, Authorization: 'Bearer ' + CFG.SUPABASE_KEY, 'Content-Type': 'application/json' },
+    body: body ? JSON.stringify(body) : undefined
+  }).then(r => r.ok ? r.json() : Promise.reject(new Error('database: errore ' + r.status)));
+}
+async function loadProducts() {
+  const rows = await api('products?select=id,name,color,price,description,composition,tag,images,variants(id,size,stock,sort)&active=eq.true&order=position.asc,created_at.asc');
+  P.length = 0;
+  rows.forEach(r => {
+    const imgs = (r.images || []).filter(u => /^https:\/\//i.test(u));
+    P.push({
+      uid: r.id, name: r.name, col: r.color, price: Number(r.price), tag: r.tag, d: r.description, c: r.composition,
+      img: imgs[0] || NOIMG, imgs: imgs.length ? imgs : [NOIMG],
+      sizes: (r.variants || []).sort((a, b) => a.sort - b.sort).map(v => ({ vid: v.id, size: v.size, stock: v.stock }))
+    });
+  });
+  applyTest();
+  dbState = 'ok';
+}
+if (DB) P.length = 0;
+const byUid = uid => P.find(p => p.uid === uid);
+const sizeOf = (p, size) => p && p.sizes.find(s => s.size === size);
+const soldOut = p => p.sizes.every(s => s.stock === 0);
 
 /* ======== scritta gigante dell'hero: sempre larga quanto lo schermo ======== */
 function fitWM() {
@@ -706,33 +750,64 @@ new IntersectionObserver((es, o) => {
 }, { threshold: .6 }).observe($('count'));
 
 /* ======== carosello prodotti ======== */
-(function () {
-  const rail = $('rail');
-  rail.innerHTML = P.map((p, i) => `
-    <article class="pc" data-id="${i}" tabindex="0" role="button" aria-label="${p.name} ${p.col}, ${eur(p.price)}">
-      <div class="ph"><img src="${p.img}" alt="${p.name} ${p.col}" loading="lazy"${p.pos ? ` style="object-position:${p.pos}"` : ''}>
-        ${p.tag ? `<span class="tag${p.tp ? ' p' : ''}">${p.tag}</span>` : ''}
+const rail = $('rail');
+const railUpd = () => { $('prev').disabled = rail.scrollLeft < 8; $('next').disabled = rail.scrollLeft > rail.scrollWidth - rail.clientWidth - 8; };
+const railStep = () => { const c = rail.querySelector('.pc'); return c ? (c.offsetWidth + 16) * 2 : 300; };
+function buildRail() {
+  const x = rail.scrollLeft;
+  if (!P.length) {
+    rail.innerHTML = `<p class="none">${dbState === 'loading' ? 'Carico la collezione…' : dbState === 'error' ? 'Non riusciamo a caricare la collezione. Ricarica la pagina tra poco.' : 'Il drop arriva presto. Seguici su Instagram per non perderlo.'}</p>`;
+    railUpd(); return;
+  }
+  rail.innerHTML = P.map(p => {
+    const out = soldOut(p);
+    return `
+    <article class="pc${out ? ' out' : ''}" data-uid="${esc(p.uid)}" tabindex="0" role="button" aria-label="${esc(p.name)} ${esc(p.col)}, ${out ? 'esaurito' : eur(p.price)}">
+      <div class="ph"><img src="${esc(p.img)}" alt="${esc(p.name)} ${esc(p.col)}" loading="lazy"${p.pos ? ` style="object-position:${p.pos}"` : ''}>
+        ${out ? '<span class="tag">Esaurito</span>' : p.tag ? `<span class="tag${p.tp ? ' p' : ''}">${esc(p.tag)}</span>` : ''}
         <span class="add" aria-hidden="true">+</span></div>
-      <div class="meta"><div><div class="nm">${p.name}</div><div class="cl">${p.col}</div></div><div class="pr">${eur(p.price)}</div></div>
-    </article>`).join('');
-  const step = () => (rail.querySelector('.pc').offsetWidth + 16) * 2;
-  const upd = () => { $('prev').disabled = rail.scrollLeft < 8; $('next').disabled = rail.scrollLeft > rail.scrollWidth - rail.clientWidth - 8; };
-  $('prev').addEventListener('click', () => rail.scrollBy({ left: -step(), behavior: 'smooth' }));
-  $('next').addEventListener('click', () => rail.scrollBy({ left: step(), behavior: 'smooth' }));
-  rail.addEventListener('scroll', upd, { passive: true }); addEventListener('resize', upd); upd();
-  const open = e => { const c = e.target.closest('.pc'); if (c) openPD(+c.dataset.id); };
-  rail.addEventListener('click', open);
-  rail.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(e); } });
-})();
+      <div class="meta"><div><div class="nm">${esc(p.name)}</div><div class="cl">${esc(p.col)}</div></div><div class="pr">${eur(p.price)}</div></div>
+    </article>`;
+  }).join('');
+  rail.scrollLeft = x; railUpd();
+}
+$('prev').addEventListener('click', () => rail.scrollBy({ left: -railStep(), behavior: 'smooth' }));
+$('next').addEventListener('click', () => rail.scrollBy({ left: railStep(), behavior: 'smooth' }));
+rail.addEventListener('scroll', railUpd, { passive: true }); addEventListener('resize', railUpd);
+const railOpen = e => { const c = e.target.closest('.pc'); if (c) openPD(c.dataset.uid); };
+rail.addEventListener('click', railOpen);
+rail.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); railOpen(e); } });
 
 /* ======== carrello ======== */
-let cart = [];
-try { cart = JSON.parse(localStorage.getItem('ssw-cart') || '[]').filter(l => P[l.id]); } catch (e) {}
-const save = () => { try { localStorage.setItem('ssw-cart', JSON.stringify(cart)); } catch (e) {} };
+let cart = [];   // righe: { uid, size, q }
+const CART_KEY = 'ssw-cart-v2';
+const save = () => { try { localStorage.setItem(CART_KEY, JSON.stringify(cart)); } catch (e) {} };
+// toglie dal carrello i capi che non esistono più o sono esauriti e abbassa le quantità oltre lo stock.
+// Risponde true se ha dovuto cambiare qualcosa.
+function fixCart() {
+  const before = JSON.stringify(cart);
+  cart = cart.filter(l => {
+    const s = sizeOf(byUid(l.uid), l.size);
+    if (!s || s.stock === 0) return false;
+    if (s.stock != null && l.q > s.stock) l.q = s.stock;
+    return l.q > 0;
+  });
+  const changed = JSON.stringify(cart) !== before;
+  if (changed) save();
+  return changed;
+}
+function restoreCart() {
+  try {
+    const raw = JSON.parse(localStorage.getItem(CART_KEY) || '[]');
+    cart = (Array.isArray(raw) ? raw : []).filter(l => l && typeof l.uid === 'string' && typeof l.size === 'string' && l.q > 0)
+      .map(l => ({ uid: l.uid, size: l.size, q: Math.floor(l.q) }));
+  } catch (e) { cart = []; }
+  fixCart();
+}
 let tt;
 const say = t => { const el = $('toast'); el.textContent = t; el.classList.add('show'); clearTimeout(tt); tt = setTimeout(() => el.classList.remove('show'), 2400); };
 
-const totals = () => { const sub = cart.reduce((a, l) => a + P[l.id].price * l.q, 0), ship = TEST_PRICE ? 0 : (sub >= 120 ? 0 : 7); return { sub, ship, tot: sub + ship }; };
+const totals = () => { const sub = cart.reduce((a, l) => a + byUid(l.uid).price * l.q, 0), ship = TEST_PRICE ? 0 : (sub >= 120 ? 0 : 7); return { sub, ship, tot: sub + ship }; };
 const payView = on => { $('payBox').hidden = !on; $('checkout').style.display = on ? 'none' : ''; };
 
 function render() {
@@ -746,10 +821,10 @@ function render() {
   }
   $('cartFoot').style.display = '';
   $('cartList').innerHTML = cart.map((l, i) => {
-    const p = P[l.id];
+    const p = byUid(l.uid), st = sizeOf(p, l.size).stock, max = st != null && l.q >= st;
     return `<div class="ci">${pic(p, 'th')}
-      <div><div class="nm">${p.name}</div><div class="mt">${p.col} · ${l.size}</div>
-        <div class="qty"><button data-a="-" data-i="${i}" aria-label="Meno">−</button><span>${l.q}</span><button data-a="+" data-i="${i}" aria-label="Più">+</button></div>
+      <div><div class="nm">${esc(p.name)}</div><div class="mt">${esc(p.col)} · ${esc(l.size)}</div>
+        <div class="qty"><button data-a="-" data-i="${i}" aria-label="Meno">−</button><span>${l.q}</span><button data-a="+" data-i="${i}" aria-label="Più"${max ? ' disabled title="Non ci sono altri pezzi"' : ''}>+</button></div>
         <button class="rm" data-a="x" data-i="${i}">Rimuovi</button></div>
       <div class="pr">${eur(p.price * l.q)}</div></div>`;
   }).join('');
@@ -761,7 +836,7 @@ function render() {
 $('cartList').addEventListener('click', e => {
   const b = e.target.closest('button[data-a]'); if (!b) return;
   const l = cart[+b.dataset.i];
-  if (b.dataset.a === '+') l.q++;
+  if (b.dataset.a === '+') { const st = sizeOf(byUid(l.uid), l.size).stock; if (st == null || l.q < st) l.q++; else say('Non ci sono altri pezzi disponibili'); }
   if (b.dataset.a === '-') l.q--;
   if (b.dataset.a === 'x' || l.q < 1) cart.splice(+b.dataset.i, 1);
   save(); render();
@@ -787,6 +862,54 @@ const loadPP = () => ppLoad || (ppLoad = new Promise((ok, ko) => {
   s.onerror = () => { ppLoad = null; s.remove(); ko(); };
   document.head.appendChild(s);
 }));
+/* ======== ordine → database ========
+   Dopo l'incasso PayPal l'ordine viene registrato su Supabase (funzione place_order):
+   lì si salva l'ordine per l'admin e si scalano i pezzi. Se la rete cade proprio in quel momento,
+   l'ordine resta in attesa nel browser e viene registrato alla prossima apertura del sito. */
+const STOCK_MSG = 'Nel frattempo alcuni capi sono andati esauriti: abbiamo aggiornato il carrello. Controlla e riprova.';
+const PEND_KEY = 'ssw-ordini-da-registrare';
+const wait = ms => new Promise(r => setTimeout(r, ms));
+let stockStop = false;
+// rilegge capi e quantità dal database e sistema il carrello. true = il carrello è cambiato
+async function refreshStock() {
+  if (!DB) return false;
+  await loadProducts();
+  const changed = fixCart();
+  buildRail(); render();
+  if (changed && !cart.length) say('Capi esauriti: carrello aggiornato');
+  return changed;
+}
+function orderPayload(d, orderID) {
+  const pu = (d.purchase_units || [])[0] || {}, sh = pu.shipping || {}, a = sh.address || {}, py = d.payer || {};
+  const cap = ((pu.payments || {}).captures || [])[0] || {};
+  const full = (sh.name && sh.name.full_name) || [py.name && py.name.given_name, py.name && py.name.surname].filter(Boolean).join(' ');
+  return {
+    p_paypal_order_id: orderID,
+    p_capture_id: cap.id || '',
+    p_customer: { name: full, email: py.email_address || '', address: { name: full, line1: a.address_line_1 || '', line2: a.address_line_2 || '', city: a.admin_area_2 || '', province: a.admin_area_1 || '', zip: a.postal_code || '', country: a.country_code || '' } },
+    p_items: cart.map(l => { const p = byUid(l.uid); return { variant_id: sizeOf(p, l.size).vid, qty: l.q, name: p.name, color: p.col, size: l.size }; }),
+    p_paid: Number((cap.amount && cap.amount.value) || totals().tot)
+  };
+}
+async function saveOrder(payload) {
+  for (const ms of [0, 1500, 4000]) {
+    if (ms) await wait(ms);
+    try { const r = await api('rpc/place_order', payload); return (r && r.number) || null; } catch (e) { console.error(e); }
+  }
+  try { const q = JSON.parse(localStorage.getItem(PEND_KEY) || '[]'); q.push({ payload, tries: 0 }); localStorage.setItem(PEND_KEY, JSON.stringify(q.slice(-10))); } catch (e) {}
+  return null;
+}
+async function flushPending() {
+  let q = [];
+  try { q = JSON.parse(localStorage.getItem(PEND_KEY) || '[]'); } catch (e) {}
+  if (!Array.isArray(q) || !q.length) return;
+  const keep = [];
+  for (const it of q) {
+    try { await api('rpc/place_order', it.payload); }
+    catch (e) { it.tries = (it.tries || 0) + 1; if (it.tries < 6) keep.push(it); }
+  }
+  try { keep.length ? localStorage.setItem(PEND_KEY, JSON.stringify(keep)) : localStorage.removeItem(PEND_KEY); } catch (e) {}
+}
 function orderDone(d, id) {
   cart = []; save(); render();
   const who = d && d.payer && d.payer.name && d.payer.name.given_name, mail = d && d.payer && d.payer.email_address;
@@ -804,28 +927,52 @@ function mountPP() {
     style: { layout: 'vertical', color: 'black', shape: 'pill', label: 'pay', height: 50 },
     onClick: (data, actions) => cart.length ? actions.resolve() : actions.reject(),
     createOrder: (data, actions) => {
-      const t = totals();   // il totale viene letto dal carrello nel momento in cui si clicca
-      $('cartMsg').textContent = '';
-      return actions.order.create({
-        intent: 'CAPTURE',
-        purchase_units: [{
-          description: 'Ordine SSW Motorsport',
-          amount: { ...EUR(t.tot), breakdown: { item_total: EUR(t.sub), shipping: EUR(t.ship) } },
-          items: cart.map(l => ({ name: (P[l.id].name + ' ' + P[l.id].col + ' · Taglia ' + l.size).slice(0, 127), unit_amount: EUR(P[l.id].price), quantity: String(l.q), category: 'PHYSICAL_GOODS' }))
-        }]
+      $('cartMsg').textContent = ''; stockStop = false;
+      // ultimo controllo dei pezzi disponibili un attimo prima di aprire il pagamento
+      return refreshStock().catch(() => false).then(changed => {
+        if (changed || !cart.length) { stockStop = true; throw new Error('stock'); }
+        const t = totals();   // il totale viene letto dal carrello nel momento in cui si clicca
+        return actions.order.create({
+          intent: 'CAPTURE',
+          purchase_units: [{
+            description: 'Ordine SSW Motorsport',
+            amount: { ...EUR(t.tot), breakdown: { item_total: EUR(t.sub), shipping: EUR(t.ship) } },
+            items: cart.map(l => { const p = byUid(l.uid); return { name: (p.name + ' ' + p.col + ' · Taglia ' + l.size).slice(0, 127), unit_amount: EUR(p.price), quantity: String(l.q), category: 'PHYSICAL_GOODS' }; })
+          }]
+        });
       });
     },
-    onApprove: (data, actions) => actions.order.capture().then(d => {
+    onApprove: (data, actions) => actions.order.capture().then(async d => {
       // conferma solo se PayPal dice che l'incasso è davvero completato
-      if (d && d.status === 'COMPLETED') orderDone(d, data.orderID);
-      else $('cartMsg').textContent = 'Il pagamento non risulta completato (' + ((d && d.status) || 'stato sconosciuto') + '). Non ti è stato addebitato nulla: riprova o scrivici.';
+      if (!(d && d.status === 'COMPLETED')) {
+        $('cartMsg').textContent = 'Il pagamento non risulta completato (' + ((d && d.status) || 'stato sconosciuto') + '). Non ti è stato addebitato nulla: riprova o scrivici.';
+        return;
+      }
+      let num = null;
+      if (DB) {
+        $('cartMsg').textContent = 'Pagamento ricevuto, registro l\'ordine…';
+        num = await saveOrder(orderPayload(d, data.orderID));
+        $('cartMsg').textContent = '';
+      }
+      orderDone(d, num || data.orderID);
+      if (DB) loadProducts().then(buildRail).catch(() => {});   // la vetrina mostra subito i pezzi rimasti
     }),
     onCancel: () => { $('cartMsg').textContent = 'Pagamento annullato. Il carrello è ancora qui, puoi riprovare quando vuoi.'; },
-    onError: err => { console.error(err); $('cartMsg').textContent = 'Il pagamento non è andato a buon fine e non ti è stato addebitato nulla. Riprova tra poco.'; }
+    onError: err => {
+      if (stockStop) { stockStop = false; payView(false); $('cartMsg').textContent = STOCK_MSG; return; }
+      console.error(err); $('cartMsg').textContent = 'Il pagamento non è andato a buon fine e non ti è stato addebitato nulla. Riprova tra poco.';
+    }
   }).render('#ppBtns');
 }
-$('checkout').addEventListener('click', () => {
+$('checkout').addEventListener('click', async () => {
   if (!cart.length) return;
+  $('cartMsg').textContent = '';
+  if (DB) {   // prima di pagare ricontrollo che i capi ci siano ancora
+    $('checkout').disabled = true;
+    try { if (await refreshStock()) { $('cartMsg').textContent = STOCK_MSG; return; } }
+    catch (e) { $('cartMsg').textContent = 'Non riesco a verificare la disponibilità. Controlla la connessione e riprova.'; return; }
+    finally { $('checkout').disabled = false; }
+  }
   payView(true);
   $('cartMsg').textContent = ppDone ? '' : 'Carico il pagamento sicuro…';
   loadPP().then(() => { mountPP(); if ($('cartMsg').textContent.startsWith('Carico')) $('cartMsg').textContent = ''; })
@@ -835,25 +982,29 @@ $('payBack').addEventListener('click', () => { payView(false); $('cartMsg').text
 
 /* ======== scheda prodotto ======== */
 let cur = null, sel = null;
-function openPD(id) {
-  cur = id; sel = null;
-  const p = P[id];
+function openPD(uid) {
+  const p = byUid(uid); if (!p) return;
+  cur = uid; sel = null;
+  const out = soldOut(p);
   $('pdName').textContent = p.name;
   $('pdCol').textContent = p.col;
   $('pdPrice').textContent = eur(p.price);
   $('pdDesc').textContent = p.d;
   $('pdComp').textContent = p.c;
-  $('pdNote').textContent = '';
-  $('pdGal').innerHTML = [p, ...P.filter((_, i) => i !== id).slice(0, 2)].map(x => pic(x, 'th')).join('');
-  $('pdAdd').disabled = true; $('pdAdd').textContent = 'Seleziona una taglia';
+  $('pdNote').textContent = out ? 'Questo capo è esaurito.' : '';
+  // dal database: tutte le foto del capo. In demo: il capo più altre due foto di contorno
+  $('pdGal').innerHTML = (DB ? p.imgs.map(u => ({ ...p, img: u })) : [p, ...P.filter(x => x !== p).slice(0, 2)]).map(x => pic(x, 'th')).join('');
+  $('pdAdd').disabled = true; $('pdAdd').textContent = out ? 'Esaurito' : 'Seleziona una taglia';
   const box = $('pdSizes'); box.innerHTML = '';
-  SZ.forEach(sz => {
+  p.sizes.forEach(s => {
     const b = document.createElement('button');
-    b.textContent = sz;
+    b.textContent = s.size;
+    if (s.stock === 0) { b.disabled = true; b.title = 'Taglia esaurita'; }
     b.addEventListener('click', () => {
-      sel = sz;
+      sel = s.size;
       box.querySelectorAll('button').forEach(x => x.classList.toggle('sel', x === b));
       $('pdAdd').disabled = false; $('pdAdd').textContent = 'Aggiungi al carrello — ' + eur(p.price);
+      $('pdNote').textContent = s.stock != null && s.stock <= 3 ? (s.stock === 1 ? 'Ultimo pezzo disponibile.' : 'Ultimi ' + s.stock + ' pezzi disponibili.') : '';
     });
     box.appendChild(b);
   });
@@ -863,11 +1014,13 @@ function openPD(id) {
 const closePD = () => { $('pd').classList.remove('open'); document.body.classList.remove('lock'); };
 $('pdClose').addEventListener('click', closePD);
 $('pdAdd').addEventListener('click', () => {
-  if (sel == null) return;
-  const line = cart.find(l => l.id === cur && l.size === sel);
-  if (line) line.q++; else cart.push({ id: cur, size: sel, q: 1 });
+  const p = byUid(cur), s = sizeOf(p, sel);
+  if (!s) return;
+  const line = cart.find(l => l.uid === cur && l.size === sel);
+  if (s.stock != null && (line ? line.q : 0) >= s.stock) { $('pdNote').textContent = 'Hai già nel carrello tutti i pezzi disponibili di questa taglia.'; return; }
+  if (line) line.q++; else cart.push({ uid: cur, size: sel, q: 1 });
   save(); render();
-  say(`Aggiunto · ${P[cur].name} — ${sel}`);
+  say(`Aggiunto · ${p.name} — ${sel}`);
   $('pdNote').textContent = 'Aggiunto al carrello.';
 });
 $('guide').addEventListener('click', e => { e.preventDefault(); $('fitBox').open = true; $('fitBox').scrollIntoView({ behavior: 'smooth', block: 'center' }); });
@@ -885,7 +1038,14 @@ addEventListener('keydown', e => {
   else document.body.classList.remove('menu-open');
 });
 
+/* ======== avvio ======== */
 render();
+if (DB) {
+  buildRail();   // mostra "Carico la collezione…"
+  loadProducts()
+    .then(() => { restoreCart(); buildRail(); render(); flushPending(); })
+    .catch(e => { console.error(e); dbState = 'error'; buildRail(); });
+} else { restoreCart(); buildRail(); render(); }
 </script>
 </body>
 </html>
