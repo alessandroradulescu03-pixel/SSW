@@ -252,7 +252,7 @@ footer .bot{display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;p
 .veil.open{opacity:1;visibility:visible}
 .cart{position:fixed;top:0;right:0;bottom:0;z-index:100;width:min(440px,100%);background:#fff;color:var(--ink);display:flex;flex-direction:column;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;transform:translateX(102%);transition:transform .55s var(--ease)}
 .cart.open{transform:none}
-.cart .ch{display:flex;justify-content:space-between;align-items:center;padding:22px 24px;background:#000;color:#fff;position:sticky;top:0;z-index:5;flex:none}
+.cart .ch{display:flex;justify-content:space-between;align-items:center;padding:22px 24px;background:#000;color:#fff;position:sticky;top:0;z-index:20;flex:none}
 .cart .ch h3{font-size:26px}
 .x{font-size:12px;font-weight:700;letter-spacing:.16em;text-transform:uppercase}
 .x:hover{color:var(--pink)}
@@ -277,7 +277,7 @@ footer .bot{display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;p
 .pay{margin-top:18px}
 .pay[hidden]{display:none}
 .pay .pl{font-size:11px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;margin-bottom:12px}
-.pay #ppBtns{min-height:52px}
+.pay #ppBtns{min-height:52px;position:relative;z-index:0;isolation:isolate}   /* il modulo carta di PayPal resta sotto la barra "Carrello" */
 .pay .wait{font-size:13px;color:#777;padding:14px 0}
 .pay .bk{font-size:12px;color:#777;text-decoration:underline;margin-top:6px}
 .pay .bk:hover{color:#000}
@@ -285,6 +285,27 @@ footer .bot{display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;p
 .cart .done b{display:block;color:#000;font-size:30px;line-height:1;margin-bottom:14px}
 .cart .done b i{color:var(--pink);font-style:inherit}
 .cart .done .oid{display:inline-block;margin-top:18px;padding:8px 14px;border:1px solid #ddd;border-radius:999px;font-size:12px;font-weight:700;letter-spacing:.06em;color:#000}
+/* attesa dopo il pagamento */
+.cart .proc{padding:90px 0;text-align:center;color:#555;font-size:14.5px}
+.cart .proc b{display:block;color:#000;font-size:26px;line-height:1.05;margin:22px 0 10px}
+.spin2{width:44px;height:44px;margin:0 auto;border-radius:50%;border:4px solid #eee;border-top-color:var(--pink);animation:sp .8s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+/* riepilogo ordine */
+.cart .done.rec{padding:34px 0 10px}
+.done .ok{width:54px;height:54px;margin:0 auto 18px;border-radius:50%;background:var(--pink);display:grid;place-items:center}
+.done .ok svg{width:26px;height:26px}
+.done .oid.wait{color:#999}
+.rcp{text-align:left;margin-top:30px}
+.rcp h4{font-size:11px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:#000;margin:26px 0 6px}
+.rcp .ci{grid-template-columns:56px 1fr auto;padding:12px 0}
+.rcp .ci .q{color:#777;font-size:13px}
+.rcp .r{display:flex;justify-content:space-between;font-size:14px;margin-top:8px;color:#555}
+.rcp .r.t{font-weight:900;font-size:17px;color:#000;margin-top:10px}
+.rcp .ad{font-size:14.5px;color:#000;line-height:1.55}
+.rcp .inf{font-size:13.5px;color:#555;margin-top:8px}
+.rcp .inf a{color:#000;text-decoration:underline}
+.rcp .inf strong{color:#000;font-weight:700}
+.rcp .bmain{margin-top:26px}
 
 /* ---------- SCHEDA PRODOTTO ---------- */
 .pd{position:fixed;inset:0;z-index:80;background:#fff;color:var(--ink);overflow:auto;transform:translateY(100%);visibility:hidden;transition:transform .6s var(--ease),visibility .6s}
@@ -892,33 +913,68 @@ function orderPayload(d, orderID) {
     p_paid: Number((cap.amount && cap.amount.value) || totals().tot)
   };
 }
+// l'ordine finisce subito nella coda del browser e ne esce solo quando il database l'ha registrato:
+// così anche se il cliente chiude la pagina a metà, viene registrato alla visita successiva
+const pendGet = () => { try { const q = JSON.parse(localStorage.getItem(PEND_KEY) || '[]'); return Array.isArray(q) ? q : []; } catch (e) { return []; } };
+const pendSet = q => { try { q.length ? localStorage.setItem(PEND_KEY, JSON.stringify(q.slice(-10))) : localStorage.removeItem(PEND_KEY); } catch (e) {} };
 async function saveOrder(payload) {
+  pendSet([...pendGet().filter(it => it.payload.p_paypal_order_id !== payload.p_paypal_order_id), { payload, tries: 0 }]);
   for (const ms of [0, 1500, 4000]) {
     if (ms) await wait(ms);
-    try { const r = await api('rpc/place_order', payload); return (r && r.number) || null; } catch (e) { console.error(e); }
+    try {
+      const r = await api('rpc/place_order', payload);
+      pendSet(pendGet().filter(it => it.payload.p_paypal_order_id !== payload.p_paypal_order_id));
+      return (r && r.number) || null;
+    } catch (e) { console.error(e); }
   }
-  try { const q = JSON.parse(localStorage.getItem(PEND_KEY) || '[]'); q.push({ payload, tries: 0 }); localStorage.setItem(PEND_KEY, JSON.stringify(q.slice(-10))); } catch (e) {}
   return null;
 }
 async function flushPending() {
-  let q = [];
-  try { q = JSON.parse(localStorage.getItem(PEND_KEY) || '[]'); } catch (e) {}
-  if (!Array.isArray(q) || !q.length) return;
+  const q = pendGet(); if (!q.length) return;
   const keep = [];
   for (const it of q) {
     try { await api('rpc/place_order', it.payload); }
     catch (e) { it.tries = (it.tries || 0) + 1; if (it.tries < 6) keep.push(it); }
   }
-  try { keep.length ? localStorage.setItem(PEND_KEY, JSON.stringify(keep)) : localStorage.removeItem(PEND_KEY); } catch (e) {}
+  pendSet(keep);
 }
-function orderDone(d, id) {
+// schermata di attesa: compare appena il cliente ha confermato su PayPal
+function processing() {
+  $('cartFoot').style.display = 'none';
+  $('cartList').innerHTML = '<div class="proc"><div class="spin2"></div><b class="disp">Confermo il pagamento…</b>Un attimo, non chiudere la pagina.</div>';
+}
+// fotografia del carrello prima di svuotarlo, per il riepilogo
+const snapshot = () => ({ lines: cart.map(l => { const p = byUid(l.uid); return { name: p.name, col: p.col, size: l.size, q: l.q, price: p.price, img: p.img, pos: p.pos }; }), ...totals() });
+function orderDone(d, num, snap) {
   cart = []; save(); render();
-  const who = d && d.payer && d.payer.name && d.payer.name.given_name, mail = d && d.payer && d.payer.email_address;
-  const box = document.createElement('div'); box.className = 'done';
-  box.innerHTML = '<b class="disp">Ordine <i>confermato.</i></b><span class="tx"></span><br><span class="oid"></span>';
-  box.querySelector('.tx').textContent = (who ? 'Grazie ' + who + '! ' : 'Grazie! ') + 'Il pagamento è andato a buon fine.' + (mail ? ' La ricevuta arriva a ' + mail + '.' : ' La ricevuta ti arriva via email da PayPal.');
-  box.querySelector('.oid').textContent = 'Ordine n. ' + id;
+  const py = (d && d.payer) || {}, who = py.name && py.name.given_name, mail = py.email_address;
+  const sh = ((((d && d.purchase_units) || [])[0]) || {}).shipping || {}, a = sh.address || {};
+  const addr = [sh.name && sh.name.full_name, a.address_line_1, a.address_line_2, [a.postal_code, a.admin_area_2, a.admin_area_1 ? '(' + a.admin_area_1 + ')' : ''].filter(Boolean).join(' ')].filter(Boolean);
+  const box = document.createElement('div'); box.className = 'done rec';
+  box.innerHTML = `
+    <div class="ok"><svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
+    <b class="disp">Ordine <i>confermato.</i></b>
+    <span>${who ? 'Grazie ' + esc(who) + '! ' : 'Grazie! '}Il pagamento è andato a buon fine.</span><br>
+    <span class="oid${num ? '' : ' wait'}" id="doneNum">${num ? 'Ordine n. ' + esc(num) : 'Registro l\'ordine…'}</span>
+    <div class="rcp">
+      <h4>Il tuo ordine</h4>
+      ${snap.lines.map(l => `<div class="ci">${pic(l, 'th')}
+        <div><div class="nm">${esc(l.name)}</div><div class="mt">${esc(l.col)} · Taglia ${esc(l.size)}</div><div class="q">Quantità: ${l.q}</div></div>
+        <div class="pr">${eur(l.price * l.q)}</div></div>`).join('')}
+      <div class="r"><span>Subtotale</span><span>${eur(snap.sub)}</span></div>
+      <div class="r"><span>Spedizione</span><span>${snap.ship ? eur(snap.ship) : 'Gratuita'}</span></div>
+      <div class="r t"><span>Totale pagato</span><span>${eur(snap.tot)}</span></div>
+      <h4>Spedizione</h4>
+      ${addr.length ? `<div class="ad">${addr.map(esc).join('<br>')}</div>` : '<div class="inf">L\'indirizzo di spedizione è quello che hai indicato su PayPal.</div>'}
+      <p class="inf">Prepariamo il tuo ordine e lo spediamo in tutta Italia: arriva in 2–4 giorni lavorativi. Reso gratuito entro 14 giorni dalla consegna.</p>
+      <h4>Ricevuta</h4>
+      <p class="inf">${mail ? 'La ricevuta del pagamento arriva da PayPal a <strong>' + esc(mail) + '</strong>.' : 'La ricevuta del pagamento ti arriva via email da PayPal.'}
+        Per qualsiasi domanda scrivici su <a href="https://instagram.com/stay_sideways.it" target="_blank" rel="noopener">Instagram</a>${num ? ' indicando il numero d\'ordine' : ''}.</p>
+      <button class="bmain" id="doneClose">Continua lo shopping</button>
+    </div>`;
   $('cartList').replaceChildren(box);
+  $('doneClose').addEventListener('click', closeCart);
+  $('cart').scrollTop = 0;
   say('Pagamento completato');
 }
 function mountPP() {
@@ -943,25 +999,32 @@ function mountPP() {
         });
       });
     },
-    onApprove: (data, actions) => actions.order.capture().then(async d => {
-      // conferma solo se PayPal dice che l'incasso è davvero completato
-      if (!(d && d.status === 'COMPLETED')) {
-        $('cartMsg').textContent = 'Il pagamento non risulta completato (' + ((d && d.status) || 'stato sconosciuto') + '). Non ti è stato addebitato nulla: riprova o scrivici.';
-        return;
-      }
-      let num = null;
-      if (DB) {
-        $('cartMsg').textContent = 'Pagamento ricevuto, registro l\'ordine…';
-        num = await saveOrder(orderPayload(d, data.orderID));
-        $('cartMsg').textContent = '';
-      }
-      orderDone(d, num || data.orderID);
-      if (DB) loadProducts().then(buildRail).catch(() => {});   // la vetrina mostra subito i pezzi rimasti
-    }),
+    onApprove: (data, actions) => {
+      processing();   // il cliente vede subito che stiamo lavorando
+      return actions.order.capture().then(d => {
+        // conferma solo se PayPal dice che l'incasso è davvero completato
+        if (!(d && d.status === 'COMPLETED')) {
+          render();
+          $('cartMsg').textContent = 'Il pagamento non risulta completato (' + ((d && d.status) || 'stato sconosciuto') + '). Non ti è stato addebitato nulla: riprova o scrivici.';
+          return;
+        }
+        const snap = snapshot(), payload = DB ? orderPayload(d, data.orderID) : null;
+        orderDone(d, DB ? null : data.orderID, snap);   // il riepilogo esce subito, senza aspettare il database
+        if (!DB) return;
+        saveOrder(payload).then(num => {
+          const el = $('doneNum'); if (!el) return;
+          el.classList.remove('wait');
+          el.textContent = num ? 'Ordine n. ' + num : 'Riferimento: ' + data.orderID;
+          loadProducts().then(buildRail).catch(() => {});   // la vetrina mostra subito i pezzi rimasti
+        });
+      });
+    },
     onCancel: () => { $('cartMsg').textContent = 'Pagamento annullato. Il carrello è ancora qui, puoi riprovare quando vuoi.'; },
     onError: err => {
       if (stockStop) { stockStop = false; payView(false); $('cartMsg').textContent = STOCK_MSG; return; }
-      console.error(err); $('cartMsg').textContent = 'Il pagamento non è andato a buon fine e non ti è stato addebitato nulla. Riprova tra poco.';
+      console.error(err);
+      if (cart.length) render();   // se stavo mostrando l'attesa, torno al carrello
+      $('cartMsg').textContent = 'Il pagamento non è andato a buon fine e non ti è stato addebitato nulla. Riprova tra poco.';
     }
   }).render('#ppBtns');
 }
