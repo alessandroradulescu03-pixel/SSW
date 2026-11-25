@@ -39,11 +39,21 @@ alter table public.products add column if not exists fit text not null default '
 create table if not exists public.variants (
   id         uuid primary key default gen_random_uuid(),
   product_id uuid not null references public.products(id) on delete cascade,
+  color      text not null default '',              -- '' = capo senza colori
   size       text not null,
   stock      int  not null default 0 check (stock >= 0),
   sort       int  not null default 0,
-  unique (product_id, size)
+  unique (product_id, color, size)
 );
+
+-- stock per colore: per i database creati quando lo stock era solo per taglia
+alter table public.variants add column if not exists color text not null default '';
+alter table public.variants drop constraint if exists variants_product_id_size_key;
+do $$ begin
+  if not exists (select 1 from pg_constraint where conname = 'variants_product_id_color_size_key') then
+    alter table public.variants add constraint variants_product_id_color_size_key unique (product_id, color, size);
+  end if;
+end $$;
 
 -- ---------- ordini ----------
 create table if not exists public.orders (
@@ -181,7 +191,8 @@ begin
     v_vid := null;
     if (v_item->>'variant_id') ~ c_uuid then v_vid := (v_item->>'variant_id')::uuid; end if;
 
-    select v.id as vid, v.size, v.stock, p.id as pid, p.name, p.color, p.price
+    select v.id as vid, v.size, v.stock, p.id as pid, p.name,
+           coalesce(nullif(v.color, ''), p.color) as color, p.price
       into v_var
       from variants v join products p on p.id = v.product_id
      where v.id = v_vid

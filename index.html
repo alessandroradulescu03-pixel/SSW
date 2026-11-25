@@ -323,6 +323,10 @@ footer .bot{display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;p
 .pd .inf .kick{color:var(--pink)}
 .pd h2{font-size:clamp(34px,4.4vw,62px);margin:12px 0 8px}
 .pd .pcl{color:#777}
+.pd .cols button{display:inline-flex;align-items:center;gap:8px;padding:0 16px 0 10px}
+.pd .cols .dt,.card-dots .dt{flex:none;width:16px;height:16px;border-radius:50%;border:1px solid rgba(0,0,0,.2);display:inline-block}
+.pd .cols button.sel .dt{border-color:rgba(255,255,255,.6)}
+.pd .cols{margin-bottom:22px}
 .pd .ppr{font-size:24px;font-weight:900;margin:14px 0 18px}
 .pd .desc{color:#444;margin-bottom:24px}
 .pd .lbl{display:flex;justify-content:space-between;margin-bottom:10px;font-size:12px;font-weight:700;letter-spacing:.16em;text-transform:uppercase}
@@ -556,6 +560,10 @@ footer .bot{display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;p
       <div class="pcl" id="pdCol"></div>
       <div class="ppr" id="pdPrice"></div>
       <p class="desc" id="pdDesc"></p>
+      <div id="pdColBox" hidden>
+        <div class="lbl"><span>Colore<b id="pdColSel" style="font-weight:700;letter-spacing:.06em;text-transform:none;color:#777;margin-left:8px"></b></span></div>
+        <div class="sizes cols" id="pdCols"></div>
+      </div>
       <div class="lbl"><span>Taglia</span><a href="#" id="guide">Guida alle taglie</a></div>
       <div class="sizes" id="pdSizes"></div>
       <button class="bmain" id="pdAdd" disabled>Seleziona una taglia</button>
@@ -701,7 +709,7 @@ async function loadProducts() {
     P.push({
       uid: r.id, name: r.name, col: r.color, price: Number(r.price), tag: r.tag, d: r.description, c: r.composition, fit: r.fit,
       img: imgs[0] || NOIMG, imgs: imgs.length ? imgs : [NOIMG],
-      sizes: (r.variants || []).sort((a, b) => a.sort - b.sort).map(v => ({ vid: v.id, size: v.size, stock: v.stock }))
+      sizes: (r.variants || []).sort((a, b) => a.sort - b.sort).map(v => ({ vid: v.id, color: v.color || '', size: v.size, stock: v.stock }))
     });
   });
   applyTest();
@@ -709,8 +717,48 @@ async function loadProducts() {
 }
 if (DB) P.length = 0;
 const byUid = uid => P.find(p => p.uid === uid);
-const sizeOf = (p, size) => p && p.sizes.find(s => s.size === size);
+// variante = colore + taglia. Le varianti senza colore (capi vecchi o demo) valgono per tutti i colori
+const sizeOf = (p, size, col) => p && (p.sizes.find(s => s.size === size && s.color && s.color === col) || p.sizes.find(s => s.size === size && !s.color));
+const sizeNames = p => [...new Set(p.sizes.map(s => s.size))];
+// pezzi rimasti di una taglia: per un colore preciso, oppure il massimo tra i colori se il colore non è ancora scelto
+const stockOf = (p, size, col) => {
+  if (col != null) { const v = sizeOf(p, size, col); return v ? v.stock : 0; }
+  const vs = p.sizes.filter(s => s.size === size);
+  return vs.some(s => s.stock == null) ? null : Math.max(0, ...vs.map(s => s.stock));
+};
+const colOut = (p, col) => p.sizes.length > 0 && sizeNames(p).every(z => stockOf(p, z, col) === 0);
 const soldOut = p => p.sizes.every(s => s.stock === 0);
+/* ======== colori: un capo può averne più di uno (scelti da Andrea nell'admin, separati da virgola) ======== */
+const colsOf = p => String((p && p.col) || '').split(/\s*,\s*/).map(c => c.trim()).filter(Boolean);
+const lineCol = l => l.col || (byUid(l.uid) || {}).col || '';
+const colLabel = p => { const c = colsOf(p); return c.length > 1 ? c.length + ' colori' : (p.col || ''); };
+// pezzi già nel carrello per una taglia (lo stock è per taglia, qualunque colore)
+const inCart = (uid, size, col) => {
+  const p = byUid(uid), v = sizeOf(p, size, col);
+  return cart.filter(l => l.uid === uid && sizeOf(p, l.size, lineCol(l)) === v).reduce((a, l) => a + l.q, 0);
+};
+const COL_HEX = { nero:'#000',bianco:'#fff',grigio:'#8a8a8a','grigio chiaro':'#c9c9c9','grigio scuro':'#4a4a4a',antracite:'#383e42',melange:'#a9a9a9',
+  rosso:'#d62828',bordeaux:'#6d1a2a','bordò':'#6d1a2a',borgogna:'#800020',blu:'#1f4fd1','blu navy':'#1b2a4a',navy:'#1b2a4a','blu notte':'#14213d',
+  'blu elettrico':'#2c75ff',royal:'#2a4bd7',azzurro:'#6cb4ee',celeste:'#9fd3f0',avio:'#5d8aa8',petrolio:'#1f5f6b',turchese:'#2bb5b5','verde acqua':'#5fd3c4',
+  giallo:'#f5d000','giallo fluo':'#e6ff00',senape:'#d4a017',ocra:'#cc7722',oro:'#d4af37',verde:'#2e9e44','verde militare':'#4b5320',militare:'#4b5320',
+  'verde oliva':'#6b6e2e',oliva:'#6b6e2e','verde bosco':'#228b22','verde bottiglia':'#0b5d1e','verde scuro':'#1e4d2b','verde chiaro':'#90d26d',
+  'verde fluo':'#39ff14',lime:'#9acd32',menta:'#98e0c0',salvia:'#9caf88',kaki:'#b9a77a',khaki:'#b9a77a',arancione:'#f28c28',arancio:'#f28c28',
+  corallo:'#ff7f6e',salmone:'#fa8072',pesca:'#ffcba4',rosa:'#f4a6c0','rosa antico':'#c08081',cipria:'#efc6c3','rosa fluo':'#ff3ea5',fucsia:'#ff1aa8',
+  magenta:'#d0006f',viola:'#7b3fb0',lilla:'#c8a2d8',lavanda:'#b9a6e0',prugna:'#5e2750',marrone:'#6b4226',cioccolato:'#4e2a1e',moka:'#5b3a29',
+  cammello:'#c19a6b',cognac:'#9a463d',cuoio:'#8b5a2b',terracotta:'#c4623d',ruggine:'#b7410e',beige:'#e3d3b5',sabbia:'#d8c39a',crema:'#f3ead3',
+  panna:'#f6f0e1',avorio:'#fffff0','off white':'#f8f6f0',ecru:'#e9dcc3','écru':'#e9dcc3',tortora:'#a89a8a',talpa:'#7c6e65',nocciola:'#a67b5b',
+  argento:'#c0c0c0',bronzo:'#cd7f32',rame:'#b87333' };
+function colHex(name) {
+  const n = String(name || '').trim().toLowerCase().replace(/\s+/g, ' ');
+  if (!n) return null;
+  if (COL_HEX[n]) return COL_HEX[n];
+  if (window.CSS && CSS.supports('color', n) && !/^(inherit|initial|unset|revert|currentcolor|transparent)$/.test(n)) return n;
+  const w = n.split(' ');
+  for (let i = 0; i < w.length - 1; i++) if (COL_HEX[w[i] + ' ' + w[i + 1]]) return COL_HEX[w[i] + ' ' + w[i + 1]];
+  for (const x of w) if (COL_HEX[x]) return COL_HEX[x];
+  return null;
+}
+const dotHTML = c => { const h = colHex(c); return `<i class="dt" style="background:${h ? esc(h) : 'repeating-linear-gradient(45deg,#ddd 0 3px,#fff 3px 6px)'}"></i>`; };
 
 /* ======== scritta gigante dell'hero: sempre larga quanto lo schermo ======== */
 function fitWM() {
@@ -788,7 +836,7 @@ function buildRail() {
       <div class="ph"><img src="${esc(p.img)}" alt="${esc(p.name)} ${esc(p.col)}" loading="lazy"${p.pos ? ` style="object-position:${p.pos}"` : ''}>
         ${out ? '<span class="tag">Esaurito</span>' : p.tag ? `<span class="tag${p.tp ? ' p' : ''}">${esc(p.tag)}</span>` : ''}
         <span class="add" aria-hidden="true">+</span></div>
-      <div class="meta"><div><div class="nm">${esc(p.name)}</div><div class="cl">${esc(p.col)}</div></div><div class="pr">${eur(p.price)}</div></div>
+      <div class="meta"><div><div class="nm">${esc(p.name)}</div><div class="cl">${esc(colLabel(p))}</div></div><div class="pr">${eur(p.price)}</div></div>
     </article>`;
   }).join('');
   rail.scrollLeft = x; railUpd();
@@ -808,10 +856,17 @@ const save = () => { try { localStorage.setItem(CART_KEY, JSON.stringify(cart));
 // Risponde true se ha dovuto cambiare qualcosa.
 function fixCart() {
   const before = JSON.stringify(cart);
+  const used = {};
   cart = cart.filter(l => {
-    const s = sizeOf(byUid(l.uid), l.size);
+    const p = byUid(l.uid); if (!p) return false;
+    const cs = colsOf(p);
+    if (cs.length > 1 && !cs.includes(l.col)) return false;   // colore tolto dall'admin (o carrello vecchio senza colore)
+    if (cs.length <= 1) l.col = cs[0] || '';
+    const s = sizeOf(p, l.size, l.col);
     if (!s || s.stock === 0) return false;
-    if (s.stock != null && l.q > s.stock) l.q = s.stock;
+    const k = s.vid || (l.uid + '|' + l.size + '|' + (s.color || '')), left = s.stock == null ? Infinity : s.stock - (used[k] || 0);
+    if (l.q > left) l.q = Math.max(left, 0);
+    used[k] = (used[k] || 0) + l.q;
     return l.q > 0;
   });
   const changed = JSON.stringify(cart) !== before;
@@ -822,7 +877,7 @@ function restoreCart() {
   try {
     const raw = JSON.parse(localStorage.getItem(CART_KEY) || '[]');
     cart = (Array.isArray(raw) ? raw : []).filter(l => l && typeof l.uid === 'string' && typeof l.size === 'string' && l.q > 0)
-      .map(l => ({ uid: l.uid, size: l.size, q: Math.floor(l.q) }));
+      .map(l => ({ uid: l.uid, size: l.size, col: typeof l.col === 'string' ? l.col : '', q: Math.floor(l.q) }));
   } catch (e) { cart = []; }
   fixCart();
 }
@@ -843,9 +898,9 @@ function render() {
   }
   $('cartFoot').style.display = '';
   $('cartList').innerHTML = cart.map((l, i) => {
-    const p = byUid(l.uid), st = sizeOf(p, l.size).stock, max = st != null && l.q >= st;
+    const p = byUid(l.uid), st = sizeOf(p, l.size, lineCol(l)).stock, max = st != null && inCart(l.uid, l.size, lineCol(l)) >= st;
     return `<div class="ci">${pic(p, 'th')}
-      <div><div class="nm">${esc(p.name)}</div><div class="mt">${esc(p.col)} · ${esc(l.size)}</div>
+      <div><div class="nm">${esc(p.name)}</div><div class="mt">${esc(lineCol(l))} · ${esc(l.size)}</div>
         <div class="qty"><button data-a="-" data-i="${i}" aria-label="Meno">−</button><span>${l.q}</span><button data-a="+" data-i="${i}" aria-label="Più"${max ? ' disabled title="Non ci sono altri pezzi"' : ''}>+</button></div>
         <button class="rm" data-a="x" data-i="${i}">Rimuovi</button></div>
       <div class="pr">${eur(p.price * l.q)}</div></div>`;
@@ -858,7 +913,7 @@ function render() {
 $('cartList').addEventListener('click', e => {
   const b = e.target.closest('button[data-a]'); if (!b) return;
   const l = cart[+b.dataset.i];
-  if (b.dataset.a === '+') { const st = sizeOf(byUid(l.uid), l.size).stock; if (st == null || l.q < st) l.q++; else say('Non ci sono altri pezzi disponibili'); }
+  if (b.dataset.a === '+') { const st = sizeOf(byUid(l.uid), l.size, lineCol(l)).stock; if (st == null || inCart(l.uid, l.size, lineCol(l)) < st) l.q++; else say('Non ci sono altri pezzi disponibili'); }
   if (b.dataset.a === '-') l.q--;
   if (b.dataset.a === 'x' || l.q < 1) cart.splice(+b.dataset.i, 1);
   save(); render();
@@ -909,7 +964,7 @@ function orderPayload(d, orderID) {
     p_paypal_order_id: orderID,
     p_capture_id: cap.id || '',
     p_customer: { name: full, email: py.email_address || '', address: { name: full, line1: a.address_line_1 || '', line2: a.address_line_2 || '', city: a.admin_area_2 || '', province: a.admin_area_1 || '', zip: a.postal_code || '', country: a.country_code || '' } },
-    p_items: cart.map(l => { const p = byUid(l.uid); return { variant_id: sizeOf(p, l.size).vid, qty: l.q, name: p.name, color: p.col, size: l.size }; }),
+    p_items: cart.map(l => { const p = byUid(l.uid); return { variant_id: sizeOf(p, l.size, lineCol(l)).vid, qty: l.q, name: p.name, color: lineCol(l), size: l.size }; }),
     p_paid: Number((cap.amount && cap.amount.value) || totals().tot)
   };
 }
@@ -944,7 +999,7 @@ function processing() {
   $('cartList').innerHTML = '<div class="proc"><div class="spin2"></div><b class="disp">Confermo il pagamento…</b>Un attimo, non chiudere la pagina.</div>';
 }
 // fotografia del carrello prima di svuotarlo, per il riepilogo
-const snapshot = () => ({ lines: cart.map(l => { const p = byUid(l.uid); return { name: p.name, col: p.col, size: l.size, q: l.q, price: p.price, img: p.img, pos: p.pos }; }), ...totals() });
+const snapshot = () => ({ lines: cart.map(l => { const p = byUid(l.uid); return { name: p.name, col: lineCol(l), size: l.size, q: l.q, price: p.price, img: p.img, pos: p.pos }; }), ...totals() });
 function orderDone(d, num, snap) {
   cart = []; save(); render();
   const py = (d && d.payer) || {}, who = py.name && py.name.given_name, mail = py.email_address;
@@ -994,7 +1049,7 @@ function mountPP() {
           purchase_units: [{
             description: 'Ordine SSW Motorsport',
             amount: { ...EUR(t.tot), breakdown: { item_total: EUR(t.sub), shipping: EUR(t.ship) } },
-            items: cart.map(l => { const p = byUid(l.uid); return { name: (p.name + ' ' + p.col + ' · Taglia ' + l.size).slice(0, 127), unit_amount: EUR(p.price), quantity: String(l.q), category: 'PHYSICAL_GOODS' }; })
+            items: cart.map(l => { const p = byUid(l.uid); return { name: (p.name + ' ' + lineCol(l) + ' · Taglia ' + l.size).slice(0, 127), unit_amount: EUR(p.price), quantity: String(l.q), category: 'PHYSICAL_GOODS' }; })
           }]
         });
       });
@@ -1045,13 +1100,23 @@ $('checkout').addEventListener('click', async () => {
 $('payBack').addEventListener('click', () => { payView(false); $('cartMsg').textContent = ''; });
 
 /* ======== scheda prodotto ======== */
-let cur = null, sel = null;
+let cur = null, sel = null, selCol = null;
+function pdBtn() {
+  const p = byUid(cur), many = colsOf(p).length > 1, b = $('pdAdd');
+  if (soldOut(p)) { b.disabled = true; b.textContent = 'Esaurito'; return; }
+  const miss = [many && !selCol ? 'un colore' : '', !sel ? 'una taglia' : ''].filter(Boolean);
+  b.disabled = !!miss.length;
+  b.textContent = miss.length ? 'Seleziona ' + miss.join(' e ') : 'Aggiungi al carrello — ' + eur(p.price);
+}
 function openPD(uid) {
   const p = byUid(uid); if (!p) return;
   cur = uid; sel = null;
+  const cs = colsOf(p); selCol = cs.length === 1 ? cs[0] : (cs.length ? null : '');
   const out = soldOut(p);
   $('pdName').textContent = p.name;
-  $('pdCol').textContent = p.col;
+  $('pdCol').textContent = cs.length > 1 ? 'Disponibile in ' + cs.length + ' colori' : p.col;
+  $('pdColBox').hidden = cs.length < 2; $('pdColSel').textContent = '';
+  $('pdCols').innerHTML = cs.length > 1 ? cs.map(c => `<button type="button" data-c="${esc(c)}"${colOut(p, c) ? ' disabled title="Colore esaurito"' : ''}>${dotHTML(c)}${esc(c)}</button>`).join('') : '';
   $('pdPrice').textContent = eur(p.price);
   $('pdDesc').textContent = p.d;
   $('pdComp').textContent = p.c;
@@ -1059,33 +1124,50 @@ function openPD(uid) {
   $('pdNote').textContent = out ? 'Questo capo è esaurito.' : '';
   // dal database: tutte le foto del capo. In demo: il capo più altre due foto di contorno
   $('pdGal').innerHTML = (DB ? p.imgs.map(u => ({ ...p, img: u })) : [p, ...P.filter(x => x !== p).slice(0, 2)]).map(x => pic(x, 'th')).join('');
-  $('pdAdd').disabled = true; $('pdAdd').textContent = out ? 'Esaurito' : 'Seleziona una taglia';
-  const box = $('pdSizes'); box.innerHTML = '';
-  p.sizes.forEach(s => {
-    const b = document.createElement('button');
-    b.textContent = s.size;
-    if (s.stock === 0) { b.disabled = true; b.title = 'Taglia esaurita'; }
-    b.addEventListener('click', () => {
-      sel = s.size;
-      box.querySelectorAll('button').forEach(x => x.classList.toggle('sel', x === b));
-      $('pdAdd').disabled = false; $('pdAdd').textContent = 'Aggiungi al carrello — ' + eur(p.price);
-      $('pdNote').textContent = s.stock != null && s.stock <= 3 ? (s.stock === 1 ? 'Ultimo pezzo disponibile.' : 'Ultimi ' + s.stock + ' pezzi disponibili.') : '';
-    });
-    box.appendChild(b);
-  });
+  pdBtn();
+  drawPDSizes();
   $('pd').scrollTop = 0;
   $('pd').classList.add('open'); document.body.classList.add('lock');
 }
+// taglie della scheda: disponibili o barrate in base al colore scelto
+function drawPDSizes() {
+  const p = byUid(cur), box = $('pdSizes'), many = colsOf(p).length > 1;
+  const col = many ? selCol : selCol || '';
+  box.innerHTML = '';
+  sizeNames(p).forEach(z => {
+    const st = stockOf(p, z, col), b = document.createElement('button');
+    b.textContent = z;
+    if (st === 0) { b.disabled = true; b.title = col ? 'Esaurita in questo colore' : 'Taglia esaurita'; }
+    if (z === sel) b.classList.add('sel');
+    b.addEventListener('click', () => { sel = z; drawPDSizes(); pdBtn(); pdLeft(); });
+    box.appendChild(b);
+  });
+}
+function pdLeft() {
+  const p = byUid(cur);
+  if (!sel || selCol == null) { $('pdNote').textContent = ''; return; }
+  const st = stockOf(p, sel, selCol);
+  $('pdNote').textContent = st != null && st > 0 && st <= 3 ? (st === 1 ? 'Ultimo pezzo disponibile.' : 'Ultimi ' + st + ' pezzi disponibili.') : '';
+}
+$('pdCols').addEventListener('click', e => {
+  const b = e.target.closest('button[data-c]'); if (!b || b.disabled) return;
+  selCol = b.dataset.c;
+  $('pdCols').querySelectorAll('button').forEach(x => x.classList.toggle('sel', x === b));
+  $('pdColSel').textContent = selCol;
+  if (sel && stockOf(byUid(cur), sel, selCol) === 0) sel = null;   // la taglia scelta non c'è in questo colore
+  drawPDSizes(); pdBtn(); pdLeft();
+});
 const closePD = () => { $('pd').classList.remove('open'); document.body.classList.remove('lock'); };
 $('pdClose').addEventListener('click', closePD);
 $('pdAdd').addEventListener('click', () => {
-  const p = byUid(cur), s = sizeOf(p, sel);
-  if (!s) return;
-  const line = cart.find(l => l.uid === cur && l.size === sel);
-  if (s.stock != null && (line ? line.q : 0) >= s.stock) { $('pdNote').textContent = 'Hai già nel carrello tutti i pezzi disponibili di questa taglia.'; return; }
-  if (line) line.q++; else cart.push({ uid: cur, size: sel, q: 1 });
+  const p = byUid(cur), s = sizeOf(p, sel, selCol);
+  if (!s || selCol == null) return;
+  const line = cart.find(l => l.uid === cur && l.size === sel && (l.col || '') === selCol);
+  if (s.stock === 0) return;
+  if (s.stock != null && inCart(cur, sel, selCol) >= s.stock) { $('pdNote').textContent = 'Hai già nel carrello tutti i pezzi disponibili' + (selCol ? ' di questo colore e taglia.' : ' di questa taglia.'); return; }
+  if (line) line.q++; else cart.push({ uid: cur, size: sel, col: selCol, q: 1 });
   save(); render();
-  say(`Aggiunto · ${p.name} — ${sel}`);
+  say(`Aggiunto · ${p.name}${selCol ? ' ' + selCol : ''} — ${sel}`);
   $('pdNote').textContent = 'Aggiunto al carrello.';
 });
 $('guide').addEventListener('click', e => { e.preventDefault(); $('fitBox').open = true; $('fitBox').scrollIntoView({ behavior: 'smooth', block: 'center' }); });
