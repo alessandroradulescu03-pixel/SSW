@@ -105,6 +105,19 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#000}
 .imgs .im.first .cv{background:var(--pink);color:#000}
 .szr{display:grid;grid-template-columns:1fr 1fr 44px;gap:10px;margin-bottom:8px;align-items:center}
 .szr button{height:46px;border-radius:12px;border:1.5px solid var(--line);font-size:18px;background:#fff}
+.colf{margin-bottom:16px}
+.colf .lbl{display:block;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);margin-bottom:8px}
+.cols{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}
+.cols button{display:inline-flex;align-items:center;gap:8px;height:38px;padding:0 14px 0 8px;border-radius:999px;background:#fff;border:1.5px solid var(--line);font-size:13px;font-weight:700}
+.cols button.on{border-color:#000;box-shadow:inset 0 0 0 1px #000}
+.cols button.on::after{content:'✓';color:var(--pink);font-weight:900;margin-left:2px}
+.cols button .x{margin-left:2px;color:#999;font-weight:900}
+.dot{flex:none;width:22px;height:22px;border-radius:50%;border:1.5px solid rgba(0,0,0,.18);display:inline-block}
+.dot.unk{background:repeating-linear-gradient(45deg,#eee 0 4px,#fff 4px 8px)!important}
+.colnew{display:flex;gap:8px;align-items:center}
+.colnew input{flex:1;min-width:0}
+.colnew .btn{flex:none}
+.colhint{font-size:12.5px;color:var(--mute);margin-top:6px;min-height:16px}
 .chk{display:flex;align-items:center;gap:10px;margin-bottom:16px;font-weight:700}
 .chk input{width:22px;height:22px;accent-color:var(--pink)}
 .bar2{position:sticky;bottom:0;background:var(--bg);padding:12px 0 calc(12px + env(safe-area-inset-bottom));display:flex;gap:10px;flex-wrap:wrap;border-top:1px solid var(--line);margin-top:8px}
@@ -170,9 +183,17 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#000}
     <section id="tEdit" hidden>
       <div class="head"><h1 class="disp" id="eTitle">Nuovo articolo</h1><button class="btn gh sm" id="eBack">← Elenco</button></div>
       <div class="card">
-        <div class="two">
-          <label class="f"><span>Nome</span><input type="text" id="eName" maxlength="80" placeholder="Hoodie Oversize"></label>
-          <label class="f"><span>Colore</span><input type="text" id="eColor" maxlength="60" placeholder="Nero"></label>
+        <label class="f"><span>Nome</span><input type="text" id="eName" maxlength="80" placeholder="Hoodie Oversize"></label>
+        <div class="f colf">
+          <span class="lbl">Colori (puoi sceglierne più di uno)</span>
+          <input type="hidden" id="eColor">
+          <div class="cols" id="eCols"></div>
+          <div class="colnew">
+            <i class="dot unk" id="eColDot"></i>
+            <input type="text" id="eColIn" maxlength="30" placeholder="Altro colore: es. bordeaux, verde militare…" autocomplete="off">
+            <button type="button" class="btn gh sm" id="eColAdd">Aggiungi</button>
+          </div>
+          <div class="colhint" id="eColHint"></div>
         </div>
         <div class="two">
           <label class="f"><span>Prezzo (€)</span><input type="number" id="ePrice" min="0" step="0.01" inputmode="decimal" placeholder="75"></label>
@@ -389,7 +410,7 @@ function openEdit(p) {
     ? { id: p.id, images: [...(p.images || [])], removed: [], sizes: [...(p.variants || [])].sort((a, b) => a.sort - b.sort).map(v => ({ id: v.id, size: v.size, stock: v.stock })) }
     : { id: null, images: [], removed: [], sizes: ['XS', 'S', 'M', 'L', 'XL'].map(s => ({ id: null, size: s, stock: 0 })) };
   $('eTitle').textContent = p ? 'Modifica articolo' : 'Nuovo articolo';
-  $('eName').value = p ? p.name : ''; $('eColor').value = p ? p.color : '';
+  $('eName').value = p ? p.name : ''; colLoad(p ? p.color : '');
   $('ePrice').value = p ? p.price : ''; $('eTag').value = p ? p.tag : '';
   $('eDesc').value = p ? p.description : ''; $('eComp').value = p ? p.composition : '';
   $('eFit').value = p ? (p.fit || '') : '';
@@ -400,6 +421,75 @@ function openEdit(p) {
   $('tProducts').hidden = true; $('tEdit').hidden = false; scrollTo(0, 0);
 }
 $('eBack').addEventListener('click', () => { $('tEdit').hidden = true; $('tProducts').hidden = false; loadProducts(); });
+
+/* ---------- colori: scelta multipla + colore libero riconosciuto in automatico ---------- */
+const COL_BASE = ['Nero', 'Bianco', 'Grigio', 'Rosso', 'Blu', 'Giallo', 'Verde'];
+const COL_HEX = {
+  'nero':'#000000','bianco':'#ffffff','grigio':'#8a8a8a','grigio chiaro':'#c9c9c9','grigio scuro':'#4a4a4a','antracite':'#383e42',
+  'grigio melange':'#a9a9a9','melange':'#a9a9a9','rosso':'#d62828','rosso fuoco':'#e3170a','bordeaux':'#6d1a2a','bordò':'#6d1a2a',
+  'borgogna':'#800020','vinaccia':'#5e1224','blu':'#1f4fd1','blu navy':'#1b2a4a','navy':'#1b2a4a','blu notte':'#14213d',
+  'blu elettrico':'#2c75ff','blu royal':'#2a4bd7','royal':'#2a4bd7','azzurro':'#6cb4ee','celeste':'#9fd3f0','carta da zucchero':'#a7c7e7',
+  'avio':'#5d8aa8','petrolio':'#1f5f6b','turchese':'#2bb5b5','verde acqua':'#5fd3c4','tiffany':'#81d8d0','ciano':'#00b7eb',
+  'giallo':'#f5d000','giallo fluo':'#e6ff00','senape':'#d4a017','ocra':'#cc7722','oro':'#d4af37','dorato':'#d4af37',
+  'verde':'#2e9e44','verde militare':'#4b5320','militare':'#4b5320','verde oliva':'#6b6e2e','oliva':'#6b6e2e','verde bosco':'#228b22',
+  'verde bottiglia':'#0b5d1e','verde scuro':'#1e4d2b','verde chiaro':'#90d26d','verde fluo':'#39ff14','verde lime':'#9acd32','lime':'#9acd32',
+  'menta':'#98e0c0','salvia':'#9caf88','kaki':'#b9a77a','khaki':'#b9a77a','arancione':'#f28c28','arancio':'#f28c28','arancione fluo':'#ff6f00',
+  'corallo':'#ff7f6e','salmone':'#fa8072','pesca':'#ffcba4','rosa':'#f4a6c0','rosa antico':'#c08081','rosa cipria':'#efc6c3','cipria':'#efc6c3',
+  'rosa fluo':'#ff3ea5','fucsia':'#ff1aa8','fucsia fluo':'#ff1aa8','magenta':'#d0006f','viola':'#7b3fb0','lilla':'#c8a2d8','lavanda':'#b9a6e0',
+  'glicine':'#c9a0dc','prugna':'#5e2750','melanzana':'#3d0c45','marrone':'#6b4226','cioccolato':'#4e2a1e','moka':'#5b3a29','caffè':'#4b3621',
+  'cammello':'#c19a6b','cognac':'#9a463d','cuoio':'#8b5a2b','terracotta':'#c4623d','ruggine':'#b7410e','mattone':'#a0432a',
+  'beige':'#e3d3b5','sabbia':'#d8c39a','crema':'#f3ead3','panna':'#f6f0e1','avorio':'#fffff0','off white':'#f8f6f0','ecru':'#e9dcc3','écru':'#e9dcc3',
+  'tortora':'#a89a8a','talpa':'#7c6e65','nocciola':'#a67b5b','argento':'#c0c0c0','argentato':'#c0c0c0','bronzo':'#cd7f32','rame':'#b87333'
+};
+let cols = [];   // colori scelti, nell'ordine in cui li selezioni
+const cap = t => t.charAt(0).toUpperCase() + t.slice(1);
+function colHex(name) {
+  const n = String(name || '').trim().toLowerCase().replace(/\s+/g, ' ');
+  if (!n) return null;
+  if (COL_HEX[n]) return COL_HEX[n];
+  // colori scritti in inglese o in codice (#ff00aa): li capisce il browser
+  if (CSS.supports('color', n) && !/^(inherit|initial|unset|revert|currentcolor|transparent)$/.test(n)) return n;
+  // "rosso fuoco scuro" → provo prima le coppie di parole, poi le parole singole
+  const w = n.split(' ');
+  for (let i = 0; i < w.length - 1; i++) if (COL_HEX[w[i] + ' ' + w[i + 1]]) return COL_HEX[w[i] + ' ' + w[i + 1]];
+  for (const x of w) if (COL_HEX[x]) return COL_HEX[x];
+  return null;
+}
+const colSame = (a, b) => a.toLowerCase() === b.toLowerCase();
+function colSync() { $('eColor').value = cols.join(', '); }
+function colLoad(str) {
+  cols = String(str || '').split(/\s*[,/]\s*/).map(t => t.trim()).filter(Boolean).map(cap);
+  $('eColIn').value = ''; colPreview(); colDraw(); colSync();
+}
+function colDraw() {
+  const extra = cols.filter(c => !COL_BASE.some(b => colSame(b, c)));
+  const btn = (c, custom) => {
+    const on = cols.some(x => colSame(x, c)), hx = colHex(c);
+    return `<button type="button" class="${on ? 'on' : ''}" data-c="${esc(c)}" data-custom="${custom ? 1 : ''}">
+      <i class="dot${hx ? '' : ' unk'}" style="${hx ? 'background:' + esc(hx) : ''}"></i>${esc(c)}${custom ? '<span class="x" aria-label="Togli">×</span>' : ''}</button>`;
+  };
+  $('eCols').innerHTML = COL_BASE.map(c => btn(c, false)).join('') + extra.map(c => btn(c, true)).join('');
+}
+function colPreview() {
+  const v = $('eColIn').value.trim(), hx = colHex(v), dot = $('eColDot');
+  dot.classList.toggle('unk', !hx); dot.style.background = hx || '';
+  $('eColHint').textContent = !v ? '' : hx ? 'Colore riconosciuto ✓ premi Invio o Aggiungi' : 'Non lo riconosco, ma puoi aggiungerlo lo stesso';
+}
+function colAdd() {
+  const v = cap($('eColIn').value.trim().replace(/\s+/g, ' '));
+  if (!v) return;
+  if (!cols.some(x => colSame(x, v))) cols.push(v);
+  $('eColIn').value = ''; colPreview(); colDraw(); colSync(); $('eColIn').focus();
+}
+$('eCols').addEventListener('click', e => {
+  const b = e.target.closest('button[data-c]'); if (!b) return;
+  const c = b.dataset.c, i = cols.findIndex(x => colSame(x, c));
+  if (i >= 0) cols.splice(i, 1); else cols.push(c);
+  colDraw(); colSync();
+});
+$('eColIn').addEventListener('input', colPreview);
+$('eColIn').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); colAdd(); } });
+$('eColAdd').addEventListener('click', colAdd);
 
 function drawImgs() {
   $('eImgs').innerHTML = ed.images.map((u, i) => `<div class="im${i ? '' : ' first'}">
