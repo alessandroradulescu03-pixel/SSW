@@ -248,6 +248,28 @@ const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&a
 const eur = n => '€ ' + Number(n || 0).toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const when = d => new Date(d).toLocaleString('it-IT', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
 const safeUrl = u => /^https:\/\//i.test(u || '') ? u : '';
+// errori del database tradotti in italiano (l'originale resta nella console per il debug)
+function itErr(e) {
+  const m = String((e && (e.message || e.error_description || e.error)) || e || '');
+  console.error('Errore originale:', e);
+  const R = [
+    [/schema cache|column .* does not exist|function .* does not exist|could not find the (function|table)|relation .* does not exist/i,
+      'il database non è aggiornato. Su Supabase apri SQL Editor, incolla tutto supabase-setup.sql e premi Run.'],
+    [/row-level security|permission denied|not authorized|non autorizzato|42501/i,
+      'il tuo utente non ha i permessi da admin. Controlla di aver fatto il PASSO 2 in supabase-setup.sql.'],
+    [/jwt|token.*expired|refresh token|session/i, 'la sessione è scaduta. Premi Esci e rientra.'],
+    [/failed to fetch|networkerror|load failed|network request failed|fetch/i, 'non riesco a collegarmi al database. Controlla la connessione e riprova.'],
+    [/duplicate key|unique/i, 'c\'è un doppione: stesso colore o stessa taglia inseriti due volte.'],
+    [/check constraint/i, 'c\'è un valore non valido (per esempio un prezzo o dei pezzi negativi).'],
+    [/foreign key/i, 'questo elemento è collegato ad altri dati e non si può eliminare.'],
+    [/payload too large|maximum allowed size|exceeded/i, 'il file è troppo grande (massimo 5 MB).'],
+    [/mime|invalid.*type/i, 'formato non ammesso: usa JPG, PNG o WebP.'],
+    [/invalid input syntax|invalid input/i, 'uno dei campi contiene un valore non valido.'],
+    [/rate limit|too many requests/i, 'troppe richieste in poco tempo. Aspetta un minuto e riprova.']
+  ];
+  for (const [re, t] of R) if (re.test(m)) return t;
+  return 'errore imprevisto. Riprova; se continua, manda a Ale uno screenshot di questa pagina.';
+}
 const show = v => ['vLogin', 'vSetup', 'vApp'].forEach(id => $(id).hidden = id !== v);
 
 const CFG = window.SSW_CONFIG || {};
@@ -312,7 +334,7 @@ const FILTRI = [
 async function loadOrders() {
   $('oMsg').textContent = '';
   const { data, error } = await sb.from('orders').select('*, order_items(*)').order('created_at', { ascending: false }).limit(300);
-  if (error) { $('oMsg').textContent = 'Non riesco a caricare gli ordini: ' + error.message; return; }
+  if (error) { $('oMsg').textContent = 'Non riesco a caricare gli ordini: ' + itErr(error); return; }
   orders = data || [];
   drawOrders();
 }
@@ -385,7 +407,7 @@ $('oList').addEventListener('click', async e => {
     let err = null;
     if (status !== o.status) err = (await sb.rpc('set_order_status', { p_id: id, p_status: status })).error;
     if (!err) err = (await sb.from('orders').update({ tracking, notes }).eq('id', id)).error;
-    if (err) { btn.disabled = false; msg.className = 'msg err'; msg.textContent = 'Non salvato: ' + err.message; return; }
+    if (err) { btn.disabled = false; msg.className = 'msg err'; msg.textContent = 'Non salvato: ' + itErr(err); return; }
     await loadOrders();
   }
 });
@@ -395,7 +417,7 @@ let products = [];
 async function loadProducts() {
   $('pMsg').textContent = '';
   const { data, error } = await sb.from('products').select('*, variants(*)').order('position').order('created_at');
-  if (error) { $('pMsg').textContent = 'Non riesco a caricare gli articoli: ' + error.message; return; }
+  if (error) { $('pMsg').textContent = 'Non riesco a caricare gli articoli: ' + itErr(error); return; }
   products = data || [];
   if (!products.length) { $('pList').innerHTML = '<div class="empty"><b class="disp">Nessun articolo.</b>Tocca "+ Nuovo" per caricare il primo capo.</div>'; return; }
   $('pList').innerHTML = products.map(p => {
@@ -637,14 +659,14 @@ $('eSave').addEventListener('click', async () => {
     await loadProducts(); scrollTo(0, 0);
   } catch (err) {
     $('eSave').disabled = false; console.error(err);
-    bad('Non salvato: ' + (err.message || 'errore sconosciuto'));
+    bad('Non salvato: ' + itErr(err));
   }
 });
 
 $('eDel').addEventListener('click', async () => {
   if (!ed.id || !confirm('Eliminare definitivamente questo articolo? Gli ordini già fatti restano. Se vuoi solo toglierlo dal sito, togli la spunta "Visibile sul sito".')) return;
   const { error } = await sb.from('products').delete().eq('id', ed.id);
-  if (error) { $('eMsg').className = 'msg err'; $('eMsg').textContent = 'Non eliminato: ' + error.message; return; }
+  if (error) { $('eMsg').className = 'msg err'; $('eMsg').textContent = 'Non eliminato: ' + itErr(error); return; }
   const marker = '/object/public/' + BUCKET + '/';
   const paths = ed.images.filter(u => u.includes(marker)).map(u => decodeURIComponent(u.split(marker)[1]));
   if (paths.length) await sb.storage.from(BUCKET).remove(paths);
