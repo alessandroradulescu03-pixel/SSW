@@ -64,14 +64,18 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .menu-open .burger::after{top:8px;transform:rotate(-45deg)}
 .mm{position:fixed;inset:0;z-index:55;background:#000;display:flex;flex-direction:column;justify-content:center;padding:0 var(--pad);gap:6px;clip-path:inset(0 0 100% 0);transition:clip-path .6s var(--ease)}
 .menu-open .mm{clip-path:inset(0)}
-.mm a{font-size:clamp(44px,13vw,84px)}
+.mm a{font-size:clamp(34px,10.5vw,84px)}
 .mm a:hover{color:var(--pink)}
 @media(max-width:760px){
   .pill{padding:0 20px;height:58px}
   .pill nav.lf a,.pill .hide-m{display:none}
   .burger{display:block}
   .pill .lg{width:104px}
+  .pill .cartl{white-space:nowrap;display:inline-flex;align-items:center;gap:6px;letter-spacing:.06em}
+  .pill .cartl .cw{display:none}
+  .pill .cartl svg.bag{display:block}
 }
+.pill .cartl .bag{display:none;width:20px;height:20px}
 
 /* ---------- GRANA (pellicola) ---------- */
 .grain::before{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;opacity:.2;mix-blend-mode:overlay;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23n)'/%3E%3C/svg%3E")}
@@ -133,7 +137,8 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .doodle{position:absolute;z-index:2;pointer-events:none;color:var(--pink)}
 .doodle path,.doodle line{fill:none;stroke:currentColor;stroke-width:5;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:var(--len,600);stroke-dashoffset:var(--len,600);transition:stroke-dashoffset 1.4s var(--ease) .3s}
 .in-view .doodle path,.in-view .doodle line{stroke-dashoffset:0}
-.d1{top:7%;left:5%;width:clamp(120px,22vw,300px)}
+/* la freccia sta sopra la scritta, nel flusso del testo: così non ci passa mai sopra */
+.d1{position:relative;display:block;width:clamp(90px,13vw,190px);margin:0 0 6px -4px}
 .d2{top:12%;right:7%;width:clamp(44px,6vw,80px)}
 .count{background:rgba(0,0,0,.55);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid var(--line);border-radius:14px;padding:22px}
 .count .n{font-size:clamp(46px,6vw,78px);font-variant-numeric:tabular-nums}
@@ -151,7 +156,8 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .shop h2{font-size:clamp(44px,8vw,116px)}
 .shop .sub{color:#666;margin-top:12px;max-width:420px;font-size:15px}
 .arrows{display:flex;gap:10px}
-.arrows button{width:52px;height:52px;border-radius:50%;border:1.5px solid #000;display:grid;place-items:center;transition:background .25s,color .25s,opacity .25s}
+.arrows.off{visibility:hidden}
+.arrows button{width:52px;height:52px;border-radius:50%;border:1.5px solid #000;background:#fff;display:grid;place-items:center;transition:background .25s,color .25s,opacity .25s}
 .arrows button:hover{background:#000;color:#fff}
 .arrows button:disabled{opacity:.25;pointer-events:none}
 .arrows svg{width:18px;height:18px}
@@ -205,7 +211,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .look .txt{display:flex;justify-content:space-between;align-items:flex-end;gap:30px;padding:clamp(30px,5vw,70px) 0 clamp(20px,3vw,40px);flex-wrap:wrap}
 .look h2{font-size:clamp(36px,6vw,88px)}
 .look p{max-width:440px;color:#555}
-@media(max-width:640px){.look .g{grid-template-columns:1fr}.look .g figure:nth-child(2){margin-top:0}}
+@media(max-width:640px){.look .g{grid-template-columns:1fr}.look .g figure:nth-child(2){margin-top:0}.look figcaption{flex-direction:column;gap:4px}}
 
 /* ---------- BANNER LOGO + NEWSLETTER ---------- */
 .banner{position:relative;background:#000;overflow:hidden;padding:clamp(80px,13vw,180px) 0 clamp(60px,9vw,120px);text-align:center}
@@ -319,6 +325,13 @@ footer .bot{display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;p
 .pd .gal{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .pd .gal .th{aspect-ratio:3/4;border-radius:12px;overflow:hidden;background:var(--card)}
 .pd .gal .th:first-child{grid-column:1/-1;aspect-ratio:4/5}
+.pd .gal .th:nth-child(2):last-child{grid-column:1/-1;aspect-ratio:4/5}
+@media(max-width:820px){
+  .pd .gal{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:10px;margin:0 calc(-1 * var(--pad));padding:0 var(--pad);scroll-padding:0 var(--pad);scrollbar-width:none}
+  .pd .gal::-webkit-scrollbar{display:none}
+  .pd .gal .th,.pd .gal .th:first-child{flex:0 0 86%;aspect-ratio:4/5;scroll-snap-align:start}
+  .pd .gal .th:only-child{flex-basis:100%}
+}
 .pd .inf{position:sticky;top:96px;align-self:start}
 .pd .inf .kick{color:var(--pink)}
 .pd h2{font-size:clamp(34px,4.4vw,62px);margin:12px 0 8px}
@@ -390,7 +403,7 @@ footer .bot{display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;p
     <a href="#top" class="lgl" aria-label="SSW Motorsport — home"><svg class="lg mk" viewBox="0 0 840 300" role="img" aria-label="SSW Motorsport"><use href="#ssw-mark"/></svg></a>
     <nav class="rt">
       <a class="nl hide-m" href="#lookbook">Lookbook</a>
-      <a class="nl cartl open-cart" href="#carrello">Carrello (<span class="cartN">0</span>)</a>
+      <a class="nl cartl open-cart" href="#carrello" aria-label="Carrello"><svg class="bag" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 8h14l-1.2 12H6.2L5 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg><span class="cw">Carrello </span>(<span class="cartN">0</span>)</a>
     </nav>
   </div>
 </header>
@@ -442,10 +455,10 @@ footer .bot{display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;p
 <section class="promoS">
   <div class="promo rv" id="promo">
     <div class="bg"><img src="assets/ssw-m2-garage.jpg" alt="" loading="lazy"></div>
-    <svg class="doodle d1" viewBox="0 0 300 150" aria-hidden="true" style="--len:520"><path d="M8 20C70 4 170 22 214 96c8 14 12 26 14 40"/><path d="M200 112l28 26 20-34"/></svg>
     <svg class="doodle d2" viewBox="0 0 80 80" aria-hidden="true" style="--len:80"><line x1="40" y1="6" x2="40" y2="74"/><line x1="6" y1="40" x2="74" y2="40"/></svg>
     <div class="in">
       <div>
+        <svg class="doodle d1" viewBox="0 0 300 150" aria-hidden="true" style="--len:520"><path d="M8 20C70 4 170 22 214 96c8 14 12 26 14 40"/><path d="M200 112l28 26 20-34"/></svg>
         <div class="kick pk">// Drop 01 sbloccato</div>
         <h2 class="disp">1000.<br><span class="o">Grazie.</span></h2>
         <p>Avevamo detto che il primo drop sarebbe uscito a 1000 follower. Ci siete arrivati. Drop 01 è online: pochi pezzi, puliti, aggressivi, autentici. Quando finiscono, finiscono.</p>
@@ -821,7 +834,10 @@ new IntersectionObserver((es, o) => {
 
 /* ======== carosello prodotti ======== */
 const rail = $('rail');
-const railUpd = () => { $('prev').disabled = rail.scrollLeft < 8; $('next').disabled = rail.scrollLeft > rail.scrollWidth - rail.clientWidth - 8; };
+const railUpd = () => {
+  $('prev').disabled = rail.scrollLeft < 8; $('next').disabled = rail.scrollLeft > rail.scrollWidth - rail.clientWidth - 8;
+  $('prev').parentNode.classList.toggle('off', rail.scrollWidth <= rail.clientWidth + 8);   // pochi capi: niente frecce
+};
 const railStep = () => { const c = rail.querySelector('.pc'); return c ? (c.offsetWidth + 16) * 2 : 300; };
 function buildRail() {
   const x = rail.scrollLeft;

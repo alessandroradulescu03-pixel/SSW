@@ -111,7 +111,9 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#000}
 .stg{display:grid;gap:6px;align-items:center;min-width:min-content}
 .stg .h{font-size:11px;font-weight:800;letter-spacing:.1em;text-align:center;color:var(--mute)}
 .stg .cn{display:flex;align-items:center;gap:8px;font-weight:700;font-size:13.5px;min-width:0}
-.stg input{height:44px;padding:0 4px;text-align:center}
+.stg input{height:44px;padding:0 2px;text-align:center;-moz-appearance:textfield;appearance:textfield}
+.stg input::-webkit-outer-spin-button,.stg input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+@media(max-width:480px){.stg{gap:5px}.stg .cn{font-size:12.5px;gap:6px}.stg .cn .dot{width:16px;height:16px}.stg input{height:40px}}
 .szr{display:grid;grid-template-columns:1fr 1fr 44px;gap:10px;margin-bottom:8px;align-items:center}
 .szr button{height:46px;border-radius:12px;border:1.5px solid var(--line);font-size:18px;background:#fff}
 .colf{margin-bottom:16px}
@@ -166,15 +168,15 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#000}
         </div>
       </div>
       <nav class="tabs">
-        <button data-tab="orders" class="on">Ordini <b id="newN" hidden>0</b></button>
-        <button data-tab="products">Articoli</button>
+        <button data-tab="products" class="on">Articoli</button>
+        <button data-tab="orders">Ordini <b id="newN" hidden>0</b></button>
       </nav>
     </div>
   </header>
 
   <main class="wrap">
     <!-- ORDINI -->
-    <section id="tOrders">
+    <section id="tOrders" hidden>
       <div class="head"><h1 class="disp">Ordini</h1><button class="btn gh sm" id="oReload">Aggiorna</button></div>
       <div class="chips" id="oChips"></div>
       <div class="msg err" id="oMsg" role="alert"></div>
@@ -182,7 +184,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#000}
     </section>
 
     <!-- ARTICOLI: elenco -->
-    <section id="tProducts" hidden>
+    <section id="tProducts">
       <div class="head"><h1 class="disp">Articoli</h1><button class="btn pk sm" id="pNew">+ Nuovo</button></div>
       <div class="msg err" id="pMsg" role="alert"></div>
       <div id="pList"></div>
@@ -199,7 +201,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#000}
           <div class="cols" id="eCols"></div>
           <div class="colnew">
             <i class="dot unk" id="eColDot"></i>
-            <input type="text" id="eColIn" maxlength="30" placeholder="Altro colore: es. bordeaux, verde militare…" autocomplete="off">
+            <input type="text" id="eColIn" maxlength="30" placeholder="Altro colore (es. bordeaux)" autocomplete="off">
             <button type="button" class="btn gh sm" id="eColAdd">Aggiungi</button>
           </div>
           <div class="colhint" id="eColHint"></div>
@@ -304,7 +306,8 @@ async function enter() {
     return;
   }
   show('vApp');
-  loadOrders();
+  tab('products');   // si apre sugli articoli
+  loadOrders();      // gli ordini si caricano lo stesso, per il numerino dei nuovi
 }
 $('logout').addEventListener('click', async () => { await sb.auth.signOut(); show('vLogin'); });
 
@@ -424,7 +427,7 @@ async function loadProducts() {
     const tot = (p.variants || []).reduce((a, v) => a + v.stock, 0), img = safeUrl((p.images || [])[0]);
     return `<button class="card pr" data-id="${esc(p.id)}">
       ${img ? `<img src="${esc(img)}" alt="" loading="lazy">` : '<div class="noimg"></div>'}
-      <div><div class="nm">${esc(p.name)}</div><div class="sub">${esc(p.color)} · ${eur(p.price)}</div>
+      <div><div class="nm">${esc(p.name)}</div><div class="sub">${esc(((c) => c.length > 2 ? c.length + ' colori' : c.join(', '))(String(p.color || '').split(/\s*,\s*/).filter(Boolean)))}${p.color ? ' · ' : ''}${eur(p.price)}</div>
         ${p.active ? '' : '<span class="bdg" style="margin-top:6px">Nascosto</span>'}</div>
       <div class="st"><b class="${tot ? '' : 'zero'}">${tot}</b>${tot ? 'pezzi' : 'esaurito'}</div>
     </button>`;
@@ -586,7 +589,7 @@ function drawSizes() {
 function drawStock() {
   const cs = cols.length ? cols : [''], n = ed.sizes.length;
   if (!n) { $('eStock').innerHTML = '<div class="colhint">Aggiungi almeno una taglia.</div>'; return; }
-  const tmpl = `grid-template-columns:minmax(78px,1.2fr) repeat(${n},minmax(44px,1fr))`;
+  const tmpl = `grid-template-columns:minmax(70px,1.2fr) repeat(${n},minmax(36px,1fr))`;
   $('eStock').innerHTML = `<div class="stg" style="${tmpl}">
     <div class="h"></div>${ed.sizes.map(s => `<div class="h">${esc(s.size.trim().toUpperCase() || '?')}</div>`).join('')}
     ${cs.map(c => `<div class="cn">${c ? `<i class="dot${colHex(c) ? '' : ' unk'}" style="${colHex(c) ? 'background:' + esc(colHex(c)) : ''}"></i>${esc(c)}` : 'Pezzi'}</div>` +
