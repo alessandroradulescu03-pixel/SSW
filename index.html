@@ -702,7 +702,7 @@ function api(path, body) {
   }).then(r => r.ok ? r.json() : Promise.reject(new Error('database: errore ' + r.status)));
 }
 async function loadProducts() {
-  const rows = await api('products?select=id,name,color,price,description,composition,fit,tag,images,variants(id,size,stock,sort)&active=eq.true&order=position.asc,created_at.asc');
+  const rows = await api('products?select=id,name,color,price,description,composition,fit,tag,images,variants(id,color,size,stock,sort)&active=eq.true&order=position.asc,created_at.asc');
   P.length = 0;
   rows.forEach(r => {
     const imgs = (r.images || []).filter(u => /^https:\/\//i.test(u));
