@@ -166,8 +166,10 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .shop{--iw:clamp(210px,23vw,300px)}
 .rack{position:relative;margin-top:clamp(4px,1.2vw,14px)}
 .rack .pole{position:absolute;left:0;top:12px;width:100%;height:44px;z-index:2;pointer-events:none;overflow:visible}
-.rail{position:relative;display:flex;align-items:flex-start;gap:clamp(0px,.8vw,12px);overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scrollbar-width:none;padding:0 calc(50% - var(--iw)/2) 70px;overscroll-behavior-x:contain}
-.pc{position:relative;flex:0 0 var(--iw);scroll-snap-align:center;cursor:pointer;transform-origin:50% 0;will-change:transform;backface-visibility:hidden;outline:none;-webkit-tap-highlight-color:transparent}
+.rail{position:relative;height:calc(var(--iw)*1.5 + 100px);overflow:hidden;touch-action:pan-y;user-select:none;-webkit-user-select:none;cursor:grab}
+.rail.drag{cursor:grabbing}
+.rail img{-webkit-user-drag:none;user-drag:none;pointer-events:none}
+.pc{position:absolute;left:50%;top:0;width:var(--iw);margin-left:calc(var(--iw)/-2);cursor:pointer;transform-origin:50% 0;will-change:transform;backface-visibility:hidden;outline:none;-webkit-tap-highlight-color:transparent}
 .pc .hang{position:relative;transform-origin:50% var(--hy,10px);will-change:transform}
 .pc .hgr{display:block;width:100%;height:auto;overflow:visible}
 .pc .hgr .hk{fill:none;stroke:#8e8e8e;stroke-width:3.6;stroke-linecap:round;stroke-linejoin:round}
@@ -199,7 +201,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .rinfo .cl{color:#777;font-size:13px}
 .rinfo .go{cursor:pointer;display:inline-block;margin-top:8px;font-size:11px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;border-bottom:2px solid var(--pink);padding-bottom:2px}
 .pc:focus-visible .ph{outline:2px solid var(--pink);outline-offset:4px;border-radius:12px}
-.rail .none{flex:0 0 var(--iw);text-align:center;color:#666;font-size:15px;padding:100px 0 20px}
+.rail .none{position:absolute;left:0;right:0;top:90px;padding:0 var(--pad);text-align:center;color:#666;font-size:15px}
 @media(max-width:760px){.arrows{display:none}.shop{--iw:58vw}}
 
 /* ---------- STORIA ---------- */
@@ -844,18 +846,26 @@ new IntersectionObserver((es, o) => {
   })(t0);
 }, { threshold: .6 }).observe($('count'));
 
-/* ======== carosello prodotti ======== */
+/* ======== carosello prodotti: STENDER ========
+   Tutto il movimento è calcolato qui, in un unico ciclo di animazione (niente scroll nativo):
+   trascinamento con dito/mouse, trackpad, frecce e aggancio al capo con una molla → sempre fluido. */
 const rail = $('rail');
-const railUpd = () => {
-  $('prev').disabled = rail.scrollLeft < 8; $('next').disabled = rail.scrollLeft > rail.scrollWidth - rail.clientWidth - 8;
-  $('prev').parentNode.classList.toggle('off', rail.scrollWidth <= rail.clientWidth + 8);   // pochi capi: niente frecce
-};
-const railStep = () => { const c = rail.querySelectorAll('.pc'); return c.length > 1 ? c[1].offsetLeft - c[0].offsetLeft : 300; };
+const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
+let hangs = [], rackBest = null, rackFirst = true, rackSeen = false;
+let pos = 0, tgt = 0, vel = 0, lastPos = 0, lastT = 0, loopRAF = 0, railW = 0, itemW = 0;
+let drag = null, dragMoved = false, wheelT = 0;
+const NH = () => hangs.length;
+const clampI = i => Math.max(0, Math.min(NH() - 1, i));
+const pxPer = () => itemW * .66 || 200;            // quanti px di trascinamento per passare al capo dopo
+function railUpd() {
+  const t = Math.round(tgt);
+  $('prev').disabled = t <= 0; $('next').disabled = t >= NH() - 1;
+  $('prev').parentNode.classList.toggle('off', NH() < 2);   // pochi capi: niente frecce
+}
 function buildRail() {
-  const x = rail.scrollLeft;
   if (!P.length) {
     rail.innerHTML = `<p class="none">${dbState === 'loading' ? 'Carico la collezione…' : dbState === 'error' ? 'Non riusciamo a caricare la collezione. Ricarica la pagina tra poco.' : 'Il drop arriva presto. Seguici su Instagram per non perderlo.'}</p>`;
-    railUpd(); return;
+    hangs = []; rackBest = null; $('rinfo').innerHTML = ''; railUpd(); return;
   }
   rail.innerHTML = P.map(p => {
     const out = soldOut(p);
@@ -869,62 +879,31 @@ function buildRail() {
       </div>
     </article>`;
   }).join('');
-  rail.scrollLeft = x; railUpd();
   rackInit();
 }
-let railAnim = 0, railTo = null;
-function railAnimTo(to) {
-  const max = rail.scrollWidth - rail.clientWidth; to = Math.max(0, Math.min(max, to));
-  const from = rail.scrollLeft, T = 650, t0 = performance.now();
-  railTo = to; cancelAnimationFrame(railAnim);
-  rail.style.scrollSnapType = 'none';
-  const ease = t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
-  (function f(now) {
-    const k = Math.min(1, (now - t0) / T);
-    rail.scrollLeft = from + (to - from) * ease(k);
-    if (k < 1) railAnim = requestAnimationFrame(f);
-    else { railTo = null; rail.style.scrollSnapType = ''; }
-  })(t0);
-}
-function railGo(dir) {
-  const step = railStep();
-  const base = railTo != null ? railTo : rail.scrollLeft;              // clic ripetuti: si somma al capo di arrivo
-  railAnimTo((Math.round(base / step) + dir) * step);
-}
-// porta al centro un capo preciso (quello toccato di profilo)
-const railToEl = el => railAnimTo(el.offsetLeft + el.offsetWidth / 2 - rail.clientWidth / 2);
-$('prev').addEventListener('click', () => railGo(-1));
-$('next').addEventListener('click', () => railGo(1));
-rail.addEventListener('scroll', railUpd, { passive: true }); addEventListener('resize', railUpd);
-/* ======== stender: barra curva, capo centrale più grande, i capi oscillano quando scorri ======== */
-const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
-let rackBest = null, hangs = [], swingRAF = 0, layRAF = 0, lastSL = 0, rackFirst = true, rackSeen = false;
-let railW = 0;
 function rackMeasure() {
-  railW = rail.clientWidth;
-  hangs.forEach(h => { h.w = h.el.offsetWidth; h.x = h.el.offsetLeft; h.el.style.setProperty('--hy', (h.w * .035).toFixed(1) + 'px'); });
+  railW = rail.clientWidth; itemW = hangs[0] ? hangs[0].el.offsetWidth : 0;
+  const hy = (itemW * .035).toFixed(1) + 'px';
+  hangs.forEach(h => h.el.style.setProperty('--hy', hy));
 }
-function rackLayout() {
-  layRAF = 0;
-  const W = railW, sl = rail.scrollLeft, step = hangs.length > 1 ? hangs[1].x - hangs[0].x : (hangs[0] ? hangs[0].w : 1);
-  let best = null, bd = 9;
-  hangs.forEach(h => {
-    const w = h.w, c = h.x + w / 2 - sl - W / 2;     // distanza dal centro dello schermo, in px
-    const d = c / step, ad = Math.abs(d), k = Math.min(1, ad);
-    const sm = k * k * (3 - 2 * k);                  // passaggio morbido fronte → profilo
-    // i capi di profilo occupano poco spazio: li stringo verso il centro come su uno stender vero
-    const A = w * .66, B = w * .24;
-    const vis = Math.sign(d) * (ad <= 1 ? ad * A : A + (ad - 1) * B);
-    const tx = vis - c;
-    const xn = Math.max(-1.2, Math.min(1.2, vis / (W / 2)));
-    const s = 1 - .1 * sm;
-    const hy = w * .035;
-    const ty = 22 + 20 * (1 - xn * xn) - hy * s;     // il gancio segue la curva della barra
-    const ry = (d > 0 ? -1 : 1) * 74 * sm;           // al centro di fronte, ai lati di profilo
-    h.el.style.transform = `translate3d(${tx.toFixed(1)}px,${ty.toFixed(1)}px,0) perspective(1100px) rotateY(${ry.toFixed(2)}deg) scale(${s.toFixed(3)})`;
-    h.el.style.zIndex = 100 - Math.round(ad * 4);
-    if (h.tag) h.tag.style.opacity = Math.max(0, 1 - ad * 1.8).toFixed(2);
+// posiziona i capi: al centro di fronte, ai lati di profilo e stretti, il gancio segue la curva della barra
+function rackRender() {
+  const W = railW, w = itemW, A = w * .66, B = w * .24, lim = W / 2 + w;
+  let best = null, bd = 1e9;
+  hangs.forEach((h, i) => {
+    const d = i - pos, ad = Math.abs(d), k = Math.min(1, ad), sm = k * k * (3 - 2 * k);
     if (ad < bd) { bd = ad; best = h; }
+    const vis = Math.sign(d) * (ad <= 1 ? ad * A : A + (ad - 1) * B);
+    const show = Math.abs(vis) < lim;
+    if (show !== h.show) { h.show = show; h.el.style.visibility = show ? '' : 'hidden'; }
+    if (!show) return;
+    const xn = Math.max(-1.2, Math.min(1.2, vis / (W / 2)));
+    const s = 1 - .1 * sm, hy = w * .035;
+    const ty = 22 + 20 * (1 - xn * xn) - hy * s;
+    const ry = (d > 0 ? -1 : 1) * 74 * sm;
+    h.el.style.transform = `translate3d(${vis.toFixed(2)}px,${ty.toFixed(2)}px,0) perspective(1100px) rotateY(${ry.toFixed(2)}deg) scale(${s.toFixed(4)})`;
+    const z = 100 - Math.round(ad * 4); if (z !== h.z) { h.z = z; h.el.style.zIndex = z; }
+    const o = Math.max(0, 1 - ad * 1.8); if (h.tag && Math.abs(o - h.o) > .01) { h.o = o; h.tag.style.opacity = o.toFixed(2); }
   });
   if (best !== rackBest) { if (rackBest) rackBest.el.classList.remove('on'); if (best) best.el.classList.add('on'); rackBest = best; rackInfo(); }
 }
@@ -935,22 +914,39 @@ function rackInfo() {
   box.innerHTML = `${out ? '<span class="tag">Esaurito</span>' : p.tag ? `<span class="tag${p.tp ? ' p' : ''}">${esc(p.tag)}</span>` : ''}<div class="nm">${esc(p.name)}</div><div class="cl">${esc(colLabel(p))} · ${eur(p.price)}</div><button type="button" class="go">Scopri</button>`;
   box.querySelector('.go').addEventListener('click', () => openPD(p.uid));
 }
-const rackLater = () => { if (!layRAF) layRAF = requestAnimationFrame(rackLayout); };
-function swingTick() {
-  let moving = false;
+// ciclo unico: molla verso il capo scelto + dondolio dei capi
+function tick(now) {
+  loopRAF = 0;
+  const dt = lastT ? Math.min(3, (now - lastT) / 16.667) : 1; lastT = now;
+  let moving = !!(drag && drag.on);
+  if (!moving && pos !== tgt) {
+    vel = (vel + (tgt - pos) * .085 * dt) * Math.pow(.74, dt); pos += vel * dt;
+    if (Math.abs(tgt - pos) < .0006 && Math.abs(vel) < .0006) { pos = tgt; vel = 0; } else moving = true;
+  }
+  const dp = pos - lastPos; lastPos = pos;
   hangs.forEach(h => {
-    h.v += -h.a * .022; h.v *= .945; h.a = Math.max(-16, Math.min(16, h.a + h.v));
-    if (Math.abs(h.a) > .02 || Math.abs(h.v) > .02) moving = true; else h.a = h.v = 0;
-    h.hang.style.transform = h.a ? `rotate(${h.a.toFixed(2)}deg)` : '';
+    if (dp && !RM) h.v += -dp * itemW * .05 * h.k;    // la barra si sposta, i capi restano un attimo indietro
+    if (h.a || h.v) {
+      h.v = (h.v - h.a * .022 * dt) * Math.pow(.945, dt);
+      h.a = Math.max(-16, Math.min(16, h.a + h.v * dt));
+      if (Math.abs(h.a) < .02 && Math.abs(h.v) < .02) h.a = h.v = 0; else moving = true;
+      if (h.show !== false) h.hang.style.transform = h.a ? `rotate(${h.a.toFixed(2)}deg)` : '';
+    }
   });
-  swingRAF = moving ? requestAnimationFrame(swingTick) : 0;
+  rackRender();
+  if (moving) loopRAF = requestAnimationFrame(tick); else lastT = 0;
 }
-function kick(h, v) { if (RM || !h) return; h.v += v; if (!swingRAF) swingRAF = requestAnimationFrame(swingTick); }
+const wake = () => { if (!loopRAF) loopRAF = requestAnimationFrame(tick); };
+function kick(h, v) { if (RM || !h) return; h.v += v; wake(); }
+function railGo(dir) { tgt = clampI(Math.round(tgt) + dir); railUpd(); wake(); }
+const railToEl = el => { const i = hangs.findIndex(h => h.el === el); if (i >= 0) { tgt = i; railUpd(); wake(); } };
+$('prev').addEventListener('click', () => railGo(-1));
+$('next').addEventListener('click', () => railGo(1));
 // appena lo stender entra nello schermo i capi dondolano come se fossero stati appena appesi
 function rackHello() {
   if (!hangs.length || !rackSeen) return;
   rackSeen = false;
-  hangs.forEach((h, i) => setTimeout(() => kick(h, (i % 2 ? 1 : -1) * (1.1 + Math.random() * .6)), 120 + i * 90));
+  hangs.forEach((h, i) => setTimeout(() => kick(h, (i % 2 ? 1 : -1) * (1.1 + Math.random() * .6)), 120 + i * 60));
 }
 /* ======== scontorno: toglie lo sfondo (bianco o grigio uniforme) dalla foto di copertina ========
    Così il capo sembra appeso davvero: la gruccia resta dentro, fuori si vede solo il gancio.
@@ -1018,31 +1014,71 @@ function rackCut() {
   });
 }
 function rackInit() {
-  hangs = [...rail.querySelectorAll('.pc')].map(el => ({ el, hang: el.querySelector('.hang'), tag: el.querySelector('.ptag'), a: 0, v: 0, w: 0, x: 0, k: .75 + Math.random() * .5 }));
-  hangs.forEach(h => h.el.addEventListener('mouseenter', () => kick(h, (Math.random() < .5 ? -1 : 1) * .9)));
-  if (rackFirst && hangs.length > 2) {             // si parte dal capo in mezzo, con gli altri ai lati
-    rackFirst = false;
-    const m = hangs[Math.floor(hangs.length / 2)].el;
-    rail.scrollLeft = m.offsetLeft + m.offsetWidth / 2 - rail.clientWidth / 2;
-  }
-  rackBest = null; rackMeasure();
-  lastSL = rail.scrollLeft;
-  rackLayout(); rackHello(); rackCut();
+  hangs = [...rail.querySelectorAll('.pc')].map(el => ({ el, hang: el.querySelector('.hang'), tag: el.querySelector('.ptag'), a: 0, v: 0, z: null, o: -1, show: undefined, k: .75 + Math.random() * .5 }));
+  hangs.forEach(h => h.el.addEventListener('pointerenter', e => { if (e.pointerType === 'mouse' && !drag) kick(h, (Math.random() < .5 ? -1 : 1) * .9); }));
+  rackMeasure();
+  if (rackFirst && NH() > 2) { rackFirst = false; pos = tgt = Math.floor(NH() / 2); }   // si parte dal capo in mezzo
+  else { tgt = clampI(Math.round(tgt)); pos = Math.max(0, Math.min(NH() - 1, pos)); }
+  lastPos = pos; vel = 0; rackBest = null;
+  railUpd(); rackRender(); rackHello(); rackCut();
 }
-rail.addEventListener('scroll', () => {
-  const dx = Math.max(-60, Math.min(60, rail.scrollLeft - lastSL)); lastSL = rail.scrollLeft;
-  if (dx) hangs.forEach(h => kick(h, -dx * .05 * h.k));   // la barra scorre, i capi restano indietro
-  rackLater();
-}, { passive: true });
-addEventListener('resize', () => { rackMeasure(); rackLater(); });
+addEventListener('resize', () => { rackMeasure(); rackRender(); });
 new IntersectionObserver((es, o) => { if (es[0].isIntersecting) { rackSeen = true; rackHello(); if (hangs.length) o.disconnect(); } }, { threshold: .35 }).observe($('rack'));
+
+/* trascinamento (dito e mouse) con lancio */
+rail.addEventListener('pointerdown', e => {
+  if (e.button > 0 || !NH()) return;
+  drag = { x: e.clientX, y: e.clientY, p: pos, id: e.pointerId, on: false, hist: [[e.timeStamp, e.clientX]] };
+  dragMoved = false;
+});
+addEventListener('pointermove', e => {
+  if (!drag || e.pointerId !== drag.id) return;
+  const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
+  if (!drag.on) {
+    if (Math.abs(dx) < 6 && Math.abs(dy) < 6) return;
+    if (Math.abs(dy) > Math.abs(dx)) { drag = null; return; }   // gesto verticale: è lo scroll della pagina
+    drag.on = true; dragMoved = true; drag.x = e.clientX; drag.p = pos; tgt = pos; vel = 0;
+    rail.classList.add('drag'); try { rail.setPointerCapture(e.pointerId); } catch (_) {}
+  }
+  let p = drag.p - (e.clientX - drag.x) / pxPer();
+  const mx = NH() - 1;
+  if (p < 0) p *= .35; else if (p > mx) p = mx + (p - mx) * .35;   // ai bordi fa resistenza
+  pos = p;
+  drag.hist.push([e.timeStamp, e.clientX]); if (drag.hist.length > 6) drag.hist.shift();
+  wake();
+});
+const endDrag = e => {
+  if (!drag || (e && e.pointerId !== drag.id)) return;
+  if (drag.on) {
+    const h = drag.hist, a = h[0], b = h[h.length - 1], ms = Math.max(16, b[0] - a[0]);
+    const v = (e && e.timeStamp - b[0] > 90) ? 0 : -(b[1] - a[1]) / ms / pxPer();   // capi al ms
+    tgt = clampI(Math.round(pos + Math.max(-3, Math.min(3, v * 180))));
+    rail.classList.remove('drag'); railUpd(); wake();
+  }
+  drag = null;
+};
+addEventListener('pointerup', endDrag); addEventListener('pointercancel', endDrag);
+/* trackpad / rotella orizzontale (o Shift + rotella) */
+rail.addEventListener('wheel', e => {
+  const dx = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : (e.shiftKey ? e.deltaY : 0);
+  if (!dx || !NH()) return;
+  e.preventDefault();
+  pos = Math.max(-.3, Math.min(NH() - .7, pos + dx / pxPer() * (e.deltaMode === 1 ? 16 : 1)));
+  tgt = pos; vel = 0;
+  clearTimeout(wheelT); wheelT = setTimeout(() => { tgt = clampI(Math.round(pos)); railUpd(); wake(); }, 120);
+  wake();
+}, { passive: false });
 const railOpen = e => {
+  if (dragMoved) { dragMoved = false; return; }     // era un trascinamento, non un tocco
   const c = e.target.closest('.pc'); if (!c) return;
   if (rackBest && c !== rackBest.el) railToEl(c);   // di profilo: prima si gira verso di te
   else openPD(c.dataset.uid);
 };
 rail.addEventListener('click', railOpen);
-rail.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); railOpen(e); } });
+rail.addEventListener('keydown', e => {
+  if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); railOpen(e); }
+  else if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') { e.preventDefault(); railGo(e.key === 'ArrowRight' ? 1 : -1); }
+});
 
 /* ======== carrello ======== */
 let cart = [];   // righe: { uid, size, q }
