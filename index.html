@@ -337,54 +337,23 @@ footer .bot{display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;p
 .rcp .bmain{margin-top:26px}
 
 /* ---------- SCHEDA PRODOTTO ---------- */
-.pd{position:fixed;inset:0;z-index:80;background:#fff;color:var(--ink);overflow:auto;opacity:0;transform:translateY(28px) scale(.985);visibility:hidden;transition:opacity .45s var(--ease),transform .6s var(--ease),visibility .6s}
-.pd.open{opacity:1;transform:none;visibility:visible}
+.pd{position:fixed;inset:0;z-index:80;background:#fff;color:var(--ink);overflow:auto;transform:translateY(100%);visibility:hidden;transition:transform .6s var(--ease),visibility .6s}
+.pd.open{transform:none;visibility:visible}
 .pd .bar{position:sticky;top:0;z-index:3;background:#000;color:#fff}
   .pd .bar .lg,.pv .bar .lg{width:104px}
 .pd .bar .wrap{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;height:66px}
 .pd .bar .x:last-child{justify-self:end;color:var(--pink)}
 .pd .bar .x:first-child{justify-self:start}
 .pd .grid{display:grid;grid-template-columns:1.15fr .85fr;gap:clamp(24px,5vw,70px);padding-top:clamp(20px,3vw,40px);padding-bottom:80px}
-/* palco: il capo scelto appeso da solo, come tolto dallo stender */
-.stage{position:relative;height:min(78vh,780px);border-radius:18px;overflow:hidden;background:radial-gradient(120% 85% at 50% 28%,#fff 0%,#f3f3f1 62%,#e9e9e6 100%)}
-.sg-top{position:absolute;top:18px;left:20px;right:20px;z-index:4;display:flex;justify-content:space-between;align-items:center}
-.sg-n{font-size:12px;font-weight:800;letter-spacing:.24em;color:#8a8a8a}
-.sg-n b{color:#000}
-.sg-nav{display:flex;gap:8px}
-.sg-nav button{width:44px;height:44px;border-radius:50%;border:1.5px solid #000;background:#fff;display:grid;place-items:center;transition:background .25s,color .25s,opacity .25s}
-.sg-nav button:hover{background:#000;color:#fff}
-.sg-nav button:disabled{opacity:.2;pointer-events:none}
-.sg-nav svg{width:16px;height:16px}
-.sg-pole{position:absolute;top:78px;left:-2%;right:-2%;height:9px;border-radius:5px;background:linear-gradient(#fdfdfd,#cfcfcf 40%,#8f8f8f);box-shadow:0 7px 12px rgba(0,0,0,.08);z-index:1}
-.sg-hang{position:absolute;top:66px;left:14%;right:14%;transform-origin:50% 14px;will-change:transform;z-index:2}
-.sg-hook{position:relative;z-index:3;display:block;width:36px;height:auto;margin:0 auto -18px;overflow:visible}
-.sg-hook .hk{fill:none;stroke:#8e8e8e;stroke-width:4;stroke-linecap:round}
-.sg-hook .hl{fill:none;stroke:#f2f2f2;stroke-width:1.3;stroke-linecap:round}
-.sg-img{perspective:1400px}
-.sg-img img{width:100%;height:calc(min(78vh,780px) - 150px);object-fit:contain;object-position:50% 0;transition:transform .2s ease-in,opacity .2s}
-.sg-img.in{animation:sgIn .55s var(--ease) both}
-@keyframes sgIn{from{opacity:0;transform:translate3d(calc(var(--dir,0) * 70px),-26px,0)}to{opacity:1;transform:none}}
-.sg-hang.turn .sg-img img{transform:rotateY(88deg);opacity:.5}
-.sg-floor{position:absolute;left:50%;bottom:22px;width:46%;height:22px;transform:translateX(-50%);border-radius:50%;background:radial-gradient(closest-side,rgba(0,0,0,.13),transparent)}
-.sg-tag{position:absolute;z-index:3;top:104px;left:calc(50% + 26px);background:var(--pink);color:#000;font-size:13px;font-weight:800;padding:6px 11px 5px 17px;border-radius:3px 8px 8px 3px;transform:rotate(-7deg);transform-origin:0 50%;box-shadow:0 5px 12px rgba(0,0,0,.16)}
-.sg-tag::before{content:'';position:absolute;left:6px;top:50%;width:6px;height:6px;margin-top:-3px;border-radius:50%;background:#fff}
-.sg-tag.out{background:#000;color:#fff;text-transform:uppercase;letter-spacing:.12em;font-size:11px}
-/* foto non scontornabile (es. con il modello): si vede come foto normale */
-.stage.flat .sg-pole,.stage.flat .sg-hook,.stage.flat .sg-floor,.stage.flat .sg-tag{display:none}
-.stage.flat .sg-hang{top:0;left:0;right:0;bottom:0;transform:none!important}
-.stage.flat .sg-img img{height:min(78vh,780px);object-fit:cover;object-position:50% 30%}
-.thumbs{display:flex;gap:10px;margin-top:12px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
-.thumbs::-webkit-scrollbar{display:none}
-.thumbs button{flex:0 0 76px;height:96px;border-radius:10px;overflow:hidden;background:var(--card);border:2px solid transparent;opacity:.6;transition:opacity .2s,border-color .2s}
-.thumbs button:hover{opacity:1}
-.thumbs button.sel{border-color:#000;opacity:1}
-.thumbs img{object-fit:cover}
+.pd .gal{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.pd .gal .th{aspect-ratio:3/4;border-radius:12px;overflow:hidden;background:var(--card)}
+.pd .gal .th:first-child{grid-column:1/-1;aspect-ratio:4/5}
+.pd .gal .th:nth-child(2):last-child{grid-column:1/-1;aspect-ratio:4/5}
 @media(max-width:820px){
-  .stage{height:66vh;border-radius:0;margin:0 calc(-1 * var(--pad))}
-  .sg-hang{left:8%;right:8%}
-  .sg-img img{height:calc(66vh - 140px)}
-  .stage.flat .sg-img img{height:66vh}
-  .thumbs button{flex-basis:62px;height:78px}
+  .pd .gal{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:10px;margin:0 calc(-1 * var(--pad));padding:0 var(--pad);scroll-padding:0 var(--pad);scrollbar-width:none}
+  .pd .gal::-webkit-scrollbar{display:none}
+  .pd .gal .th,.pd .gal .th:first-child{flex:0 0 86%;aspect-ratio:4/5;scroll-snap-align:start}
+  .pd .gal .th:only-child{flex-basis:100%}
 }
 .pd .inf{position:sticky;top:96px;align-self:start}
 .pd .inf .kick{color:var(--pink)}
@@ -630,25 +599,7 @@ footer .bot{display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;p
     <a href="#carrello" class="x open-cart">Carrello (<span class="cartN">0</span>)</a>
   </div></div>
   <div class="wrap grid">
-    <div class="gwrap">
-      <div class="stage" id="pdStage">
-        <div class="sg-top">
-          <span class="sg-n" id="pdNum"></span>
-          <div class="sg-nav">
-            <button type="button" id="pdPrev" aria-label="Capo precedente"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 8H2M7 3L2 8l5 5"/></svg></button>
-            <button type="button" id="pdNext" aria-label="Capo successivo"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 8h13M9 3l5 5-5 5"/></svg></button>
-          </div>
-        </div>
-        <div class="sg-pole"></div>
-        <div class="sg-hang" id="pdHang">
-          <svg class="sg-hook" viewBox="0 0 40 64" aria-hidden="true"><path class="hk" d="M20 64 V24 C20 19 28 17 28 10 A8 8 0 0 0 12 10"/><path class="hl" d="M19.2 62 V24 C19.2 18.6 27 16.8 27 10 A7 7 0 0 0 13.4 8.6"/></svg>
-          <div class="sg-img" id="pdImgBox"><img id="pdImg" alt=""></div>
-        </div>
-        <span class="sg-tag" id="pdTag"></span>
-        <div class="sg-floor"></div>
-      </div>
-      <div class="thumbs" id="pdThumbs"></div>
-    </div>
+    <div class="gal" id="pdGal"></div>
     <div class="inf">
       <div class="kick">Drop 01 — Edizione limitata</div>
       <h2 class="disp" id="pdName"></h2>
@@ -1389,9 +1340,8 @@ function pdBtn() {
   b.disabled = !!miss.length;
   b.textContent = miss.length ? 'Seleziona ' + miss.join(' e ') : 'Aggiungi al carrello — ' + eur(p.price);
 }
-function openPD(uid, dir = 0) {
+function openPD(uid) {
   const p = byUid(uid); if (!p) return;
-  const wasOpen = $('pd').classList.contains('open');
   cur = uid; sel = null;
   const cs = colsOf(p); selCol = cs.length === 1 ? cs[0] : (cs.length ? null : '');
   const out = soldOut(p);
@@ -1404,66 +1354,13 @@ function openPD(uid, dir = 0) {
   $('pdComp').textContent = p.c;
   $('pdFit').textContent = p.fit || FIT_DEFAULT;   // se Andrea non la scrive resta il testo standard
   $('pdNote').textContent = out ? 'Questo capo è esaurito.' : '';
-  pdStage(p, wasOpen ? dir : 0);
+  // dal database: tutte le foto del capo. In demo: il capo più altre due foto di contorno
+  $('pdGal').innerHTML = (DB ? p.imgs.map(u => ({ ...p, img: u })) : [p, ...P.filter(x => x !== p).slice(0, 2)]).map(x => pic(x, 'th')).join('');
   pdBtn();
   drawPDSizes();
-  if (!wasOpen) $('pd').scrollTop = 0;
+  $('pd').scrollTop = 0;
   $('pd').classList.add('open'); document.body.classList.add('lock');
 }
-/* ======== palco della scheda: il capo appeso, foto davanti/dietro, capo precedente/successivo ======== */
-let pdImgs = [], pdI = 0, pdA = 0, pdV = 0, pdRAF = 0, pdLastT = 0;
-function pdSwingTick(now) {
-  pdRAF = 0;
-  const dt = pdLastT ? Math.min(3, (now - pdLastT) / 16.667) : 1; pdLastT = now;
-  pdV = (pdV - pdA * .02 * dt) * Math.pow(.955, dt); pdA = Math.max(-10, Math.min(10, pdA + pdV * dt));
-  if (Math.abs(pdA) < .01 && Math.abs(pdV) < .01) { pdA = pdV = 0; pdLastT = 0; }
-  $('pdHang').style.transform = pdA ? `rotate(${pdA.toFixed(2)}deg)` : '';
-  if (pdA || pdV) pdRAF = requestAnimationFrame(pdSwingTick);
-}
-function pdKick(v) { if (RM) return; pdV += v; if (!pdRAF) pdRAF = requestAnimationFrame(pdSwingTick); }
-// mostra la foto i: scontornata e appesa se si può, altrimenti come foto normale
-function pdShow(i, mode) {          // mode: 'in' (capo nuovo), 'turn' (giro la gruccia), '' (subito)
-  pdI = i; const src = pdImgs[i], img = $('pdImg'), box = $('pdImgBox'), hang = $('pdHang');
-  $('pdThumbs').querySelectorAll('button').forEach((b, k) => b.classList.toggle('sel', k === i));
-  const p = byUid(cur); img.alt = p ? p.name + ' ' + (p.col || '') : '';
-  const apply = u => {
-    if (pdImgs[pdI] !== src) return;
-    img.src = u || src; $('pdStage').classList.toggle('flat', !u);
-    if (mode === 'in') { box.classList.remove('in'); void box.offsetWidth; box.classList.add('in'); pdKick((Math.random() < .5 ? -1 : 1) * 1.6); }
-  };
-  const go = mode === 'turn' ? u => { hang.classList.add('turn'); setTimeout(() => { apply(u); hang.classList.remove('turn'); pdKick(1.2); }, 200); } : apply;
-  if (!src || src === NOIMG) { go(null); return; }
-  cutout(src).then(go);
-}
-function pdStage(p, dir) {
-  pdImgs = (p.imgs && p.imgs.length ? p.imgs : [p.img]).filter(Boolean);
-  const i = P.indexOf(p), out = soldOut(p);
-  $('pdNum').innerHTML = `<b>${String(i + 1).padStart(2, '0')}</b> / ${String(P.length).padStart(2, '0')}`;
-  $('pdPrev').disabled = i <= 0; $('pdNext').disabled = i >= P.length - 1;
-  const t = $('pdTag'); t.textContent = out ? 'Sold out' : eur(p.price); t.classList.toggle('out', out);
-  $('pdThumbs').innerHTML = pdImgs.length > 1 ? pdImgs.map((u, k) => `<button type="button" aria-label="Foto ${k + 1}"><img src="${esc(u)}" alt="" loading="lazy"></button>`).join('') : '';
-  $('pdImgBox').style.setProperty('--dir', dir);
-  $('pdImg').removeAttribute('src');
-  pdShow(0, 'in');
-}
-$('pdThumbs').addEventListener('click', e => {
-  const b = e.target.closest('button'); if (!b) return;
-  const i = [...$('pdThumbs').children].indexOf(b); if (i !== pdI) pdShow(i, 'turn');
-});
-// tocco sul capo: giro la gruccia e mostro la foto dopo (es. il retro)
-$('pdHang').style.cursor = 'pointer';
-$('pdHang').addEventListener('click', () => { if (pdImgs.length > 1) pdShow((pdI + 1) % pdImgs.length, 'turn'); else pdKick(1.4); });
-function pdGo(d) {
-  const i = P.findIndex(p => p.uid === cur) + d; if (i < 0 || i >= P.length) return;
-  openPD(P[i].uid, d);
-  if (hangs[i]) { tgt = pos = lastPos = i; vel = 0; railUpd(); rackRender(); }   // lo stender dietro segue
-}
-$('pdPrev').addEventListener('click', () => pdGo(-1));
-$('pdNext').addEventListener('click', () => pdGo(1));
-addEventListener('keydown', e => {
-  if (!$('pd').classList.contains('open') || $('privacy').classList.contains('open') || $('cart').classList.contains('open')) return;
-  if (e.key === 'ArrowRight') pdGo(1); else if (e.key === 'ArrowLeft') pdGo(-1);
-});
 // taglie della scheda: disponibili o barrate in base al colore scelto
 function drawPDSizes() {
   const p = byUid(cur), box = $('pdSizes'), many = colsOf(p).length > 1;
