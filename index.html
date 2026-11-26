@@ -167,7 +167,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .rack{position:relative;margin-top:clamp(4px,1.2vw,14px)}
 .rack .pole{position:absolute;left:0;top:12px;width:100%;height:44px;z-index:2;pointer-events:none;overflow:visible}
 .rail{position:relative;display:flex;align-items:flex-start;gap:clamp(0px,.8vw,12px);overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scrollbar-width:none;padding:0 calc(50% - var(--iw)/2) 70px;overscroll-behavior-x:contain}
-.pc{flex:0 0 var(--iw);scroll-snap-align:center;cursor:pointer;transform-origin:50% 0;will-change:transform;outline:none;-webkit-tap-highlight-color:transparent}
+.pc{position:relative;flex:0 0 var(--iw);scroll-snap-align:center;cursor:pointer;transform-origin:50% 0;will-change:transform;backface-visibility:hidden;outline:none;-webkit-tap-highlight-color:transparent}
 .pc .hang{position:relative;transform-origin:50% var(--hy,10px);will-change:transform}
 .pc .hgr{display:block;width:100%;height:auto;overflow:visible}
 .pc .hgr .hk{fill:none;stroke:#8e8e8e;stroke-width:3.6;stroke-linecap:round;stroke-linejoin:round}
@@ -178,8 +178,8 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .pc.cut .hook{display:block}
 .pc.cut .hgr .bd{display:none}
 .pc.cut .ph{margin-top:-16%;z-index:2}
-.pc.cut .ph img{mix-blend-mode:normal;filter:drop-shadow(0 16px 14px rgba(0,0,0,.17)) drop-shadow(0 3px 3px rgba(0,0,0,.10))}
-.pc.cut.out .ph img{filter:grayscale(1) drop-shadow(0 16px 14px rgba(0,0,0,.12));opacity:.5}
+.pc.cut .ph img{mix-blend-mode:normal;filter:none}
+.pc.cut.out .ph img{filter:grayscale(1);opacity:.5}
 .pc.cut .ptag{z-index:4}
 .pc .hgr .bd{fill:none;stroke:#2b2b2b;stroke-width:6.5;stroke-linecap:round;stroke-linejoin:round}
 .pc .ph{position:relative;margin-top:-10%;aspect-ratio:3/4}
@@ -190,13 +190,14 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .pc .ptag::before{content:'';position:absolute;left:5px;top:50%;width:5px;height:5px;margin-top:-2.5px;border-radius:50%;background:#fff}
 .pc .ptag::after{content:'';position:absolute;left:7px;top:50%;width:22px;height:1px;background:#888;transform-origin:0 0;transform:rotate(-150deg)}
 .pc.out .ptag{background:#000;color:#fff;text-transform:uppercase;letter-spacing:.12em;font-size:10px}
-.pc .meta{text-align:center;margin-top:8px;opacity:0;transform:translateY(8px);transition:opacity .35s,transform .45s var(--ease)}
-.pc.on .meta{opacity:1;transform:none}
-.pc .tag{display:inline-block;margin-bottom:8px;background:#000;color:#fff;font-size:10px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;padding:6px 10px 5px;border-radius:999px}
-.pc .tag.p{background:var(--pink);color:#000}
-.pc .nm{font-weight:800;font-size:15px;text-transform:uppercase;letter-spacing:.02em}
-.pc .cl{color:#777;font-size:13px}
-.pc .go{display:inline-block;margin-top:8px;font-size:11px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;border-bottom:2px solid var(--pink);padding-bottom:2px}
+.rinfo{position:relative;z-index:5;text-align:center;margin-top:-34px;min-height:96px;padding:0 var(--pad)}
+.rinfo>*{animation:rin .45s var(--ease) both}
+@keyframes rin{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.rinfo .tag{display:inline-block;margin-bottom:8px;background:#000;color:#fff;font-size:10px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;padding:6px 10px 5px;border-radius:999px}
+.rinfo .tag.p{background:var(--pink);color:#000}
+.rinfo .nm{font-weight:800;font-size:15px;text-transform:uppercase;letter-spacing:.02em}
+.rinfo .cl{color:#777;font-size:13px}
+.rinfo .go{cursor:pointer;display:inline-block;margin-top:8px;font-size:11px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;border-bottom:2px solid var(--pink);padding-bottom:2px}
 .pc:focus-visible .ph{outline:2px solid var(--pink);outline-offset:4px;border-radius:12px}
 .rail .none{flex:0 0 var(--iw);text-align:center;color:#666;font-size:15px;padding:100px 0 20px}
 @media(max-width:760px){.arrows{display:none}.shop{--iw:58vw}}
@@ -516,6 +517,7 @@ footer .bot{display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;p
       <path d="M0 11.8 Q500 51.8 1000 11.8" fill="none" stroke="#a8a8a8" stroke-width="1" vector-effect="non-scaling-stroke"/>
     </svg>
     <div class="rail" id="rail"></div>
+    <div class="rinfo" id="rinfo" aria-live="polite"></div>
   </div>
 </section>
 
@@ -696,6 +698,7 @@ footer .bot{display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;p
 </div>
 
 <script src="config.js"></script>
+<script src="colors.js"></script>
 <script>
 /* ======== PRODOTTI (demo: foto segnaposto da sostituire con quelle vere) ======== */
 const U = id => `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&w=1200&q=80`;
@@ -779,27 +782,7 @@ const inCart = (uid, size, col) => {
   const p = byUid(uid), v = sizeOf(p, size, col);
   return cart.filter(l => l.uid === uid && sizeOf(p, l.size, lineCol(l)) === v).reduce((a, l) => a + l.q, 0);
 };
-const COL_HEX = { nero:'#000',bianco:'#fff',grigio:'#8a8a8a','grigio chiaro':'#c9c9c9','grigio scuro':'#4a4a4a',antracite:'#383e42',melange:'#a9a9a9',
-  rosso:'#d62828',bordeaux:'#6d1a2a','bordò':'#6d1a2a',borgogna:'#800020',blu:'#1f4fd1','blu navy':'#1b2a4a',navy:'#1b2a4a','blu notte':'#14213d',
-  'blu elettrico':'#2c75ff',royal:'#2a4bd7',azzurro:'#6cb4ee',celeste:'#9fd3f0',avio:'#5d8aa8',petrolio:'#1f5f6b',turchese:'#2bb5b5','verde acqua':'#5fd3c4',
-  giallo:'#f5d000','giallo fluo':'#e6ff00',senape:'#d4a017',ocra:'#cc7722',oro:'#d4af37',verde:'#2e9e44','verde militare':'#4b5320',militare:'#4b5320',
-  'verde oliva':'#6b6e2e',oliva:'#6b6e2e','verde bosco':'#228b22','verde bottiglia':'#0b5d1e','verde scuro':'#1e4d2b','verde chiaro':'#90d26d',
-  'verde fluo':'#39ff14',lime:'#9acd32',menta:'#98e0c0',salvia:'#9caf88',kaki:'#b9a77a',khaki:'#b9a77a',arancione:'#f28c28',arancio:'#f28c28',
-  corallo:'#ff7f6e',salmone:'#fa8072',pesca:'#ffcba4',rosa:'#f4a6c0','rosa antico':'#c08081',cipria:'#efc6c3','rosa fluo':'#ff3ea5',fucsia:'#ff1aa8',
-  magenta:'#d0006f',viola:'#7b3fb0',lilla:'#c8a2d8',lavanda:'#b9a6e0',prugna:'#5e2750',marrone:'#6b4226',cioccolato:'#4e2a1e',moka:'#5b3a29',
-  cammello:'#c19a6b',cognac:'#9a463d',cuoio:'#8b5a2b',terracotta:'#c4623d',ruggine:'#b7410e',beige:'#e3d3b5',sabbia:'#d8c39a',crema:'#f3ead3',
-  panna:'#f6f0e1',avorio:'#fffff0','off white':'#f8f6f0',ecru:'#e9dcc3','écru':'#e9dcc3',tortora:'#a89a8a',talpa:'#7c6e65',nocciola:'#a67b5b',
-  argento:'#c0c0c0',bronzo:'#cd7f32',rame:'#b87333' };
-function colHex(name) {
-  const n = String(name || '').trim().toLowerCase().replace(/\s+/g, ' ');
-  if (!n) return null;
-  if (COL_HEX[n]) return COL_HEX[n];
-  if (window.CSS && CSS.supports('color', n) && !/^(inherit|initial|unset|revert|currentcolor|transparent)$/.test(n)) return n;
-  const w = n.split(' ');
-  for (let i = 0; i < w.length - 1; i++) if (COL_HEX[w[i] + ' ' + w[i + 1]]) return COL_HEX[w[i] + ' ' + w[i + 1]];
-  for (const x of w) if (COL_HEX[x]) return COL_HEX[x];
-  return null;
-}
+// COL_HEX e colHex arrivano da colors.js (condiviso con l'admin)
 const dotHTML = c => { const h = colHex(c); return `<i class="dt" style="background:${h ? esc(h) : 'repeating-linear-gradient(45deg,#ddd 0 3px,#fff 3px 6px)'}"></i>`; };
 
 /* ======== scritta gigante dell'hero: sempre larga quanto lo schermo ======== */
@@ -884,45 +867,85 @@ function buildRail() {
         <div class="ph"><img src="${esc(p.img)}" alt="${esc(p.name)} ${esc(p.col)}" loading="lazy"${p.pos ? ` style="object-position:${p.pos}"` : ''}></div>
         <span class="ptag">${out ? 'Sold out' : eur(p.price)}</span>
       </div>
-      <div class="meta">${!out && p.tag ? `<span class="tag${p.tp ? ' p' : ''}">${esc(p.tag)}</span>` : ''}<div class="nm">${esc(p.name)}</div><div class="cl">${esc(colLabel(p))}</div><span class="go">Scopri</span></div>
     </article>`;
   }).join('');
   rail.scrollLeft = x; railUpd();
   rackInit();
 }
-$('prev').addEventListener('click', () => rail.scrollBy({ left: -railStep(), behavior: 'smooth' }));
-$('next').addEventListener('click', () => rail.scrollBy({ left: railStep(), behavior: 'smooth' }));
+let railAnim = 0, railTo = null;
+function railAnimTo(to) {
+  const max = rail.scrollWidth - rail.clientWidth; to = Math.max(0, Math.min(max, to));
+  const from = rail.scrollLeft, T = 650, t0 = performance.now();
+  railTo = to; cancelAnimationFrame(railAnim);
+  rail.style.scrollSnapType = 'none';
+  const ease = t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+  (function f(now) {
+    const k = Math.min(1, (now - t0) / T);
+    rail.scrollLeft = from + (to - from) * ease(k);
+    if (k < 1) railAnim = requestAnimationFrame(f);
+    else { railTo = null; rail.style.scrollSnapType = ''; }
+  })(t0);
+}
+function railGo(dir) {
+  const step = railStep();
+  const base = railTo != null ? railTo : rail.scrollLeft;              // clic ripetuti: si somma al capo di arrivo
+  railAnimTo((Math.round(base / step) + dir) * step);
+}
+// porta al centro un capo preciso (quello toccato di profilo)
+const railToEl = el => railAnimTo(el.offsetLeft + el.offsetWidth / 2 - rail.clientWidth / 2);
+$('prev').addEventListener('click', () => railGo(-1));
+$('next').addEventListener('click', () => railGo(1));
 rail.addEventListener('scroll', railUpd, { passive: true }); addEventListener('resize', railUpd);
 /* ======== stender: barra curva, capo centrale più grande, i capi oscillano quando scorri ======== */
 const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
-let hangs = [], swingRAF = 0, layRAF = 0, lastSL = 0, rackFirst = true, rackSeen = false;
+let rackBest = null, hangs = [], swingRAF = 0, layRAF = 0, lastSL = 0, rackFirst = true, rackSeen = false;
+let railW = 0;
+function rackMeasure() {
+  railW = rail.clientWidth;
+  hangs.forEach(h => { h.w = h.el.offsetWidth; h.x = h.el.offsetLeft; h.el.style.setProperty('--hy', (h.w * .035).toFixed(1) + 'px'); });
+}
 function rackLayout() {
   layRAF = 0;
-  const W = rail.clientWidth, sl = rail.scrollLeft;
+  const W = railW, sl = rail.scrollLeft, step = hangs.length > 1 ? hangs[1].x - hangs[0].x : (hangs[0] ? hangs[0].w : 1);
   let best = null, bd = 9;
   hangs.forEach(h => {
-    const w = h.el.offsetWidth, c = h.el.offsetLeft + w / 2 - sl;
-    const d = Math.max(-1.25, Math.min(1.25, (c - W / 2) / (W / 2))), ad = Math.abs(d);
-    const s = 1 - .22 * Math.min(1, ad);               // al centro il capo è più grande
-    const hy = w * .035;                              // il gancio, in alto al centro della gruccia
-    const ty = 22 + 20 * (1 - d * d) - hy * s;        // segue la curva della barra
-    h.el.style.setProperty('--hy', hy.toFixed(1) + 'px');
-    h.el.style.transform = `translateY(${ty.toFixed(1)}px) scale(${s.toFixed(3)})`;
+    const w = h.w, c = h.x + w / 2 - sl - W / 2;     // distanza dal centro dello schermo, in px
+    const d = c / step, ad = Math.abs(d), k = Math.min(1, ad);
+    const sm = k * k * (3 - 2 * k);                  // passaggio morbido fronte → profilo
+    // i capi di profilo occupano poco spazio: li stringo verso il centro come su uno stender vero
+    const A = w * .66, B = w * .24;
+    const vis = Math.sign(d) * (ad <= 1 ? ad * A : A + (ad - 1) * B);
+    const tx = vis - c;
+    const xn = Math.max(-1.2, Math.min(1.2, vis / (W / 2)));
+    const s = 1 - .1 * sm;
+    const hy = w * .035;
+    const ty = 22 + 20 * (1 - xn * xn) - hy * s;     // il gancio segue la curva della barra
+    const ry = (d > 0 ? -1 : 1) * 74 * sm;           // al centro di fronte, ai lati di profilo
+    h.el.style.transform = `translate3d(${tx.toFixed(1)}px,${ty.toFixed(1)}px,0) perspective(1100px) rotateY(${ry.toFixed(2)}deg) scale(${s.toFixed(3)})`;
+    h.el.style.zIndex = 100 - Math.round(ad * 4);
+    if (h.tag) h.tag.style.opacity = Math.max(0, 1 - ad * 1.8).toFixed(2);
     if (ad < bd) { bd = ad; best = h; }
   });
-  hangs.forEach(h => h.el.classList.toggle('on', h === best));
+  if (best !== rackBest) { if (rackBest) rackBest.el.classList.remove('on'); if (best) best.el.classList.add('on'); rackBest = best; rackInfo(); }
+}
+function rackInfo() {
+  const p = rackBest && byUid(rackBest.el.dataset.uid), box = $('rinfo');
+  if (!p) { box.innerHTML = ''; return; }
+  const out = soldOut(p);
+  box.innerHTML = `${out ? '<span class="tag">Esaurito</span>' : p.tag ? `<span class="tag${p.tp ? ' p' : ''}">${esc(p.tag)}</span>` : ''}<div class="nm">${esc(p.name)}</div><div class="cl">${esc(colLabel(p))} · ${eur(p.price)}</div><button type="button" class="go">Scopri</button>`;
+  box.querySelector('.go').addEventListener('click', () => openPD(p.uid));
 }
 const rackLater = () => { if (!layRAF) layRAF = requestAnimationFrame(rackLayout); };
 function swingTick() {
   let moving = false;
   hangs.forEach(h => {
-    h.w += -h.a * .022; h.w *= .945; h.a = Math.max(-16, Math.min(16, h.a + h.w));
-    if (Math.abs(h.a) > .02 || Math.abs(h.w) > .02) moving = true; else h.a = h.w = 0;
+    h.v += -h.a * .022; h.v *= .945; h.a = Math.max(-16, Math.min(16, h.a + h.v));
+    if (Math.abs(h.a) > .02 || Math.abs(h.v) > .02) moving = true; else h.a = h.v = 0;
     h.hang.style.transform = h.a ? `rotate(${h.a.toFixed(2)}deg)` : '';
   });
   swingRAF = moving ? requestAnimationFrame(swingTick) : 0;
 }
-function kick(h, v) { if (RM || !h) return; h.w += v; if (!swingRAF) swingRAF = requestAnimationFrame(swingTick); }
+function kick(h, v) { if (RM || !h) return; h.v += v; if (!swingRAF) swingRAF = requestAnimationFrame(swingTick); }
 // appena lo stender entra nello schermo i capi dondolano come se fossero stati appena appesi
 function rackHello() {
   if (!hangs.length || !rackSeen) return;
@@ -975,8 +998,12 @@ function cutout(src) {
       }
       if (x1 < 0 || (x1 - x0) * (y1 - y0) < N * .08) return res(null);   // non ha trovato un capo sensato
       cx.putImageData(id, 0, 0);
-      const out = document.createElement('canvas'); out.width = x1 - x0 + 1; out.height = y1 - y0 + 1;
-      out.getContext('2d').drawImage(cv, x0, y0, out.width, out.height, 0, 0, out.width, out.height);
+      // l'ombra viene disegnata una volta sola dentro l'immagine (più leggero di un filtro CSS mentre scorre)
+      const gw = x1 - x0 + 1, gh = y1 - y0 + 1, px = Math.round(gw * .06), pb = Math.round(gh * .07);
+      const out = document.createElement('canvas'); out.width = gw + px * 2; out.height = gh + pb;
+      const o = out.getContext('2d');
+      o.shadowColor = 'rgba(0,0,0,.22)'; o.shadowBlur = Math.round(gh * .035); o.shadowOffsetY = Math.round(gh * .03);
+      o.drawImage(cv, x0, y0, gw, gh, px, 0, gw, gh);
       res(out.toDataURL('image/png'));
     } catch (e) { res(null); } };   // es. foto senza permesso CORS: resta la foto normale
     im.src = src;
@@ -991,13 +1018,14 @@ function rackCut() {
   });
 }
 function rackInit() {
-  hangs = [...rail.querySelectorAll('.pc')].map(el => ({ el, hang: el.querySelector('.hang'), a: 0, w: 0, k: .75 + Math.random() * .5 }));
+  hangs = [...rail.querySelectorAll('.pc')].map(el => ({ el, hang: el.querySelector('.hang'), tag: el.querySelector('.ptag'), a: 0, v: 0, w: 0, x: 0, k: .75 + Math.random() * .5 }));
   hangs.forEach(h => h.el.addEventListener('mouseenter', () => kick(h, (Math.random() < .5 ? -1 : 1) * .9)));
   if (rackFirst && hangs.length > 2) {             // si parte dal capo in mezzo, con gli altri ai lati
     rackFirst = false;
     const m = hangs[Math.floor(hangs.length / 2)].el;
     rail.scrollLeft = m.offsetLeft + m.offsetWidth / 2 - rail.clientWidth / 2;
   }
+  rackBest = null; rackMeasure();
   lastSL = rail.scrollLeft;
   rackLayout(); rackHello(); rackCut();
 }
@@ -1006,9 +1034,13 @@ rail.addEventListener('scroll', () => {
   if (dx) hangs.forEach(h => kick(h, -dx * .05 * h.k));   // la barra scorre, i capi restano indietro
   rackLater();
 }, { passive: true });
-addEventListener('resize', rackLater);
+addEventListener('resize', () => { rackMeasure(); rackLater(); });
 new IntersectionObserver((es, o) => { if (es[0].isIntersecting) { rackSeen = true; rackHello(); if (hangs.length) o.disconnect(); } }, { threshold: .35 }).observe($('rack'));
-const railOpen = e => { const c = e.target.closest('.pc'); if (c) openPD(c.dataset.uid); };
+const railOpen = e => {
+  const c = e.target.closest('.pc'); if (!c) return;
+  if (rackBest && c !== rackBest.el) railToEl(c);   // di profilo: prima si gira verso di te
+  else openPD(c.dataset.uid);
+};
 rail.addEventListener('click', railOpen);
 rail.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); railOpen(e); } });
 
