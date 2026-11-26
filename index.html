@@ -161,25 +161,45 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .arrows button:hover{background:#000;color:#fff}
 .arrows button:disabled{opacity:.25;pointer-events:none}
 .arrows svg{width:18px;height:18px}
-.rail{display:flex;gap:16px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;padding:4px max(var(--pad),calc((100vw - 1320px)/2 + var(--pad))) 10px;scroll-padding-left:max(var(--pad),calc((100vw - 1320px)/2 + var(--pad)))}
 .rail::-webkit-scrollbar{display:none}
-.pc{flex:0 0 clamp(230px,24vw,310px);scroll-snap-align:start;cursor:pointer}
-.pc .ph{position:relative;aspect-ratio:3/4;border-radius:12px;overflow:hidden;background:var(--card)}
-.pc .ph img{transition:transform .9s var(--ease)}
-.pc:hover .ph img{transform:scale(1.05)}
-.pc.out .ph img{filter:grayscale(1);opacity:.5}
-.rail .none{color:#666;font-size:15px;padding:30px 0}
-.pc .tag{position:absolute;top:12px;left:12px;background:#000;color:#fff;font-size:10px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;padding:6px 10px 5px;border-radius:999px}
+/* ---------- STENDER: i capi appesi alla barra ---------- */
+.shop{--iw:clamp(210px,23vw,300px)}
+.rack{position:relative;margin-top:clamp(4px,1.2vw,14px)}
+.rack .pole{position:absolute;left:0;top:12px;width:100%;height:44px;z-index:2;pointer-events:none;overflow:visible}
+.rail{position:relative;display:flex;align-items:flex-start;gap:clamp(0px,.8vw,12px);overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scrollbar-width:none;padding:0 calc(50% - var(--iw)/2) 70px;overscroll-behavior-x:contain}
+.pc{flex:0 0 var(--iw);scroll-snap-align:center;cursor:pointer;transform-origin:50% 0;will-change:transform;outline:none;-webkit-tap-highlight-color:transparent}
+.pc .hang{position:relative;transform-origin:50% var(--hy,10px);will-change:transform}
+.pc .hgr{display:block;width:100%;height:auto;overflow:visible}
+.pc .hgr .hk{fill:none;stroke:#8e8e8e;stroke-width:3.6;stroke-linecap:round;stroke-linejoin:round}
+.pc .hgr .hl{fill:none;stroke:#efefef;stroke-width:1.1;stroke-linecap:round;stroke-linejoin:round}
+.pc .hook{position:absolute;left:0;top:0;width:100%;height:auto;z-index:3;pointer-events:none;display:none;overflow:visible}
+/* capo scontornato: la gruccia sta dentro il capo, fuori resta solo il gancio */
+.pc.cut .hgr:not(.hook) .hk,.pc.cut .hgr:not(.hook) .hl{display:none}
+.pc.cut .hook{display:block}
+.pc.cut .hgr .bd{display:none}
+.pc.cut .ph{margin-top:-16%;z-index:2}
+.pc.cut .ph img{mix-blend-mode:normal;filter:drop-shadow(0 16px 14px rgba(0,0,0,.17)) drop-shadow(0 3px 3px rgba(0,0,0,.10))}
+.pc.cut.out .ph img{filter:grayscale(1) drop-shadow(0 16px 14px rgba(0,0,0,.12));opacity:.5}
+.pc.cut .ptag{z-index:4}
+.pc .hgr .bd{fill:none;stroke:#2b2b2b;stroke-width:6.5;stroke-linecap:round;stroke-linejoin:round}
+.pc .ph{position:relative;margin-top:-10%;aspect-ratio:3/4}
+.pc .ph img{object-fit:contain;object-position:50% 0;mix-blend-mode:multiply;transition:transform .6s var(--ease)}
+.pc:hover .ph img{transform:scale(1.03)}
+.pc.out .ph img{filter:grayscale(1);opacity:.4}
+.pc .ptag{position:absolute;top:12%;left:57%;z-index:1;background:var(--pink);color:#000;font-size:11px;font-weight:800;letter-spacing:.04em;padding:5px 9px 4px 15px;border-radius:3px 7px 7px 3px;transform:rotate(-7deg);transform-origin:0 50%;box-shadow:0 4px 10px rgba(0,0,0,.16);white-space:nowrap}
+.pc .ptag::before{content:'';position:absolute;left:5px;top:50%;width:5px;height:5px;margin-top:-2.5px;border-radius:50%;background:#fff}
+.pc .ptag::after{content:'';position:absolute;left:7px;top:50%;width:22px;height:1px;background:#888;transform-origin:0 0;transform:rotate(-150deg)}
+.pc.out .ptag{background:#000;color:#fff;text-transform:uppercase;letter-spacing:.12em;font-size:10px}
+.pc .meta{text-align:center;margin-top:8px;opacity:0;transform:translateY(8px);transition:opacity .35s,transform .45s var(--ease)}
+.pc.on .meta{opacity:1;transform:none}
+.pc .tag{display:inline-block;margin-bottom:8px;background:#000;color:#fff;font-size:10px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;padding:6px 10px 5px;border-radius:999px}
 .pc .tag.p{background:var(--pink);color:#000}
-.pc .add{position:absolute;right:12px;bottom:12px;width:44px;height:44px;border-radius:50%;background:#000;color:#fff;display:grid;place-items:center;font-size:22px;font-weight:400;font-style:normal;transform:translateY(14px);opacity:0;transition:transform .35s var(--ease),opacity .35s,background .25s}
-.pc:hover .add,.pc:focus-within .add{transform:none;opacity:1}
-.pc .add:hover{background:var(--pink);color:#000}
-.pc .meta{display:flex;justify-content:space-between;gap:10px;margin-top:14px}
 .pc .nm{font-weight:800;font-size:15px;text-transform:uppercase;letter-spacing:.02em}
 .pc .cl{color:#777;font-size:13px}
-.pc .pr{font-weight:800;font-size:15px;white-space:nowrap}
-@media(hover:none){.pc .add{transform:none;opacity:1}}
-@media(max-width:760px){.arrows{display:none}.pc{flex-basis:68vw}}
+.pc .go{display:inline-block;margin-top:8px;font-size:11px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;border-bottom:2px solid var(--pink);padding-bottom:2px}
+.pc:focus-visible .ph{outline:2px solid var(--pink);outline-offset:4px;border-radius:12px}
+.rail .none{flex:0 0 var(--iw);text-align:center;color:#666;font-size:15px;padding:100px 0 20px}
+@media(max-width:760px){.arrows{display:none}.shop{--iw:58vw}}
 
 /* ---------- STORIA ---------- */
 .story{background:#000;padding:calc(clamp(60px,10vw,140px) + 5vw) 0 clamp(60px,10vw,140px);clip-path:polygon(0 5vw,100% 0,100% 100%,0 100%);margin-top:-5vw;position:relative}
@@ -487,7 +507,16 @@ footer .bot{display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;p
       <button id="next" aria-label="Avanti"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 8h13M9 3l5 5-5 5"/></svg></button>
     </div>
   </div>
-  <div class="rail" id="rail"></div>
+  <div class="rack" id="rack">
+    <svg class="pole" viewBox="0 0 1000 44" preserveAspectRatio="none" aria-hidden="true">
+      <path d="M0 16 Q500 56 1000 16" fill="none" stroke="rgba(0,0,0,.07)" stroke-width="12" vector-effect="non-scaling-stroke"/>
+      <path d="M0 10 Q500 50 1000 10" fill="none" stroke="#8f8f8f" stroke-width="8" vector-effect="non-scaling-stroke"/>
+      <path d="M0 9.6 Q500 49.6 1000 9.6" fill="none" stroke="#c9c9c9" stroke-width="5" vector-effect="non-scaling-stroke"/>
+      <path d="M0 8.4 Q500 48.4 1000 8.4" fill="none" stroke="#fdfdfd" stroke-width="1.6" vector-effect="non-scaling-stroke"/>
+      <path d="M0 11.8 Q500 51.8 1000 11.8" fill="none" stroke="#a8a8a8" stroke-width="1" vector-effect="non-scaling-stroke"/>
+    </svg>
+    <div class="rail" id="rail"></div>
+  </div>
 </section>
 
 <!-- ============ LOOKBOOK ============ -->
@@ -838,7 +867,7 @@ const railUpd = () => {
   $('prev').disabled = rail.scrollLeft < 8; $('next').disabled = rail.scrollLeft > rail.scrollWidth - rail.clientWidth - 8;
   $('prev').parentNode.classList.toggle('off', rail.scrollWidth <= rail.clientWidth + 8);   // pochi capi: niente frecce
 };
-const railStep = () => { const c = rail.querySelector('.pc'); return c ? (c.offsetWidth + 16) * 2 : 300; };
+const railStep = () => { const c = rail.querySelectorAll('.pc'); return c.length > 1 ? c[1].offsetLeft - c[0].offsetLeft : 300; };
 function buildRail() {
   const x = rail.scrollLeft;
   if (!P.length) {
@@ -849,17 +878,136 @@ function buildRail() {
     const out = soldOut(p);
     return `
     <article class="pc${out ? ' out' : ''}" data-uid="${esc(p.uid)}" tabindex="0" role="button" aria-label="${esc(p.name)} ${esc(p.col)}, ${out ? 'esaurito' : eur(p.price)}">
-      <div class="ph"><img src="${esc(p.img)}" alt="${esc(p.name)} ${esc(p.col)}" loading="lazy"${p.pos ? ` style="object-position:${p.pos}"` : ''}>
-        ${out ? '<span class="tag">Esaurito</span>' : p.tag ? `<span class="tag${p.tp ? ' p' : ''}">${esc(p.tag)}</span>` : ''}
-        <span class="add" aria-hidden="true">+</span></div>
-      <div class="meta"><div><div class="nm">${esc(p.name)}</div><div class="cl">${esc(colLabel(p))}</div></div><div class="pr">${eur(p.price)}</div></div>
+      <div class="hang">
+        <svg class="hgr" viewBox="0 0 200 56" aria-hidden="true"><path class="bd" d="M38 50 Q64 37 100 27 Q136 37 162 50"/><path class="hk" d="M100 27 V17 C100 13.5 106 12.5 106 7 A6 6 0 0 0 94 7"/><path class="hl" d="M99.3 26 V17 C99.3 13.2 105.2 12.2 105.2 7 A5.2 5.2 0 0 0 95 6"/></svg>
+        <svg class="hook hgr" viewBox="0 0 200 56" aria-hidden="true"><path class="hk" d="M100 40 V17 C100 13.5 106 12.5 106 7 A6 6 0 0 0 94 7"/><path class="hl" d="M99.3 39 V17 C99.3 13.2 105.2 12.2 105.2 7 A5.2 5.2 0 0 0 95 6"/></svg>
+        <div class="ph"><img src="${esc(p.img)}" alt="${esc(p.name)} ${esc(p.col)}" loading="lazy"${p.pos ? ` style="object-position:${p.pos}"` : ''}></div>
+        <span class="ptag">${out ? 'Sold out' : eur(p.price)}</span>
+      </div>
+      <div class="meta">${!out && p.tag ? `<span class="tag${p.tp ? ' p' : ''}">${esc(p.tag)}</span>` : ''}<div class="nm">${esc(p.name)}</div><div class="cl">${esc(colLabel(p))}</div><span class="go">Scopri</span></div>
     </article>`;
   }).join('');
   rail.scrollLeft = x; railUpd();
+  rackInit();
 }
 $('prev').addEventListener('click', () => rail.scrollBy({ left: -railStep(), behavior: 'smooth' }));
 $('next').addEventListener('click', () => rail.scrollBy({ left: railStep(), behavior: 'smooth' }));
 rail.addEventListener('scroll', railUpd, { passive: true }); addEventListener('resize', railUpd);
+/* ======== stender: barra curva, capo centrale più grande, i capi oscillano quando scorri ======== */
+const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
+let hangs = [], swingRAF = 0, layRAF = 0, lastSL = 0, rackFirst = true, rackSeen = false;
+function rackLayout() {
+  layRAF = 0;
+  const W = rail.clientWidth, sl = rail.scrollLeft;
+  let best = null, bd = 9;
+  hangs.forEach(h => {
+    const w = h.el.offsetWidth, c = h.el.offsetLeft + w / 2 - sl;
+    const d = Math.max(-1.25, Math.min(1.25, (c - W / 2) / (W / 2))), ad = Math.abs(d);
+    const s = 1 - .22 * Math.min(1, ad);               // al centro il capo è più grande
+    const hy = w * .035;                              // il gancio, in alto al centro della gruccia
+    const ty = 22 + 20 * (1 - d * d) - hy * s;        // segue la curva della barra
+    h.el.style.setProperty('--hy', hy.toFixed(1) + 'px');
+    h.el.style.transform = `translateY(${ty.toFixed(1)}px) scale(${s.toFixed(3)})`;
+    if (ad < bd) { bd = ad; best = h; }
+  });
+  hangs.forEach(h => h.el.classList.toggle('on', h === best));
+}
+const rackLater = () => { if (!layRAF) layRAF = requestAnimationFrame(rackLayout); };
+function swingTick() {
+  let moving = false;
+  hangs.forEach(h => {
+    h.w += -h.a * .022; h.w *= .945; h.a = Math.max(-16, Math.min(16, h.a + h.w));
+    if (Math.abs(h.a) > .02 || Math.abs(h.w) > .02) moving = true; else h.a = h.w = 0;
+    h.hang.style.transform = h.a ? `rotate(${h.a.toFixed(2)}deg)` : '';
+  });
+  swingRAF = moving ? requestAnimationFrame(swingTick) : 0;
+}
+function kick(h, v) { if (RM || !h) return; h.w += v; if (!swingRAF) swingRAF = requestAnimationFrame(swingTick); }
+// appena lo stender entra nello schermo i capi dondolano come se fossero stati appena appesi
+function rackHello() {
+  if (!hangs.length || !rackSeen) return;
+  rackSeen = false;
+  hangs.forEach((h, i) => setTimeout(() => kick(h, (i % 2 ? 1 : -1) * (1.1 + Math.random() * .6)), 120 + i * 90));
+}
+/* ======== scontorno: toglie lo sfondo (bianco o grigio uniforme) dalla foto di copertina ========
+   Così il capo sembra appeso davvero: la gruccia resta dentro, fuori si vede solo il gancio.
+   Se la foto ha uno sfondo non uniforme (persona, ambiente) resta com'è. */
+const cutCache = new Map();
+function cutout(src) {
+  if (cutCache.has(src)) return cutCache.get(src);
+  const pr = new Promise(res => {
+    const im = new Image(); im.crossOrigin = 'anonymous'; im.decoding = 'async';
+    im.onerror = () => res(null);
+    im.onload = () => { try {
+      const k = Math.min(1, 720 / Math.max(im.naturalWidth, im.naturalHeight));
+      const w = Math.max(1, Math.round(im.naturalWidth * k)), h = Math.max(1, Math.round(im.naturalHeight * k));
+      const cv = document.createElement('canvas'); cv.width = w; cv.height = h;
+      const cx = cv.getContext('2d', { willReadFrequently: true }); cx.drawImage(im, 0, 0, w, h);
+      const id = cx.getImageData(0, 0, w, h), d = id.data, N = w * h;
+      const border = []; for (let x = 0; x < w; x += 2) border.push(x, (h - 1) * w + x); for (let y = 0; y < h; y += 2) border.push(y * w, y * w + w - 1);
+      const transp = border.filter(i => d[i * 4 + 3] < 20).length / border.length > .6;
+      const gone = new Uint8Array(N);
+      if (transp) { for (let i = 0; i < N; i++) if (d[i * 4 + 3] < 20) gone[i] = 1; }
+      else {
+        const med = c => { const v = border.map(i => d[i * 4 + c]).sort((a, b) => a - b); return v[v.length >> 1]; };
+        const br = med(0), bg = med(1), bb = med(2), T = 26;
+        const dist = i => { const r = d[i * 4] - br, g = d[i * 4 + 1] - bg, b = d[i * 4 + 2] - bb; return Math.sqrt(r * r + g * g + b * b); };
+        if (border.filter(i => dist(i) < T).length / border.length < .7) return res(null);   // sfondo non uniforme
+        const q = new Int32Array(N); let qh = 0, qt = 0;
+        border.forEach(i => { if (!gone[i] && dist(i) < T) { gone[i] = 1; q[qt++] = i; } });
+        while (qh < qt) {
+          const i = q[qh++], x = i % w;
+          for (const j of [x > 0 ? i - 1 : -1, x < w - 1 ? i + 1 : -1, i - w, i + w])
+            if (j >= 0 && j < N && !gone[j] && dist(j) < T) { gone[j] = 1; q[qt++] = j; }
+        }
+        // bordi morbidi: i pixel al confine diventano semitrasparenti
+        for (let i = 0; i < N; i++) if (!gone[i]) {
+          const x = i % w;
+          if ((x > 0 && gone[i - 1]) || (x < w - 1 && gone[i + 1]) || (i >= w && gone[i - w]) || (i + w < N && gone[i + w]))
+            d[i * 4 + 3] = Math.round(255 * Math.max(.35, Math.min(1, (dist(i) - T) / (T * 1.4))));
+        }
+      }
+      let x0 = w, y0 = h, x1 = -1, y1 = -1;
+      for (let i = 0; i < N; i++) {
+        if (gone[i]) { d[i * 4 + 3] = 0; continue; }
+        const x = i % w, y = (i / w) | 0;
+        if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y;
+      }
+      if (x1 < 0 || (x1 - x0) * (y1 - y0) < N * .08) return res(null);   // non ha trovato un capo sensato
+      cx.putImageData(id, 0, 0);
+      const out = document.createElement('canvas'); out.width = x1 - x0 + 1; out.height = y1 - y0 + 1;
+      out.getContext('2d').drawImage(cv, x0, y0, out.width, out.height, 0, 0, out.width, out.height);
+      res(out.toDataURL('image/png'));
+    } catch (e) { res(null); } };   // es. foto senza permesso CORS: resta la foto normale
+    im.src = src;
+  });
+  cutCache.set(src, pr); return pr;
+}
+function rackCut() {
+  hangs.forEach(h => {
+    const img = h.el.querySelector('.ph img'), p = byUid(h.el.dataset.uid);
+    if (!img || !p || !p.img || p.img === NOIMG) return;
+    cutout(p.img).then(u => { if (u && img.isConnected) { img.src = u; img.style.objectPosition = '50% 0'; h.el.classList.add('cut'); } });
+  });
+}
+function rackInit() {
+  hangs = [...rail.querySelectorAll('.pc')].map(el => ({ el, hang: el.querySelector('.hang'), a: 0, w: 0, k: .75 + Math.random() * .5 }));
+  hangs.forEach(h => h.el.addEventListener('mouseenter', () => kick(h, (Math.random() < .5 ? -1 : 1) * .9)));
+  if (rackFirst && hangs.length > 2) {             // si parte dal capo in mezzo, con gli altri ai lati
+    rackFirst = false;
+    const m = hangs[Math.floor(hangs.length / 2)].el;
+    rail.scrollLeft = m.offsetLeft + m.offsetWidth / 2 - rail.clientWidth / 2;
+  }
+  lastSL = rail.scrollLeft;
+  rackLayout(); rackHello(); rackCut();
+}
+rail.addEventListener('scroll', () => {
+  const dx = Math.max(-60, Math.min(60, rail.scrollLeft - lastSL)); lastSL = rail.scrollLeft;
+  if (dx) hangs.forEach(h => kick(h, -dx * .05 * h.k));   // la barra scorre, i capi restano indietro
+  rackLater();
+}, { passive: true });
+addEventListener('resize', rackLater);
+new IntersectionObserver((es, o) => { if (es[0].isIntersecting) { rackSeen = true; rackHello(); if (hangs.length) o.disconnect(); } }, { threshold: .35 }).observe($('rack'));
 const railOpen = e => { const c = e.target.closest('.pc'); if (c) openPD(c.dataset.uid); };
 rail.addEventListener('click', railOpen);
 rail.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); railOpen(e); } });
