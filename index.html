@@ -164,7 +164,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .rail::-webkit-scrollbar{display:none}
 /* ---------- STENDER: i capi appesi alla barra ---------- */
 .shop{--iw:clamp(210px,23vw,300px)}
-.rack{position:relative;margin-top:clamp(4px,1.2vw,14px)}
+.rack{position:relative;z-index:0;isolation:isolate;transform:translateZ(0);margin-top:clamp(4px,1.2vw,14px)}   /* i capi restano "dentro" lo stender: non passano sopra scheda, carrello e menu */
 .rack .pole{position:absolute;left:0;top:12px;width:100%;height:44px;z-index:2;pointer-events:none;overflow:visible}
 .rail{position:relative;height:calc(var(--iw)*1.5 + 100px);overflow:hidden;touch-action:pan-y;user-select:none;-webkit-user-select:none;cursor:grab}
 .rail.drag{cursor:grabbing}
