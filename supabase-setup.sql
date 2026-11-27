@@ -35,6 +35,9 @@ create table if not exists public.products (
 -- per i database creati prima che esistesse la vestibilità
 alter table public.products add column if not exists fit text not null default '';
 
+-- categoria per i filtri della pagina shop (Felpe, T-shirt, Pantaloni, Set, Accessori, Gadget…)
+alter table public.products add column if not exists category text not null default '';
+
 -- ---------- taglie e quantità ----------
 create table if not exists public.variants (
   id         uuid primary key default gen_random_uuid(),

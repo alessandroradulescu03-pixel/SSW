@@ -147,62 +147,62 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .count .bar i{display:block;height:100%;background:linear-gradient(90deg,var(--g) 0 33.33%,var(--w) 33.33% 66.66%,var(--r) 66.66%);transform:scaleX(0);transform-origin:left}
 @media(max-width:820px){.promo .in{grid-template-columns:1fr}.promo{min-height:0;padding-top:120px}}
 
-/* ---------- PRODOTTI ---------- */
-.shop{background:#fff;color:var(--ink);padding:clamp(40px,7vw,90px) 0 clamp(50px,8vw,110px)}
-.shop .head{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;margin-bottom:clamp(22px,3vw,40px)}
-.shop{position:relative;overflow:hidden}
-.shop .ghost{position:absolute;right:-1vw;top:clamp(10px,2vw,30px);font-size:clamp(120px,24vw,380px);color:transparent;-webkit-text-stroke:1.5px #e4e4e4;pointer-events:none;line-height:.8}
-.shop .wrap,.shop .rail{position:relative}
-.shop h2{font-size:clamp(44px,8vw,116px)}
-.shop .sub{color:#666;margin-top:12px;max-width:420px;font-size:15px}
-.arrows{display:flex;gap:10px}
-.arrows.off{visibility:hidden}
-.arrows button{width:52px;height:52px;border-radius:50%;border:1.5px solid #000;background:#fff;display:grid;place-items:center;transition:background .25s,color .25s,opacity .25s}
-.arrows button:hover{background:#000;color:#fff}
-.arrows button:disabled{opacity:.25;pointer-events:none}
-.arrows svg{width:18px;height:18px}
-.rail::-webkit-scrollbar{display:none}
-/* ---------- STENDER: i capi appesi alla barra ---------- */
-.shop{--iw:clamp(210px,23vw,300px)}
-.rack{position:relative;z-index:0;isolation:isolate;transform:translateZ(0);margin-top:clamp(4px,1.2vw,14px)}   /* i capi restano "dentro" lo stender: non passano sopra scheda, carrello e menu */
-.rack .pole{position:absolute;left:0;top:12px;width:100%;height:44px;z-index:2;pointer-events:none;overflow:visible}
-.rail{position:relative;height:calc(var(--iw)*1.5 + 100px);overflow:hidden;touch-action:pan-y;user-select:none;-webkit-user-select:none;cursor:grab}
-.rail.drag{cursor:grabbing}
-.rail img{-webkit-user-drag:none;user-drag:none;pointer-events:none}
-.pc{position:absolute;left:50%;top:0;width:var(--iw);margin-left:calc(var(--iw)/-2);cursor:pointer;transform-origin:50% 0;will-change:transform;backface-visibility:hidden;outline:none;-webkit-tap-highlight-color:transparent}
-.pc .hang{position:relative;transform-origin:50% var(--hy,10px);will-change:transform}
-.pc .hgr{display:block;width:100%;height:auto;overflow:visible}
-.pc .hgr .hk{fill:none;stroke:#8e8e8e;stroke-width:3.6;stroke-linecap:round;stroke-linejoin:round}
-.pc .hgr .hl{fill:none;stroke:#efefef;stroke-width:1.1;stroke-linecap:round;stroke-linejoin:round}
-.pc .hook{position:absolute;left:0;top:0;width:100%;height:auto;z-index:3;pointer-events:none;display:none;overflow:visible}
-/* capo scontornato: la gruccia sta dentro il capo, fuori resta solo il gancio */
-.pc.cut .hgr:not(.hook) .hk,.pc.cut .hgr:not(.hook) .hl{display:none}
-.pc.cut .hook{display:block}
-.pc.cut .hgr .bd{display:none}
-.pc.cut .ph{margin-top:-16%;z-index:2}
-.pc.cut .ph img{mix-blend-mode:normal;filter:none}
-.pc.cut.out .ph img{filter:grayscale(1);opacity:.5}
-.pc.cut .ptag{z-index:4}
-.pc .hgr .bd{fill:none;stroke:#2b2b2b;stroke-width:6.5;stroke-linecap:round;stroke-linejoin:round}
-.pc .ph{position:relative;margin-top:-10%;aspect-ratio:3/4}
-.pc .ph img{object-fit:contain;object-position:50% 0;mix-blend-mode:multiply;transition:transform .6s var(--ease)}
-.pc:hover .ph img{transform:scale(1.03)}
-.pc.out .ph img{filter:grayscale(1);opacity:.4}
-.pc .ptag{position:absolute;top:12%;left:57%;z-index:1;background:var(--pink);color:#000;font-size:11px;font-weight:800;letter-spacing:.04em;padding:5px 9px 4px 15px;border-radius:3px 7px 7px 3px;transform:rotate(-7deg);transform-origin:0 50%;box-shadow:0 4px 10px rgba(0,0,0,.16);white-space:nowrap}
-.pc .ptag::before{content:'';position:absolute;left:5px;top:50%;width:5px;height:5px;margin-top:-2.5px;border-radius:50%;background:#fff}
-.pc .ptag::after{content:'';position:absolute;left:7px;top:50%;width:22px;height:1px;background:#888;transform-origin:0 0;transform:rotate(-150deg)}
-.pc.out .ptag{background:#000;color:#fff;text-transform:uppercase;letter-spacing:.12em;font-size:10px}
-.rinfo{position:relative;z-index:5;text-align:center;margin-top:-34px;min-height:96px;padding:0 var(--pad)}
-.rinfo>*{animation:rin .45s var(--ease) both}
-@keyframes rin{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
-.rinfo .tag{display:inline-block;margin-bottom:8px;background:#000;color:#fff;font-size:10px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;padding:6px 10px 5px;border-radius:999px}
-.rinfo .tag.p{background:var(--pink);color:#000}
-.rinfo .nm{font-weight:800;font-size:15px;text-transform:uppercase;letter-spacing:.02em}
-.rinfo .cl{color:#777;font-size:13px}
-.rinfo .go{cursor:pointer;display:inline-block;margin-top:8px;font-size:11px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;border-bottom:2px solid var(--pink);padding-bottom:2px}
-.pc:focus-visible .ph{outline:2px solid var(--pink);outline-offset:4px;border-radius:12px}
-.rail .none{position:absolute;left:0;right:0;top:90px;padding:0 var(--pad);text-align:center;color:#666;font-size:15px}
-@media(max-width:760px){.arrows{display:none}.shop{--iw:58vw}}
+/* ---------- PAGINA SHOP: capi e gadget a coppie, con filtri ---------- */
+.sp{position:fixed;inset:0;z-index:75;background:#fff;color:var(--ink);overflow:auto;overscroll-behavior:contain;transform:translateX(100%);visibility:hidden;transition:transform .6s var(--ease),visibility .6s}
+.sp.open{transform:none;visibility:visible}
+.sp .bar{position:sticky;top:0;z-index:4;background:#000;color:#fff}
+.sp .bar .wrap{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;height:66px}
+.sp .bar .lg{width:104px}
+.sp .bar .x:first-child{justify-self:start}
+.sp .bar .x:last-child{justify-self:end;color:var(--pink)}
+.sp .in{max-width:1120px}
+.sp .top{position:relative;padding-top:clamp(30px,5vw,64px);padding-bottom:clamp(18px,2.5vw,30px)}
+.sp .top .ghost{position:absolute;right:-.04em;top:.08em;font-size:clamp(110px,20vw,280px);color:transparent;-webkit-text-stroke:1.5px #e6e6e6;pointer-events:none;line-height:.8;z-index:0}
+.sp .top>*{position:relative}
+.sp h1{font-size:clamp(50px,10vw,132px);margin-top:12px}
+.sp .top p{color:#666;margin-top:14px;max-width:440px;font-size:15px}
+.sp .flt{position:sticky;top:66px;z-index:3;background:rgba(255,255,255,.94);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid #ececec}
+.sp .cats{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding:14px 0 10px}
+.sp .cats::-webkit-scrollbar{display:none}
+.sp .cats button{flex:none;height:40px;padding:0 16px;border-radius:999px;border:1.5px solid #000;font-size:12px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;display:inline-flex;gap:7px;align-items:center;transition:background .25s,color .25s}
+.sp .cats button small{font-size:10px;font-weight:700;color:#999;letter-spacing:.04em}
+.sp .cats button:hover{background:#f1f1f1}
+.sp .cats button.on{background:#000;color:#fff}
+.sp .cats button.on small{color:var(--pink)}
+.sp .opts{display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:0 0 14px}
+.sp .opts select{height:36px;border:1px solid #d4d4d4;border-radius:999px;padding:0 32px 0 14px;font:inherit;font-size:13px;font-weight:600;color:#000;-webkit-appearance:none;appearance:none;cursor:pointer;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%23000' stroke-width='1.6'/%3E%3C/svg%3E") no-repeat right 13px center/10px 6px}
+.sp .opts select.set{border-color:#000;box-shadow:inset 0 0 0 1px #000}
+.sp .opts .chk{display:inline-flex;gap:8px;align-items:center;height:36px;padding:0 6px;font-size:13px;font-weight:600;cursor:pointer}
+.sp .opts .chk input{accent-color:var(--pink);width:16px;height:16px}
+.sp .opts .rs{font-size:12px;font-weight:700;text-decoration:underline;color:#777}
+.sp .opts .n{margin-left:auto;font-size:11px;color:#888;font-weight:800;letter-spacing:.16em;text-transform:uppercase}
+.sp .body{padding-bottom:100px;min-height:50vh}
+.sp .grp{padding-top:clamp(26px,4vw,48px)}
+.sp .gh{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:clamp(14px,2vw,22px);border-bottom:2px solid #000;padding-bottom:10px}
+.sp .gh h2{font-size:clamp(28px,4.4vw,54px)}
+.sp .gh .kick{color:#888}
+.sp .gr{display:grid;grid-template-columns:1fr 1fr;gap:clamp(22px,3vw,40px) clamp(10px,2.4vw,28px)}
+.cd{cursor:pointer;outline:none;-webkit-tap-highlight-color:transparent}
+.cd .im{position:relative;aspect-ratio:4/5;border-radius:14px;overflow:hidden;background:var(--card)}
+.cd .im img{transition:transform .8s var(--ease),opacity .5s}
+.cd .im img.b{position:absolute;inset:0;opacity:0}
+.cd:hover .im img{transform:scale(1.04)}
+.cd:hover .im img.b{opacity:1}
+.cd .im::after{content:"";position:absolute;left:0;right:0;bottom:0;height:4px;background:var(--pink);transform:scaleX(0);transform-origin:left;transition:transform .5s var(--ease)}
+.cd:hover .im::after,.cd:focus-visible .im::after{transform:scaleX(1)}
+.cd:focus-visible .im{outline:2px solid var(--pink);outline-offset:3px}
+.cd .tg{position:absolute;z-index:2;top:12px;left:12px;background:var(--pink);color:#000;font-size:10px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;padding:6px 10px 5px;border-radius:999px}
+.cd .tg.k{background:#000;color:#fff}
+.cd.out .im img{filter:grayscale(1);opacity:.45}
+.cd .meta{display:flex;justify-content:space-between;gap:10px;padding:12px 2px 0;align-items:flex-start}
+.cd .nm{font-weight:800;font-size:clamp(13px,1.4vw,16px);text-transform:uppercase;letter-spacing:.02em;line-height:1.2}
+.cd .cl{color:#777;font-size:13px;margin-top:4px;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.cd .card-dots{display:inline-flex;gap:3px}
+.cd .card-dots .dt{width:11px;height:11px}
+.cd .pr{font-weight:900;font-size:clamp(14px,1.5vw,18px);white-space:nowrap}
+.sp .none{padding:70px 0;text-align:center;color:#666;font-size:15px}
+.sp .none .rs{display:block;margin:14px auto 0;font-weight:800;font-size:12px;letter-spacing:.14em;text-transform:uppercase;border-bottom:2px solid var(--pink);padding-bottom:2px}
+@media(max-width:560px){.cd .meta{flex-direction:column;gap:2px}.sp .opts{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin:0 calc(-1 * var(--pad));padding-left:var(--pad);padding-right:var(--pad)}.sp .opts::-webkit-scrollbar{display:none}.sp .opts>*{flex:none}.sp .opts .n{display:none}.sp .cats{margin:0 calc(-1 * var(--pad));padding-left:var(--pad);padding-right:var(--pad)}.sp .bar .lg{display:none}.sp .bar .wrap{grid-template-columns:1fr 1fr}}
 
 /* ---------- STORIA ---------- */
 .story{background:#000;padding:calc(clamp(60px,10vw,140px) + 5vw) 0 clamp(60px,10vw,140px);clip-path:polygon(0 5vw,100% 0,100% 100%,0 100%);margin-top:-5vw;position:relative}
@@ -420,7 +420,7 @@ footer .bot{display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;p
   <div class="pill">
     <nav class="lf">
       <button class="burger" id="burger" aria-label="Menu"></button>
-      <a class="nl" href="#collezione">Drop 01</a>
+      <a class="nl" href="#shop">Shop</a>
       <a class="nl" href="#storia">Storia</a>
     </nav>
     <a href="#top" class="lgl" aria-label="SSW Motorsport — home"><svg class="lg mk" viewBox="0 0 840 300" role="img" aria-label="SSW Motorsport"><use href="#ssw-mark"/></svg></a>
@@ -432,7 +432,7 @@ footer .bot{display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;p
 </header>
 
 <div class="mm" id="mm">
-  <a class="disp" href="#collezione">Drop 01</a>
+  <a class="disp" href="#shop">Shop</a>
   <a class="disp" href="#lookbook">Lookbook</a>
   <a class="disp" href="#storia">Storia</a>
   <a class="disp" href="#drop02">Drop 02</a>
@@ -449,7 +449,7 @@ footer .bot{display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;p
       <div class="kick"><span class="pk">●</span>&nbsp; Drop 01 — Disponibile ora</div>
       <p>Streetwear italiano nato tra traversi e paddock. Pochi pezzi, fatti bene.</p>
     </div>
-    <a href="#collezione" class="btn">Vai allo shop <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 8h13M9 3l5 5-5 5"/></svg></a>
+    <a href="#shop" class="btn">Vai all'abbigliamento <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 8h13M9 3l5 5-5 5"/></svg></a>
   </div>
   <div class="spin" aria-hidden="true"><svg viewBox="0 0 120 120"><defs><path id="circ" d="M60 60m-47 0a47 47 0 1 1 94 0a47 47 0 1 1-94 0"/></defs><text><textPath href="#circ" textLength="288">DROP 01 · LIMITED EDITION · SSW ·</textPath></text></svg><b class="disp">01</b></div>
   <div class="wm disp" aria-hidden="true"><span id="wm"><i>S</i>TAY SIDEWAYS</span></div>
@@ -457,12 +457,12 @@ footer .bot{display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;p
 
 <!-- ============ TRE RIQUADRI ============ -->
 <section class="tiles">
-  <a class="tile" href="#collezione">
+  <a class="tile" href="#shop" data-cat="Felpe">
     <span class="num">01</span>
     <img src="https://images.unsplash.com/photo-1578470507807-3fc541d5f544?auto=format&fit=crop&w=1200&q=80" alt="Hoodie SSW" loading="lazy">
     <span class="lab l1"><b class="disp">Hoodies</b><em>Scopri →</em></span>
   </a>
-  <a class="tile" href="#collezione">
+  <a class="tile" href="#shop" data-cat="Set">
     <span class="num">02</span>
     <img src="https://images.unsplash.com/photo-1632073143817-8cd5b2165e20?auto=format&fit=crop&w=1200&q=80" alt="Set hoodie e cargo SSW" loading="lazy">
     <span class="lab l2"><b>THE SET</b><br><em>Hoodie + Cargo →</em></span>
@@ -485,7 +485,7 @@ footer .bot{display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;p
         <div class="kick pk">// Drop 01 sbloccato</div>
         <h2 class="disp">1000.<br><span class="o">Grazie.</span></h2>
         <p>Avevamo detto che il primo drop sarebbe uscito a 1000 follower. Ci siete arrivati. Drop 01 è online: pochi pezzi, puliti, aggressivi, autentici. Quando finiscono, finiscono.</p>
-        <a href="#collezione" class="btn pink">Prendi il tuo <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 8h13M9 3l5 5-5 5"/></svg></a>
+        <a href="#shop" class="btn pink">Prendi il tuo <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 8h13M9 3l5 5-5 5"/></svg></a>
       </div>
       <div class="count" id="count">
         <div class="n disp"><span id="cnum">0</span><small> / 1000</small></div>
@@ -493,33 +493,6 @@ footer .bot{display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;p
         <div class="kick">Sbloccato da <span class="pk">1000 di voi</span></div>
       </div>
     </div>
-  </div>
-</section>
-
-<!-- ============ PRODOTTI ============ -->
-<section class="shop" id="collezione">
-  <div class="ghost disp" aria-hidden="true">01</div>
-  <div class="wrap head">
-    <div class="rv">
-      <div class="kick" style="color:var(--pink)">Collezione</div>
-      <h2 class="disp">Drop 01</h2>
-      <p class="sub">Edizione limitata. Vestibilità pensata per lei e per lui.</p>
-    </div>
-    <div class="arrows">
-      <button id="prev" aria-label="Indietro"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 8H2M7 3L2 8l5 5"/></svg></button>
-      <button id="next" aria-label="Avanti"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 8h13M9 3l5 5-5 5"/></svg></button>
-    </div>
-  </div>
-  <div class="rack" id="rack">
-    <svg class="pole" viewBox="0 0 1000 44" preserveAspectRatio="none" aria-hidden="true">
-      <path d="M0 16 Q500 56 1000 16" fill="none" stroke="rgba(0,0,0,.07)" stroke-width="12" vector-effect="non-scaling-stroke"/>
-      <path d="M0 10 Q500 50 1000 10" fill="none" stroke="#8f8f8f" stroke-width="8" vector-effect="non-scaling-stroke"/>
-      <path d="M0 9.6 Q500 49.6 1000 9.6" fill="none" stroke="#c9c9c9" stroke-width="5" vector-effect="non-scaling-stroke"/>
-      <path d="M0 8.4 Q500 48.4 1000 8.4" fill="none" stroke="#fdfdfd" stroke-width="1.6" vector-effect="non-scaling-stroke"/>
-      <path d="M0 11.8 Q500 51.8 1000 11.8" fill="none" stroke="#a8a8a8" stroke-width="1" vector-effect="non-scaling-stroke"/>
-    </svg>
-    <div class="rail" id="rail"></div>
-    <div class="rinfo" id="rinfo" aria-live="polite"></div>
   </div>
 </section>
 
@@ -581,7 +554,7 @@ footer .bot{display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;p
         <svg class="lg" viewBox="0 0 840 330" role="img" aria-label="SSW Stay Sideways Motorsport"><use href="#ssw-full"/></svg>
         <p class="tl">Stay Sideways. Streetwear italiano, edizioni limitate.</p>
       </div>
-      <div><h4>Shop</h4><ul><li><a href="#collezione">Drop 01</a></li><li><a href="#lookbook">Lookbook</a></li><li><a href="#drop02">Drop 02</a></li></ul></div>
+      <div><h4>Shop</h4><ul><li><a href="#shop">Abbigliamento</a></li><li><a href="#shop" data-cat="Gadget">Gadget</a></li><li><a href="#lookbook">Lookbook</a></li><li><a href="#drop02">Drop 02</a></li></ul></div>
       <div><h4>Brand</h4><ul><li><a href="#storia">La nostra storia</a></li><li><a href="https://instagram.com/stay_sideways.it" target="_blank" rel="noopener">Instagram</a></li></ul></div>
       <div><h4>Assistenza</h4><ul><li><a href="#privacy" class="open-pv">Privacy policy</a></li><li><a href="https://instagram.com/stay_sideways.it" target="_blank" rel="noopener">Contattaci</a></li></ul></div>
     </div>
@@ -590,6 +563,38 @@ footer .bot{display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;p
 </footer>
 
 <div class="toast" id="toast" role="status"></div>
+
+<!-- ============ PAGINA SHOP ============ -->
+<div class="sp" id="sp" role="dialog" aria-label="Shop">
+  <div class="bar"><div class="wrap">
+    <button class="x" id="spClose">← Home</button>
+    <svg class="lg mk" viewBox="0 0 840 300" role="img" aria-label="SSW Motorsport"><use href="#ssw-mark"/></svg>
+    <a href="#carrello" class="x open-cart">Carrello (<span class="cartN">0</span>)</a>
+  </div></div>
+  <div class="wrap in top">
+    <div class="ghost disp" aria-hidden="true">SSW</div>
+    <div class="kick pk">Drop 01 — Shop</div>
+    <h1 class="disp">Abbiglia&shy;mento</h1>
+    <p>Felpe, pantaloni e gadget SSW. Scegli una categoria e filtra per taglia o colore.</p>
+  </div>
+  <div class="flt"><div class="wrap in">
+    <div class="cats" id="spCats" role="toolbar" aria-label="Categorie"></div>
+    <div class="opts" id="spOpts">
+      <select id="spSize" aria-label="Taglia"></select>
+      <select id="spCol" aria-label="Colore"></select>
+      <select id="spSort" aria-label="Ordina">
+        <option value="">In evidenza</option>
+        <option value="pa">Prezzo crescente</option>
+        <option value="pd">Prezzo decrescente</option>
+        <option value="az">Nome A–Z</option>
+      </select>
+      <label class="chk"><input type="checkbox" id="spAv"> Solo disponibili</label>
+      <button type="button" class="rs" id="spReset" hidden>Azzera filtri</button>
+      <span class="n" id="spN"></span>
+    </div>
+  </div></div>
+  <div class="wrap in body" id="spBody" aria-live="polite"></div>
+</div>
 
 <!-- ============ SCHEDA PRODOTTO ============ -->
 <div class="pd" id="pd" role="dialog" aria-label="Scheda prodotto">
@@ -749,12 +754,13 @@ function api(path, body) {
   }).then(r => r.ok ? r.json() : Promise.reject(new Error('database: errore ' + r.status)));
 }
 async function loadProducts() {
-  const rows = await api('products?select=id,name,color,price,description,composition,fit,tag,images,variants(id,color,size,stock,sort)&active=eq.true&order=position.asc,created_at.asc');
+  const SEL = 'id,name,color,price,description,composition,fit,tag,images,variants(id,color,size,stock,sort)', ORD = '&active=eq.true&order=position.asc,created_at.asc';
+  const rows = await api('products?select=' + SEL + ',category' + ORD).catch(() => api('products?select=' + SEL + ORD));   // senza colonna "category" (SQL non ancora aggiornato)
   P.length = 0;
   rows.forEach(r => {
     const imgs = (r.images || []).filter(u => /^https:\/\//i.test(u));
     P.push({
-      uid: r.id, name: r.name, col: r.color, price: Number(r.price), tag: r.tag, d: r.description, c: r.composition, fit: r.fit,
+      uid: r.id, name: r.name, cat: r.category || '', col: r.color, price: Number(r.price), tag: r.tag, d: r.description, c: r.composition, fit: r.fit,
       img: imgs[0] || NOIMG, imgs: imgs.length ? imgs : [NOIMG],
       sizes: (r.variants || []).sort((a, b) => a.sort - b.sort).map(v => ({ vid: v.id, color: v.color || '', size: v.size, stock: v.stock }))
     });
@@ -846,238 +852,132 @@ new IntersectionObserver((es, o) => {
   })(t0);
 }, { threshold: .6 }).observe($('count'));
 
-/* ======== carosello prodotti: STENDER ========
-   Tutto il movimento è calcolato qui, in un unico ciclo di animazione (niente scroll nativo):
-   trascinamento con dito/mouse, trackpad, frecce e aggancio al capo con una molla → sempre fluido. */
-const rail = $('rail');
-const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
-let hangs = [], rackBest = null, rackFirst = true, rackSeen = false;
-let pos = 0, tgt = 0, vel = 0, lastPos = 0, lastT = 0, loopRAF = 0, railW = 0, itemW = 0;
-let drag = null, dragMoved = false, wheelT = 0;
-const NH = () => hangs.length;
-const clampI = i => Math.max(0, Math.min(NH() - 1, i));
-const pxPer = () => itemW * .66 || 200;            // quanti px di trascinamento per passare al capo dopo
-function railUpd() {
-  const t = Math.round(tgt);
-  $('prev').disabled = t <= 0; $('next').disabled = t >= NH() - 1;
-  $('prev').parentNode.classList.toggle('off', NH() < 2);   // pochi capi: niente frecce
+/* ======== PAGINA SHOP ========
+   Si apre dal bottone dell'hero (e da tutti i link "#shop"): capi e gadget a coppie,
+   raggruppati per categoria e filtrabili per categoria, taglia, colore e disponibilità.
+   La categoria arriva dall'admin (campo "Categoria"); se manca la indovina dal nome. */
+const CATS = ['Felpe', 'T-shirt', 'Pantaloni', 'Set', 'Accessori', 'Gadget'];
+const SZO = ['XXS', 'XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL', 'UNICA', 'TU'];
+function guessCat(n) {
+  n = String(n || '').toLowerCase();
+  if (/\bset\b|completo/.test(n)) return 'Set';
+  if (/hoodie|felpa|crewneck|zip/.test(n)) return 'Felpe';
+  if (/t-?shirt|\btee\b|maglia|maglietta|canotta|polo/.test(n)) return 'T-shirt';
+  if (/cargo|pantalon|jogger|short|jeans|tuta/.test(n)) return 'Pantaloni';
+  if (/cappell|berretto|beanie|\bcap\b|calz|borsa|zaino|guant|sciarp|marsupio/.test(n)) return 'Accessori';
+  if (/adesiv|sticker|portachiav|tazza|poster|spilla|gadget|deodor|profum|patch|bandier|flag|cover/.test(n)) return 'Gadget';
+  return 'Altro';
 }
-function buildRail() {
-  if (!P.length) {
-    rail.innerHTML = `<p class="none">${dbState === 'loading' ? 'Carico la collezione…' : dbState === 'error' ? 'Non riusciamo a caricare la collezione. Ricarica la pagina tra poco.' : 'Il drop arriva presto. Seguici su Instagram per non perderlo.'}</p>`;
-    hangs = []; rackBest = null; $('rinfo').innerHTML = ''; railUpd(); return;
-  }
-  rail.innerHTML = P.map(p => {
-    const out = soldOut(p);
-    return `
-    <article class="pc${out ? ' out' : ''}" data-uid="${esc(p.uid)}" tabindex="0" role="button" aria-label="${esc(p.name)} ${esc(p.col)}, ${out ? 'esaurito' : eur(p.price)}">
-      <div class="hang">
-        <svg class="hgr" viewBox="0 0 200 56" aria-hidden="true"><path class="bd" d="M38 50 Q64 37 100 27 Q136 37 162 50"/><path class="hk" d="M100 27 V17 C100 13.5 106 12.5 106 7 A6 6 0 0 0 94 7"/><path class="hl" d="M99.3 26 V17 C99.3 13.2 105.2 12.2 105.2 7 A5.2 5.2 0 0 0 95 6"/></svg>
-        <svg class="hook hgr" viewBox="0 0 200 56" aria-hidden="true"><path class="hk" d="M100 40 V17 C100 13.5 106 12.5 106 7 A6 6 0 0 0 94 7"/><path class="hl" d="M99.3 39 V17 C99.3 13.2 105.2 12.2 105.2 7 A5.2 5.2 0 0 0 95 6"/></svg>
-        <div class="ph"><img src="${esc(p.img)}" alt="${esc(p.name)} ${esc(p.col)}" loading="lazy"${p.pos ? ` style="object-position:${p.pos}"` : ''}></div>
-        <span class="ptag">${out ? 'Sold out' : eur(p.price)}</span>
-      </div>
-    </article>`;
-  }).join('');
-  rackInit();
-}
-function rackMeasure() {
-  railW = rail.clientWidth; itemW = hangs[0] ? hangs[0].el.offsetWidth : 0;
-  const hy = (itemW * .035).toFixed(1) + 'px';
-  hangs.forEach(h => h.el.style.setProperty('--hy', hy));
-}
-// posiziona i capi: al centro di fronte, ai lati di profilo e stretti, il gancio segue la curva della barra
-function rackRender() {
-  const W = railW, w = itemW, A = w * .66, B = w * .24, lim = W / 2 + w;
-  let best = null, bd = 1e9;
-  hangs.forEach((h, i) => {
-    const d = i - pos, ad = Math.abs(d), k = Math.min(1, ad), sm = k * k * (3 - 2 * k);
-    if (ad < bd) { bd = ad; best = h; }
-    const vis = Math.sign(d) * (ad <= 1 ? ad * A : A + (ad - 1) * B);
-    const show = Math.abs(vis) < lim;
-    if (show !== h.show) { h.show = show; h.el.style.visibility = show ? '' : 'hidden'; }
-    if (!show) return;
-    const xn = Math.max(-1.2, Math.min(1.2, vis / (W / 2)));
-    const s = 1 - .1 * sm, hy = w * .035;
-    const ty = 22 + 20 * (1 - xn * xn) - hy * s;
-    const ry = (d > 0 ? -1 : 1) * 74 * sm;
-    h.el.style.transform = `translate3d(${vis.toFixed(2)}px,${ty.toFixed(2)}px,0) perspective(1100px) rotateY(${ry.toFixed(2)}deg) scale(${s.toFixed(4)})`;
-    const z = 100 - Math.round(ad * 4); if (z !== h.z) { h.z = z; h.el.style.zIndex = z; }
-    const o = Math.max(0, 1 - ad * 1.8); if (h.tag && Math.abs(o - h.o) > .01) { h.o = o; h.tag.style.opacity = o.toFixed(2); }
-  });
-  if (best !== rackBest) { if (rackBest) rackBest.el.classList.remove('on'); if (best) best.el.classList.add('on'); rackBest = best; rackInfo(); }
-}
-function rackInfo() {
-  const p = rackBest && byUid(rackBest.el.dataset.uid), box = $('rinfo');
-  if (!p) { box.innerHTML = ''; return; }
-  const out = soldOut(p);
-  box.innerHTML = `${out ? '<span class="tag">Esaurito</span>' : p.tag ? `<span class="tag${p.tp ? ' p' : ''}">${esc(p.tag)}</span>` : ''}<div class="nm">${esc(p.name)}</div><div class="cl">${esc(colLabel(p))} · ${eur(p.price)}</div><button type="button" class="go">Scopri</button>`;
-  box.querySelector('.go').addEventListener('click', () => openPD(p.uid));
-}
-// ciclo unico: molla verso il capo scelto + dondolio dei capi
-function tick(now) {
-  loopRAF = 0;
-  const dt = lastT ? Math.min(3, (now - lastT) / 16.667) : 1; lastT = now;
-  let moving = !!(drag && drag.on);
-  if (!moving && pos !== tgt) {
-    vel = (vel + (tgt - pos) * .085 * dt) * Math.pow(.74, dt); pos += vel * dt;
-    if (Math.abs(tgt - pos) < .0006 && Math.abs(vel) < .0006) { pos = tgt; vel = 0; } else moving = true;
-  }
-  const dp = pos - lastPos; lastPos = pos;
-  hangs.forEach(h => {
-    if (dp && !RM) h.v += -dp * itemW * .05 * h.k;    // la barra si sposta, i capi restano un attimo indietro
-    if (h.a || h.v) {
-      h.v = (h.v - h.a * .022 * dt) * Math.pow(.945, dt);
-      h.a = Math.max(-16, Math.min(16, h.a + h.v * dt));
-      if (Math.abs(h.a) < .02 && Math.abs(h.v) < .02) h.a = h.v = 0; else moving = true;
-      if (h.show !== false) h.hang.style.transform = h.a ? `rotate(${h.a.toFixed(2)}deg)` : '';
-    }
-  });
-  rackRender();
-  if (moving) loopRAF = requestAnimationFrame(tick); else lastT = 0;
-}
-const wake = () => { if (!loopRAF) loopRAF = requestAnimationFrame(tick); };
-function kick(h, v) { if (RM || !h) return; h.v += v; wake(); }
-function railGo(dir) { tgt = clampI(Math.round(tgt) + dir); railUpd(); wake(); }
-const railToEl = el => { const i = hangs.findIndex(h => h.el === el); if (i >= 0) { tgt = i; railUpd(); wake(); } };
-$('prev').addEventListener('click', () => railGo(-1));
-$('next').addEventListener('click', () => railGo(1));
-// appena lo stender entra nello schermo i capi dondolano come se fossero stati appena appesi
-function rackHello() {
-  if (!hangs.length || !rackSeen) return;
-  rackSeen = false;
-  hangs.forEach((h, i) => setTimeout(() => kick(h, (i % 2 ? 1 : -1) * (1.1 + Math.random() * .6)), 120 + i * 60));
-}
-/* ======== scontorno: toglie lo sfondo (bianco o grigio uniforme) dalla foto di copertina ========
-   Così il capo sembra appeso davvero: la gruccia resta dentro, fuori si vede solo il gancio.
-   Se la foto ha uno sfondo non uniforme (persona, ambiente) resta com'è. */
-const cutCache = new Map();
-function cutout(src) {
-  if (cutCache.has(src)) return cutCache.get(src);
-  const pr = new Promise(res => {
-    const im = new Image(); im.crossOrigin = 'anonymous'; im.decoding = 'async';
-    im.onerror = () => res(null);
-    im.onload = () => { try {
-      const k = Math.min(1, 720 / Math.max(im.naturalWidth, im.naturalHeight));
-      const w = Math.max(1, Math.round(im.naturalWidth * k)), h = Math.max(1, Math.round(im.naturalHeight * k));
-      const cv = document.createElement('canvas'); cv.width = w; cv.height = h;
-      const cx = cv.getContext('2d', { willReadFrequently: true }); cx.drawImage(im, 0, 0, w, h);
-      const id = cx.getImageData(0, 0, w, h), d = id.data, N = w * h;
-      const border = []; for (let x = 0; x < w; x += 2) border.push(x, (h - 1) * w + x); for (let y = 0; y < h; y += 2) border.push(y * w, y * w + w - 1);
-      const transp = border.filter(i => d[i * 4 + 3] < 20).length / border.length > .6;
-      const gone = new Uint8Array(N);
-      if (transp) { for (let i = 0; i < N; i++) if (d[i * 4 + 3] < 20) gone[i] = 1; }
-      else {
-        const med = c => { const v = border.map(i => d[i * 4 + c]).sort((a, b) => a - b); return v[v.length >> 1]; };
-        const br = med(0), bg = med(1), bb = med(2), T = 26;
-        const dist = i => { const r = d[i * 4] - br, g = d[i * 4 + 1] - bg, b = d[i * 4 + 2] - bb; return Math.sqrt(r * r + g * g + b * b); };
-        if (border.filter(i => dist(i) < T).length / border.length < .7) return res(null);   // sfondo non uniforme
-        const q = new Int32Array(N); let qh = 0, qt = 0;
-        border.forEach(i => { if (!gone[i] && dist(i) < T) { gone[i] = 1; q[qt++] = i; } });
-        while (qh < qt) {
-          const i = q[qh++], x = i % w;
-          for (const j of [x > 0 ? i - 1 : -1, x < w - 1 ? i + 1 : -1, i - w, i + w])
-            if (j >= 0 && j < N && !gone[j] && dist(j) < T) { gone[j] = 1; q[qt++] = j; }
-        }
-        // bordi morbidi: i pixel al confine diventano semitrasparenti
-        for (let i = 0; i < N; i++) if (!gone[i]) {
-          const x = i % w;
-          if ((x > 0 && gone[i - 1]) || (x < w - 1 && gone[i + 1]) || (i >= w && gone[i - w]) || (i + w < N && gone[i + w]))
-            d[i * 4 + 3] = Math.round(255 * Math.max(.35, Math.min(1, (dist(i) - T) / (T * 1.4))));
-        }
-      }
-      let x0 = w, y0 = h, x1 = -1, y1 = -1;
-      for (let i = 0; i < N; i++) {
-        if (gone[i]) { d[i * 4 + 3] = 0; continue; }
-        const x = i % w, y = (i / w) | 0;
-        if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y;
-      }
-      if (x1 < 0 || (x1 - x0) * (y1 - y0) < N * .08) return res(null);   // non ha trovato un capo sensato
-      cx.putImageData(id, 0, 0);
-      // l'ombra viene disegnata una volta sola dentro l'immagine (più leggero di un filtro CSS mentre scorre)
-      const gw = x1 - x0 + 1, gh = y1 - y0 + 1, px = Math.round(gw * .06), pb = Math.round(gh * .07);
-      const out = document.createElement('canvas'); out.width = gw + px * 2; out.height = gh + pb;
-      const o = out.getContext('2d');
-      o.shadowColor = 'rgba(0,0,0,.22)'; o.shadowBlur = Math.round(gh * .035); o.shadowOffsetY = Math.round(gh * .03);
-      o.drawImage(cv, x0, y0, gw, gh, px, 0, gw, gh);
-      res(out.toDataURL('image/png'));
-    } catch (e) { res(null); } };   // es. foto senza permesso CORS: resta la foto normale
-    im.src = src;
-  });
-  cutCache.set(src, pr); return pr;
-}
-function rackCut() {
-  hangs.forEach(h => {
-    const img = h.el.querySelector('.ph img'), p = byUid(h.el.dataset.uid);
-    if (!img || !p || !p.img || p.img === NOIMG) return;
-    cutout(p.img).then(u => { if (u && img.isConnected) { img.src = u; img.style.objectPosition = '50% 0'; h.el.classList.add('cut'); } });
-  });
-}
-function rackInit() {
-  hangs = [...rail.querySelectorAll('.pc')].map(el => ({ el, hang: el.querySelector('.hang'), tag: el.querySelector('.ptag'), a: 0, v: 0, z: null, o: -1, show: undefined, k: .75 + Math.random() * .5 }));
-  hangs.forEach(h => h.el.addEventListener('pointerenter', e => { if (e.pointerType === 'mouse' && !drag) kick(h, (Math.random() < .5 ? -1 : 1) * .9); }));
-  rackMeasure();
-  if (rackFirst && NH() > 2) { rackFirst = false; pos = tgt = Math.floor(NH() / 2); }   // si parte dal capo in mezzo
-  else { tgt = clampI(Math.round(tgt)); pos = Math.max(0, Math.min(NH() - 1, pos)); }
-  lastPos = pos; vel = 0; rackBest = null;
-  railUpd(); rackRender(); rackHello(); rackCut();
-}
-addEventListener('resize', () => { rackMeasure(); rackRender(); });
-new IntersectionObserver((es, o) => { if (es[0].isIntersecting) { rackSeen = true; rackHello(); if (hangs.length) o.disconnect(); } }, { threshold: .35 }).observe($('rack'));
+const catOf = p => (p.cat && String(p.cat).trim()) || guessCat(p.name);
+const catRank = c => { const i = CATS.indexOf(c); return i < 0 ? (c === 'Altro' ? 99 : 50) : i; };
+const szRank = z => { const i = SZO.indexOf(String(z).toUpperCase()); return i < 0 ? 50 : i; };
+const sf = { cat: 'Tutti', size: '', col: '', sort: '', av: false };
+const spOpen = () => $('sp').classList.contains('open');
+function relock() { document.body.classList.toggle('lock', ['sp', 'pd', 'privacy', 'cart'].some(id => $(id).classList.contains('open'))); }
 
-/* trascinamento (dito e mouse) con lancio */
-rail.addEventListener('pointerdown', e => {
-  if (e.button > 0 || !NH()) return;
-  drag = { x: e.clientX, y: e.clientY, p: pos, id: e.pointerId, on: false, hist: [[e.timeStamp, e.clientX]] };
-  dragMoved = false;
-});
-addEventListener('pointermove', e => {
-  if (!drag || e.pointerId !== drag.id) return;
-  const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
-  if (!drag.on) {
-    if (Math.abs(dx) < 6 && Math.abs(dy) < 6) return;
-    if (Math.abs(dy) > Math.abs(dx)) { drag = null; return; }   // gesto verticale: è lo scroll della pagina
-    drag.on = true; dragMoved = true; drag.x = e.clientX; drag.p = pos; tgt = pos; vel = 0;
-    rail.classList.add('drag'); try { rail.setPointerCapture(e.pointerId); } catch (_) {}
+function cardHTML(p) {
+  const out = soldOut(p), cs = colsOf(p), im2 = p.imgs && p.imgs[1] && p.imgs[1] !== p.img ? p.imgs[1] : '';
+  return `<article class="cd${out ? ' out' : ''}" data-uid="${esc(p.uid)}" tabindex="0" role="button" aria-label="${esc(p.name)} ${esc(colLabel(p))}, ${out ? 'esaurito' : eur(p.price)}">
+    <div class="im"><img src="${esc(p.img)}" alt="${esc(p.name)} ${esc(p.col)}" loading="lazy"${p.pos ? ` style="object-position:${p.pos}"` : ''}>${im2 ? `<img class="b" src="${esc(im2)}" alt="" loading="lazy">` : ''}${out ? '<span class="tg k">Sold out</span>' : p.tag ? `<span class="tg">${esc(p.tag)}</span>` : ''}</div>
+    <div class="meta"><div><div class="nm">${esc(p.name)}</div><div class="cl">${cs.length > 1 ? `<span class="card-dots">${cs.map(dotHTML).join('')}</span>` : ''}${esc(colLabel(p))}</div></div><div class="pr">${eur(p.price)}</div></div>
+  </article>`;
+}
+function fillSel(el, first, vals, cur) {
+  el.innerHTML = `<option value="">${first}</option>` + vals.map(v => `<option value="${esc(v)}"${v === cur ? ' selected' : ''}>${esc(v)}</option>`).join('');
+  el.classList.toggle('set', !!cur);
+}
+function buildShop() {
+  const body = $('spBody');
+  if (!P.length) {
+    $('spCats').innerHTML = ''; $('spOpts').hidden = true;
+    body.innerHTML = `<p class="none">${dbState === 'loading' ? 'Carico la collezione…' : dbState === 'error' ? 'Non riusciamo a caricare la collezione. Ricarica la pagina tra poco.' : 'Il drop arriva presto. Seguici su Instagram per non perderlo.'}</p>`;
+    return;
   }
-  let p = drag.p - (e.clientX - drag.x) / pxPer();
-  const mx = NH() - 1;
-  if (p < 0) p *= .35; else if (p > mx) p = mx + (p - mx) * .35;   // ai bordi fa resistenza
-  pos = p;
-  drag.hist.push([e.timeStamp, e.clientX]); if (drag.hist.length > 6) drag.hist.shift();
-  wake();
-});
-const endDrag = e => {
-  if (!drag || (e && e.pointerId !== drag.id)) return;
-  if (drag.on) {
-    const h = drag.hist, a = h[0], b = h[h.length - 1], ms = Math.max(16, b[0] - a[0]);
-    const v = (e && e.timeStamp - b[0] > 90) ? 0 : -(b[1] - a[1]) / ms / pxPer();   // capi al ms
-    tgt = clampI(Math.round(pos + Math.max(-3, Math.min(3, v * 180))));
-    rail.classList.remove('drag'); railUpd(); wake();
+  $('spOpts').hidden = false;
+  const cats = [...new Set(P.map(catOf))].sort((a, b) => catRank(a) - catRank(b) || a.localeCompare(b));
+  if (sf.cat !== 'Tutti' && !cats.includes(sf.cat)) sf.cat = 'Tutti';
+  $('spCats').innerHTML = ['Tutti', ...cats].map(c => {
+    const n = c === 'Tutti' ? P.length : P.filter(p => catOf(p) === c).length;
+    return `<button type="button" data-c="${esc(c)}" class="${c === sf.cat ? 'on' : ''}" aria-pressed="${c === sf.cat}">${esc(c)} <small>${n}</small></button>`;
+  }).join('');
+  // taglie e colori proposti: solo quelli dei capi della categoria scelta
+  const base = P.filter(p => sf.cat === 'Tutti' || catOf(p) === sf.cat);
+  const sizes = [...new Set(base.flatMap(sizeNames))].sort((a, b) => szRank(a) - szRank(b) || a.localeCompare(b));
+  const cols = [...new Set(base.flatMap(colsOf))].sort((a, b) => a.localeCompare(b));
+  if (!sizes.includes(sf.size)) sf.size = '';
+  if (!cols.includes(sf.col)) sf.col = '';
+  fillSel($('spSize'), 'Tutte le taglie', sizes, sf.size);
+  fillSel($('spCol'), 'Tutti i colori', cols, sf.col);
+  $('spSize').hidden = sizes.length < 2 && !sf.size;
+  $('spCol').hidden = cols.length < 2 && !sf.col;
+  $('spSort').value = sf.sort; $('spSort').classList.toggle('set', !!sf.sort);
+  $('spAv').checked = sf.av;
+  $('spReset').hidden = !(sf.size || sf.col || sf.sort || sf.av || sf.cat !== 'Tutti');
+
+  let list = base.filter(p => {
+    if (sf.col && !colsOf(p).includes(sf.col)) return false;
+    if (sf.size && !sizeNames(p).includes(sf.size)) return false;
+    if (sf.av) {
+      if (soldOut(p)) return false;
+      if (sf.size && stockOf(p, sf.size, sf.col && colsOf(p).length > 1 ? sf.col : null) === 0) return false;
+      if (sf.col && !sf.size && colsOf(p).length > 1 && colOut(p, sf.col)) return false;
+    }
+    return true;
+  });
+  if (sf.sort === 'pa') list.sort((a, b) => a.price - b.price);
+  else if (sf.sort === 'pd') list.sort((a, b) => b.price - a.price);
+  else if (sf.sort === 'az') list.sort((a, b) => a.name.localeCompare(b.name));
+  $('spN').textContent = list.length + (list.length === 1 ? ' articolo' : ' articoli');
+
+  if (!list.length) { body.innerHTML = '<p class="none">Nessun articolo con questi filtri.<button type="button" class="rs">Azzera i filtri</button></p>'; return; }
+  const groups = cats.map(c => [c, list.filter(p => catOf(p) === c)]).filter(g => g[1].length);
+  body.innerHTML = groups.map(([c, ps]) => `<section class="grp"><div class="gh"><h2 class="disp">${esc(c)}</h2><span class="kick">${ps.length} ${ps.length === 1 ? 'articolo' : 'articoli'}</span></div><div class="gr">${ps.map(cardHTML).join('')}</div></section>`).join('');
+}
+function openShop(cat) {
+  if (cat) sf.cat = cat;
+  buildShop();
+  const sp = $('sp');
+  if (!spOpen()) {
+    sp.classList.add('open'); relock();
+    if (location.hash !== '#shop') history.pushState({ sp: 1 }, '', '#shop');
   }
-  drag = null;
-};
-addEventListener('pointerup', endDrag); addEventListener('pointercancel', endDrag);
-/* trackpad / rotella orizzontale (o Shift + rotella) */
-rail.addEventListener('wheel', e => {
-  const dx = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : (e.shiftKey ? e.deltaY : 0);
-  if (!dx || !NH()) return;
-  e.preventDefault();
-  pos = Math.max(-.3, Math.min(NH() - .7, pos + dx / pxPer() * (e.deltaMode === 1 ? 16 : 1)));
-  tgt = pos; vel = 0;
-  clearTimeout(wheelT); wheelT = setTimeout(() => { tgt = clampI(Math.round(pos)); railUpd(); wake(); }, 120);
-  wake();
-}, { passive: false });
-const railOpen = e => {
-  if (dragMoved) { dragMoved = false; return; }     // era un trascinamento, non un tocco
-  const c = e.target.closest('.pc'); if (!c) return;
-  if (rackBest && c !== rackBest.el) railToEl(c);   // di profilo: prima si gira verso di te
-  else openPD(c.dataset.uid);
-};
-rail.addEventListener('click', railOpen);
-rail.addEventListener('keydown', e => {
-  if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); railOpen(e); }
-  else if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') { e.preventDefault(); railGo(e.key === 'ArrowRight' ? 1 : -1); }
+  sp.scrollTop = 0;
+}
+function closeShop(fromPop) {
+  if (!spOpen()) return;
+  $('sp').classList.remove('open'); relock();
+  if (fromPop) return;
+  if (history.state && history.state.sp) history.back();
+  else if (location.hash === '#shop') history.replaceState(null, '', location.pathname + location.search);
+}
+addEventListener('popstate', () => { if (location.hash === '#shop') openShop(); else closeShop(true); });
+$('spClose').addEventListener('click', () => closeShop());
+// ogni link "#shop" del sito apre la pagina shop (data-cat = parte già filtrata)
+document.addEventListener('click', e => {
+  const a = e.target.closest('a[href="#shop"]'); if (!a) return;
+  e.preventDefault(); document.body.classList.remove('menu-open');
+  openShop(a.dataset.cat || 'Tutti');
+});
+$('spCats').addEventListener('click', e => {
+  const b = e.target.closest('button[data-c]'); if (!b) return;
+  sf.cat = b.dataset.c; buildShop();
+  const on = $('spCats').querySelector('.on'); if (on) on.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' });
+  const top = $('spBody').offsetTop - 66 - $('sp').querySelector('.flt').offsetHeight;
+  if ($('sp').scrollTop > top) $('sp').scrollTo({ top, behavior: 'smooth' });
+});
+$('spSize').addEventListener('change', e => { sf.size = e.target.value; buildShop(); });
+$('spCol').addEventListener('change', e => { sf.col = e.target.value; buildShop(); });
+$('spSort').addEventListener('change', e => { sf.sort = e.target.value; buildShop(); });
+$('spAv').addEventListener('change', e => { sf.av = e.target.checked; buildShop(); });
+const spReset = () => { Object.assign(sf, { cat: 'Tutti', size: '', col: '', sort: '', av: false }); buildShop(); };
+$('spReset').addEventListener('click', spReset);
+$('spBody').addEventListener('click', e => {
+  if (e.target.closest('.rs')) return spReset();
+  const c = e.target.closest('.cd'); if (c) openPD(c.dataset.uid);
+});
+$('spBody').addEventListener('keydown', e => {
+  const c = e.target.closest('.cd');
+  if (c && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); openPD(c.dataset.uid); }
 });
 
 /* ======== carrello ======== */
@@ -1151,7 +1051,7 @@ $('cartList').addEventListener('click', e => {
   save(); render();
 });
 const openCart = e => { if (e) e.preventDefault(); $('cartMsg').textContent = ''; if (!cart.length) render(); $('cart').classList.add('open'); $('veil').classList.add('open'); document.body.classList.add('lock'); };
-const closeCart = () => { $('cart').classList.remove('open'); $('veil').classList.remove('open'); if (!$('pd').classList.contains('open')) document.body.classList.remove('lock'); };
+const closeCart = () => { $('cart').classList.remove('open'); $('veil').classList.remove('open'); relock(); };
 document.querySelectorAll('.open-cart').forEach(a => a.addEventListener('click', openCart));
 $('cartClose').addEventListener('click', closeCart);
 $('veil').addEventListener('click', closeCart);
@@ -1184,7 +1084,7 @@ async function refreshStock() {
   if (!DB) return false;
   await loadProducts();
   const changed = fixCart();
-  buildRail(); render();
+  buildShop(); render();
   if (changed && !cart.length) say('Capi esauriti: carrello aggiornato');
   return changed;
 }
@@ -1302,7 +1202,7 @@ function mountPP() {
           const el = $('doneNum'); if (!el) return;
           el.classList.remove('wait');
           el.textContent = num ? 'Ordine n. ' + num : 'Riferimento: ' + data.orderID;
-          loadProducts().then(buildRail).catch(() => {});   // la vetrina mostra subito i pezzi rimasti
+          loadProducts().then(buildShop).catch(() => {});   // la vetrina mostra subito i pezzi rimasti
         });
       });
     },
@@ -1389,7 +1289,7 @@ $('pdCols').addEventListener('click', e => {
   if (sel && stockOf(byUid(cur), sel, selCol) === 0) sel = null;   // la taglia scelta non c'è in questo colore
   drawPDSizes(); pdBtn(); pdLeft();
 });
-const closePD = () => { $('pd').classList.remove('open'); document.body.classList.remove('lock'); };
+const closePD = () => { $('pd').classList.remove('open'); relock(); };
 $('pdClose').addEventListener('click', closePD);
 $('pdAdd').addEventListener('click', () => {
   const p = byUid(cur), s = sizeOf(p, sel, selCol);
@@ -1406,7 +1306,7 @@ $('guide').addEventListener('click', e => { e.preventDefault(); $('fitBox').open
 
 /* ======== privacy ======== */
 const openPV = e => { e.preventDefault(); $('privacy').scrollTop = 0; $('privacy').classList.add('open'); document.body.classList.add('lock'); };
-const closePV = () => { $('privacy').classList.remove('open'); if (!$('pd').classList.contains('open')) document.body.classList.remove('lock'); };
+const closePV = () => { $('privacy').classList.remove('open'); relock(); };
 document.querySelectorAll('.open-pv').forEach(a => a.addEventListener('click', openPV));
 $('pvClose').addEventListener('click', closePV);
 addEventListener('keydown', e => {
@@ -1414,17 +1314,19 @@ addEventListener('keydown', e => {
   if ($('privacy').classList.contains('open')) closePV();
   else if ($('cart').classList.contains('open')) closeCart();
   else if ($('pd').classList.contains('open')) closePD();
+  else if (spOpen()) closeShop();
   else document.body.classList.remove('menu-open');
 });
 
 /* ======== avvio ======== */
 render();
 if (DB) {
-  buildRail();   // mostra "Carico la collezione…"
+  buildShop();   // mostra "Carico la collezione…"
   loadProducts()
-    .then(() => { restoreCart(); buildRail(); render(); flushPending(); })
-    .catch(e => { console.error(e); dbState = 'error'; buildRail(); });
-} else { restoreCart(); buildRail(); render(); }
+    .then(() => { restoreCart(); buildShop(); render(); flushPending(); })
+    .catch(e => { console.error(e); dbState = 'error'; buildShop(); });
+} else { restoreCart(); buildShop(); render(); }
+if (/^#(shop|collezione)$/.test(location.hash)) { history.replaceState(null, '', location.pathname + location.search + '#shop'); openShop(); }
 </script>
 </body>
 </html>

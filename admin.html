@@ -210,6 +210,8 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#000}
           <label class="f"><span>Prezzo (€)</span><input type="number" id="ePrice" min="0" step="0.01" inputmode="decimal" placeholder="75"></label>
           <label class="f"><span>Etichetta (facoltativa)</span><input type="text" id="eTag" maxlength="30" placeholder="Nuovo, Edizione limitata…"></label>
         </div>
+        <label class="f"><span>Categoria (per i filtri dello shop)</span><input type="text" id="eCat" list="eCatList" maxlength="30" placeholder="Felpe, T-shirt, Pantaloni, Set, Accessori, Gadget…" autocomplete="off"></label>
+        <datalist id="eCatList"><option value="Felpe"><option value="T-shirt"><option value="Pantaloni"><option value="Set"><option value="Accessori"><option value="Gadget"></datalist>
         <label class="f"><span>Descrizione</span><textarea id="eDesc" maxlength="800"></textarea></label>
         <label class="f"><span>Dettagli e composizione</span><textarea id="eComp" maxlength="800"></textarea></label>
         <label class="f"><span>Vestibilità</span><textarea id="eFit" maxlength="800" placeholder="Es. Vestibilità ampia e unisex. La modella indossa la S ed è alta 172 cm…"></textarea></label>
@@ -457,6 +459,7 @@ function openEdit(p) {
   $('ePrice').value = p ? p.price : ''; $('eTag').value = p ? p.tag : '';
   $('eDesc').value = p ? p.description : ''; $('eComp').value = p ? p.composition : '';
   $('eFit').value = p ? (p.fit || '') : '';
+  $('eCat').value = p ? (p.category || '') : '';
   $('ePos').value = p ? p.position : products.length + 1;
   $('eActive').checked = p ? p.active : true;
   $('eDel').hidden = !p; $('eMsg').textContent = ''; $('eImgMsg').textContent = '';
@@ -603,6 +606,7 @@ $('eSave').addEventListener('click', async () => {
   const row = {
     name, price, color: $('eColor').value.trim(), tag: $('eTag').value.trim(),
     description: $('eDesc').value.trim(), composition: $('eComp').value.trim(), fit: $('eFit').value.trim(),
+    category: $('eCat').value.trim(),
     position: parseInt($('ePos').value, 10) || 0, active: $('eActive').checked, images: ed.images
   };
   try {
