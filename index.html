@@ -671,10 +671,8 @@ footer .bot{display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;p
   <div class="ch"><h3 class="disp">Carrello</h3><button class="x" id="cartClose">Chiudi</button></div>
   <div class="list" id="cartList"></div>
   <div class="cf" id="cartFoot">
-    <div class="r"><span>Subtotale</span><span id="sub">€ 0</span></div>
-    <div class="r"><span>Spedizione</span><span id="ship">—</span></div>
     <div class="r t"><span>Totale</span><span id="tot">€ 0</span></div>
-    <small>Spedizione gratuita sopra € 120. IVA inclusa.</small>
+    <small>IVA inclusa.</small>
     <button class="bmain" id="checkout">Procedi all'ordine</button>
     <div class="pay" id="payBox" hidden>
       <div class="pl">Scegli come pagare</div>
@@ -763,9 +761,9 @@ const P = [
     d:'Oversize, essenziale, nera. Solo il logo SSW sul petto, con la S fucsia.', c:'Felpa garzata 380 g/m², 100% cotone. Lavare a 30°, al rovescio.' }
 ];
 /* ======== TEST REALE ========
-   TEST_PRICE = 0.01 → tutti i capi a 1 centesimo e spedizione a 0, per provare il pagamento vero.
+   TEST_PRICE = 0.01 → tutti i capi a 1 centesimo, per provare il pagamento vero.
    Per tornare ai prezzi normali: TEST_PRICE = null */
-const TEST_PRICE = 0.01;
+const TEST_PRICE = null;
 const applyTest = () => { if (TEST_PRICE) P.forEach(p => p.price = TEST_PRICE); };
 // i capi demo qui sopra: taglie fisse e nessun limite di pezzi (stock null)
 P.forEach((p, i) => { p.uid = 'demo-' + i; p.imgs = [p.img]; p.sizes = SZ.map(s => ({ vid: null, size: s, stock: null })); });
@@ -1063,7 +1061,7 @@ function restoreCart() {
 let tt;
 const say = t => { const el = $('toast'); el.textContent = t; el.classList.add('show'); clearTimeout(tt); tt = setTimeout(() => el.classList.remove('show'), 2400); };
 
-const totals = () => { const sub = cart.reduce((a, l) => a + byUid(l.uid).price * l.q, 0), ship = TEST_PRICE ? 0 : (sub >= 120 ? 0 : 7); return { sub, ship, tot: sub + ship }; };
+const totals = () => { const sub = cart.reduce((a, l) => a + byUid(l.uid).price * l.q, 0), ship = 0; /* niente spedizione: si paga esattamente il prezzo messo nell'admin */ return { sub, ship, tot: sub + ship }; };
 const payView = on => { $('payBox').hidden = !on; $('checkout').style.display = on ? 'none' : ''; };
 
 function render() {
@@ -1085,8 +1083,6 @@ function render() {
       <div class="pr">${eur(p.price * l.q)}</div></div>`;
   }).join('');
   const { sub, ship } = totals();
-  $('sub').textContent = eur(sub);
-  $('ship').textContent = ship ? eur(ship) : 'Gratuita';
   $('tot').textContent = eur(sub + ship);
 }
 $('cartList').addEventListener('click', e => {
@@ -1195,8 +1191,6 @@ function orderDone(d, num, snap) {
       ${snap.lines.map(l => `<div class="ci">${pic(l, 'th')}
         <div><div class="nm">${esc(l.name)}</div><div class="mt">${esc(l.col)} · Taglia ${esc(l.size)}</div><div class="q">Quantità: ${l.q}</div></div>
         <div class="pr">${eur(l.price * l.q)}</div></div>`).join('')}
-      <div class="r"><span>Subtotale</span><span>${eur(snap.sub)}</span></div>
-      <div class="r"><span>Spedizione</span><span>${snap.ship ? eur(snap.ship) : 'Gratuita'}</span></div>
       <div class="r t"><span>Totale pagato</span><span>${eur(snap.tot)}</span></div>
       <h4>Spedizione</h4>
       ${addr.length ? `<div class="ad">${addr.map(esc).join('<br>')}</div>` : '<div class="inf">L\'indirizzo di spedizione è quello che hai indicato su PayPal.</div>'}
