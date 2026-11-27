@@ -80,6 +80,26 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 /* ---------- GRANA (pellicola) ---------- */
 .grain::before{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;opacity:.2;mix-blend-mode:overlay;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23n)'/%3E%3C/svg%3E")}
 
+/* ---------- SHOP IN APERTURA: la prima cosa che si vede, prima delle foto ---------- */
+.pill{background:rgba(8,8,8,.88)}   /* sopra il bianco la pillola resta scura e leggibile */
+.st{position:relative;background:#fff;color:var(--ink);padding:clamp(104px,12vw,150px) 0 clamp(30px,4vw,52px)}
+.st .kick{color:#000}
+.st-go{display:block;margin-top:clamp(12px,1.6vw,20px)}
+.st-go .disp{display:block;font-size:clamp(30px,8.2vw,128px)}
+.st-go .l2{display:flex;align-items:center;gap:clamp(12px,2vw,26px)}
+.st-go .o{color:transparent;-webkit-text-stroke:2px #000;transition:color .35s,-webkit-text-stroke-color .35s}
+.st-go:hover .o{color:var(--pink);-webkit-text-stroke-color:var(--pink)}
+.st-go .ar{flex:none;width:clamp(46px,6.4vw,96px);aspect-ratio:1;border-radius:50%;background:var(--pink);color:#000;display:grid;place-items:center;transition:transform .45s var(--ease),background .3s}
+.st-go .ar svg{width:42%;height:42%}
+.st-go:hover .ar{transform:rotate(-45deg);background:#000;color:var(--pink)}
+.st-cats{display:flex;gap:8px;flex-wrap:wrap;margin-top:clamp(20px,3vw,34px)}
+.st-cats a{height:42px;padding:0 18px;border-radius:999px;border:1.5px solid #000;display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;transition:background .25s,color .25s}
+.st-cats a:hover{background:#000;color:#fff}
+.st-cats a small{font-size:10px;color:#999}
+.st-cats a.all{background:#000;color:#fff}
+.st-cats a.all small{color:var(--pink)}
+.st .tri{position:absolute;left:0;right:0;bottom:0}
+
 /* ---------- HERO ---------- */
 .hero{position:relative;height:100svh;min-height:600px;overflow:hidden;background:#000}
 .hero .bg{position:absolute;inset:0}
@@ -441,15 +461,28 @@ footer .bot{display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;p
 
 <main id="top">
 
+<!-- ============ SHOP IN APERTURA ============ -->
+<section class="st" id="shopTop">
+  <div class="wrap">
+    <div class="kick"><span class="pk">●</span>&nbsp; Drop 01 — Disponibile ora</div>
+    <a href="#shop" class="st-go" aria-label="Vai all'abbigliamento e ai gadget">
+      <span class="disp">Abbigliamento</span>
+      <span class="l2"><span class="disp o">&amp; gadget</span><i class="ar" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 8h13M9 3l5 5-5 5"/></svg></i></span>
+    </a>
+    <div class="st-cats" id="stCats"></div>
+  </div>
+  <span class="tri"></span>
+</section>
+
 <!-- ============ HERO ============ -->
 <section class="hero grain">
   <div class="bg"><img src="assets/ssw-m2-torre.jpg" alt="SSW Motorsport: BMW M2 nera davanti alla torre"></div>
   <div class="wrap info">
     <div>
-      <div class="kick"><span class="pk">●</span>&nbsp; Drop 01 — Disponibile ora</div>
+      <div class="kick"><span class="pk">●</span>&nbsp; SSW Motorsport — Stay Sideways</div>
       <p>Streetwear italiano nato tra traversi e paddock. Pochi pezzi, fatti bene.</p>
     </div>
-    <a href="#shop" class="btn">Vai all'abbigliamento <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 8h13M9 3l5 5-5 5"/></svg></a>
+    
   </div>
   <div class="spin" aria-hidden="true"><svg viewBox="0 0 120 120"><defs><path id="circ" d="M60 60m-47 0a47 47 0 1 1 94 0a47 47 0 1 1-94 0"/></defs><text><textPath href="#circ" textLength="288">DROP 01 · LIMITED EDITION · SSW ·</textPath></text></svg><b class="disp">01</b></div>
   <div class="wm disp" aria-hidden="true"><span id="wm"><i>S</i>TAY SIDEWAYS</span></div>
@@ -889,7 +922,7 @@ function fillSel(el, first, vals, cur) {
 function buildShop() {
   const body = $('spBody');
   if (!P.length) {
-    $('spCats').innerHTML = ''; $('spOpts').hidden = true;
+    $('spCats').innerHTML = ''; $('stCats').innerHTML = ''; $('spOpts').hidden = true;
     body.innerHTML = `<p class="none">${dbState === 'loading' ? 'Carico la collezione…' : dbState === 'error' ? 'Non riusciamo a caricare la collezione. Ricarica la pagina tra poco.' : 'Il drop arriva presto. Seguici su Instagram per non perderlo.'}</p>`;
     return;
   }
@@ -900,6 +933,7 @@ function buildShop() {
     const n = c === 'Tutti' ? P.length : P.filter(p => catOf(p) === c).length;
     return `<button type="button" data-c="${esc(c)}" class="${c === sf.cat ? 'on' : ''}" aria-pressed="${c === sf.cat}">${esc(c)} <small>${n}</small></button>`;
   }).join('');
+  $('stCats').innerHTML = `<a href="#shop" data-cat="Tutti" class="all">Tutto <small>${P.length}</small></a>` + cats.map(c => `<a href="#shop" data-cat="${esc(c)}">${esc(c)} <small>${P.filter(p => catOf(p) === c).length}</small></a>`).join('');
   // taglie e colori proposti: solo quelli dei capi della categoria scelta
   const base = P.filter(p => sf.cat === 'Tutti' || catOf(p) === sf.cat);
   const sizes = [...new Set(base.flatMap(sizeNames))].sort((a, b) => szRank(a) - szRank(b) || a.localeCompare(b));
