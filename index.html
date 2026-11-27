@@ -179,7 +179,11 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .sp .top{position:relative;padding-top:clamp(30px,5vw,64px);padding-bottom:clamp(18px,2.5vw,30px)}
 .sp .top .ghost{position:absolute;right:-.04em;top:.08em;font-size:clamp(110px,20vw,280px);color:transparent;-webkit-text-stroke:1.5px #e6e6e6;pointer-events:none;line-height:.8;z-index:0}
 .sp .top>*{position:relative}
-.sp h1{font-size:clamp(28px,9.4vw,118px);margin-top:12px;white-space:nowrap}
+.sp h1{font-size:clamp(28px,9vw,118px);margin-top:12px;white-space:nowrap}
+.sp h1 span{display:inline-block;padding-right:.06em}
+.sp .top{text-align:center}
+.sp .top p{margin-left:auto;margin-right:auto}
+.sp .top .ghost{left:0;right:0;text-align:center}
 .sp .top p{color:#666;margin-top:14px;max-width:440px;font-size:15px}
 .sp .flt{position:sticky;top:66px;z-index:3;background:rgba(255,255,255,.94);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid #ececec}
 .sp .cats{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding:14px 0 10px}
@@ -607,7 +611,7 @@ footer .bot{display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;p
   <div class="wrap in top">
     <div class="ghost disp" aria-hidden="true">SSW</div>
     <div class="kick pk">Drop 01 — Shop</div>
-    <h1 class="disp">Abbigliamento</h1>
+    <h1 class="disp"><span id="spH">Abbigliamento</span></h1>
     <p>Felpe, pantaloni e gadget SSW. Scegli una categoria e filtra per taglia o colore.</p>
   </div>
   <div class="flt"><div class="wrap in">
@@ -831,7 +835,16 @@ function fitWM() {
   const el = $('wm'); el.style.fontSize = '100px';
   el.style.fontSize = (100 * (innerWidth * .965) / el.offsetWidth) + 'px';
 }
+// il titolo "Abbigliamento" della pagina shop: sempre su una riga, largo quanto lo spazio che ha
+function fitSpH() {
+  const el = $('spH'); if (!el) return;
+  const box = el.parentElement.clientWidth; if (!box) return;
+  el.style.fontSize = '100px';
+  el.style.fontSize = Math.min(150, 100 * box * .98 / el.offsetWidth) + 'px';
+}
 fitWM(); addEventListener('resize', fitWM);
+fitSpH(); addEventListener('resize', fitSpH);
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitSpH);
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitWM);
 
 /* ======== "sideways": la scritta dell'hero scivola di lato, le foto del lookbook si muovono piano ======== */
@@ -969,7 +982,7 @@ function buildShop() {
 }
 function openShop(cat) {
   if (cat) sf.cat = cat;
-  buildShop();
+  buildShop(); fitSpH();
   const sp = $('sp');
   if (!spOpen()) {
     sp.classList.add('open'); relock();
